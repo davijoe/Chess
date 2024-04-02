@@ -1,4 +1,4 @@
 package robot;
 
-public class Move {
+public class Move extends Piece {
 }
