@@ -1,5 +1,7 @@
 package robot;
 
+import java.util.List;
+
 public class Knight extends Piece {
 
     public Knight (int col, int row, boolean isWhite) {
@@ -8,5 +10,9 @@ public class Knight extends Piece {
         this.isWhite = isWhite;
     }
 
+    @Override
+    public List<Move> generateMoves() {
+        return null;
+    }
 
 }
