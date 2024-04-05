@@ -1,5 +1,7 @@
 package main;
 
+import robot.Bishop;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -16,6 +18,9 @@ public class Main {
         // Add the board to the frame
         Board board = new Board();
         frame.add(board);
+        Bishop wb = new Bishop(1,1,true);
+
+        wb.generateMoves();
 
         frame.setVisible(true);
     }

@@ -7,4 +7,6 @@ public class Knight extends Piece {
         this.row = row;
         this.isWhite = isWhite;
     }
+
+
 }
