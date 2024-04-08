@@ -11,7 +11,7 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public List<Move> generateMoves() {
+    public List<Move> generateMoves(Board board) {
         return null;
     }
 }

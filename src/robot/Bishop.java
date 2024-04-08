@@ -12,7 +12,7 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public List<Move> generateMoves() {
+    public List<Move> generateMoves(Board board) {
         System.out.println("fisk");
         return new ArrayList<>();
     }

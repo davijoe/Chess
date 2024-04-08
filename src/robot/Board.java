@@ -8,6 +8,8 @@ public class Board {
 
     char currentPlayer;
 
-
+    public boolean isTileEmpty(int row, int col) {
+        return board[row][col] == 0;
+    }
 
 }
