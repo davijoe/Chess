@@ -1,5 +1,6 @@
 package robot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Pawn extends Piece {
@@ -12,6 +13,9 @@ public class Pawn extends Piece {
 
     @Override
     public List<Move> generateMoves(Board board) {
-        return null;
+        List<Move> moves = new ArrayList<>();
+        int[][] attackDirections = {{-1,1},{1,1}};
+        //Other stuff, not done
+        return moves;
     }
 }
