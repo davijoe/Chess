@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Rook extends Piece {
 
+    boolean hasCastle;
+
     public Rook (int col, int row, boolean isWhite) {
         this.col = col;
         this.row = row;

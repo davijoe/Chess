@@ -5,10 +5,14 @@ import java.util.List;
 
 public class Pawn extends Piece {
 
-    public Pawn (int col, int row, boolean isWhite) {
+    boolean canPassent;
+
+    public Pawn (int col, int row, boolean isWhite, boolean canPassent) {
         this.col = col;
         this.row = row;
         this.isWhite = isWhite;
+        this.canPassent = canPassent;
+
     }
 
     @Override
