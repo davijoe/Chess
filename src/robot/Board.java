@@ -62,11 +62,23 @@ public class Board {
 
     public void generateRookMoves(int row, int col) {
         int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
-        int counter = 0;
         for (int[] direction : directions) {
             int rowNew = row + direction[0];
             int colNew = col + direction[1];
             while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
+                if (!isTileEmpty(rowNew, colNew)) {
+                    if(board[rowNew][colNew] > 6 && currentPlayer == 'w' || board[rowNew][colNew] < 6 && currentPlayer == 'b') {
+                        moves.moves[generateMoveCounter][0] = row;
+                        moves.moves[generateMoveCounter][1] = col;
+                        moves.moves[generateMoveCounter][2] = rowNew;
+                        moves.moves[generateMoveCounter][3] = colNew;
+                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
+                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                        moves.moves[generateMoveCounter][4] = 1;
+                        generateMoveCounter++;
+                    }
+                    break;
+                }
                 if(isTileEmpty(rowNew,colNew)) {
                     moves.moves[generateMoveCounter][0] = row;
                     moves.moves[generateMoveCounter][1] = col;
@@ -98,7 +110,6 @@ public class Board {
                     moves.moves[generateMoveCounter][4] = 3;
                     System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-
                     generateMoveCounter++;
                 }
                 rowNew += direction[0];
@@ -131,14 +142,10 @@ public class Board {
     }
     public void generateQueenMoves(int row, int col) {
         int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}, {-1,0}, {1,0}, {0,1}, {0,-1}};
-        int counter = 0;
         for (int[] direction : directions) {
             int rowNew = row + direction[0];
             int colNew = col + direction[1];
             while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-                //Checking if im dumb
-                System.out.println(counter);
-                counter++;
                 if(isTileEmpty(rowNew,colNew)) {
                     moves.moves[generateMoveCounter][0] = row;
                     moves.moves[generateMoveCounter][1] = col;
@@ -155,14 +162,10 @@ public class Board {
     }
     public void generateKingMoves(int row, int col) {
         int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}, {-1,0}, {1,0}, {0,1}, {0,-1}};
-        int counter = 0;
         for (int[] direction : directions) {
             int rowNew = row + direction[0];
             int colNew = col + direction[1];
             if (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-                //Checking if im dumb
-                System.out.println(counter);
-                counter++;
                 if(isTileEmpty(rowNew,colNew)) {
                     moves.moves[generateMoveCounter][0] = row;
                     moves.moves[generateMoveCounter][1] = col;
@@ -177,29 +180,32 @@ public class Board {
 
     public void generatePawnMoves(int row, int col) {
 
-
-//        int[][] directions = new int[2][2];
-//        if (board[row][col] == 6) {
-//            directions[0][0] = 1;
-//        }
-//        int counter = 0;
-//        for (int[] direction : directions) {
-//            int rowNew = row + direction[0];
-//            int colNew = col + direction[1];
-//            while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-//                //Checking if im dumb
-//                System.out.println(counter);
-//                counter++;
-//                if(isTileEmpty(row,col)) {
-//                    moves.moves[generateMoveCounter][0] = row;
-//                    moves.moves[generateMoveCounter][1] = col;
-//                    moves.moves[generateMoveCounter][2] = rowNew;
-//                    moves.moves[generateMoveCounter][3] = colNew;
-//                    moves.moves[generateMoveCounter][4] = 2;
-//                    generateMoveCounter++;
-//                }
-//            }
+        int[][] directions = new int[2][2];
+        if(board[row][col]==6) { // {{1,0},{2,0}}
+            directions[0][0] = 1;
+            directions[1][0] = 2;
         }
+        if(board[row][col]==12) { // {{-1,0},{-2,0}}
+            directions[0][0] = -1;
+            directions[1][0] = -2;
+        }
+
+        for (int[] direction : directions) {
+            int rowNew = row + direction[0];
+            int colNew = col + direction[1];
+            if (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
+
+                if(isTileEmpty(rowNew,colNew)) {
+                    moves.moves[generateMoveCounter][0] = row;
+                    moves.moves[generateMoveCounter][1] = col;
+                    moves.moves[generateMoveCounter][2] = rowNew;
+                    moves.moves[generateMoveCounter][3] = colNew;
+                    moves.moves[generateMoveCounter][4] = 5;
+                    generateMoveCounter++;
+                }
+            }
+        }
+    }
 
     public int[][] getBoard() {
         return board;
@@ -270,6 +276,9 @@ public class Board {
         board.board[4][5] = 1;
         board.board[5][6] = 2;
         board.board[7][6] = 3;
+
+        //Introducing black pieces
+        board.board[5][0] = 7;
 
 
         board.currentPlayer = 'w';
