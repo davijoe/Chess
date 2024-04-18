@@ -15,6 +15,10 @@ public class Board {
     Move moves = new Move(100);
     char currentPlayer;
 
+    public Board() {
+
+    }
+
     public boolean isTileEmpty(int row, int col) {
         return board[row][col] == 0;
     }
@@ -63,14 +67,15 @@ public class Board {
             int rowNew = row + direction[0];
             int colNew = col + direction[1];
             while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-                //Checking if im dumb
-                System.out.println(counter);
-                counter++;
-                if(isTileEmpty(row,col)) {
+                if(isTileEmpty(rowNew,colNew)) {
                     moves.moves[generateMoveCounter][0] = row;
                     moves.moves[generateMoveCounter][1] = col;
                     moves.moves[generateMoveCounter][2] = rowNew;
                     moves.moves[generateMoveCounter][3] = colNew;
+                    System.out.println("\nMove nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
+                    System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+
+
                     moves.moves[generateMoveCounter][4] = 1;
                     generateMoveCounter++;
                 }
@@ -200,4 +205,78 @@ public class Board {
 //            }
         }
 
+    public int[][] getBoard() {
+        return board;
     }
+
+    public void setBoard(int[][] board) {
+        this.board = board;
+    }
+
+    public int getGenerateMoveCounter() {
+        return generateMoveCounter;
+    }
+
+    public void setGenerateMoveCounter(int generateMoveCounter) {
+        this.generateMoveCounter = generateMoveCounter;
+    }
+
+    public int getEnPassant() {
+        return enPassant;
+    }
+
+    public void setEnPassant(int enPassant) {
+        this.enPassant = enPassant;
+    }
+
+    public int getLongCastle() {
+        return longCastle;
+    }
+
+    public void setLongCastle(int longCastle) {
+        this.longCastle = longCastle;
+    }
+
+    public int getShortCastle() {
+        return shortCastle;
+    }
+
+    public void setShortCastle(int shortCastle) {
+        this.shortCastle = shortCastle;
+    }
+
+    public Move getMoves() {
+        return moves;
+    }
+
+    public void setMoves(Move moves) {
+        this.moves = moves;
+    }
+
+    public char getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public void setCurrentPlayer(char currentPlayer) {
+        this.currentPlayer = currentPlayer;
+    }
+
+
+    public static void main(String[] args) {
+
+        Board board = new Board();
+
+        board.board[0][0] = 1;
+        board.board[0][1] = 1;
+//        board.board[0][2] = 1;
+//        board.board[0][3] = 1;
+//        board.board[0][4] = 1;
+//        board.board[0][5] = 1;
+//        board.board[0][6] = 1;
+
+
+        board.currentPlayer = 'w';
+        board.generateMoves(board);
+
+    }
+}
