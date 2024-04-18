@@ -180,29 +180,63 @@ public class Board {
 
     public void generatePawnMoves(int row, int col) {
 
-        int[][] directions = new int[2][2];
-        if(board[row][col]==6) { // {{1,0},{2,0}}
-            directions[0][0] = 1;
-            directions[1][0] = 2;
-        }
-        if(board[row][col]==12) { // {{-1,0},{-2,0}}
-            directions[0][0] = -1;
-            directions[1][0] = -2;
-        }
-
-        for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            if (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-
-                if(isTileEmpty(rowNew,colNew)) {
+        if (board[row][col]==6) {
+            if(isTileEmpty(row+1,col)) {
+                if(isTileEmpty(row+2,col) && row==1) {
                     moves.moves[generateMoveCounter][0] = row;
                     moves.moves[generateMoveCounter][1] = col;
-                    moves.moves[generateMoveCounter][2] = rowNew;
-                    moves.moves[generateMoveCounter][3] = colNew;
-                    moves.moves[generateMoveCounter][4] = 5;
-                    generateMoveCounter++;
+                    moves.moves[generateMoveCounter][2] = row+2;
+                    moves.moves[generateMoveCounter][3] = col;
+                    moves.moves[generateMoveCounter][4] = 6;
                 }
+                moves.moves[generateMoveCounter][0] = row;
+                moves.moves[generateMoveCounter][1] = col;
+                moves.moves[generateMoveCounter][2] = row+1;
+                moves.moves[generateMoveCounter][3] = col;
+                moves.moves[generateMoveCounter][4] = 6;
+            }
+            if(!isTileEmpty(row+1,col+1) && board[row+1][col+1] > 6) {
+                moves.moves[generateMoveCounter][0] = row;
+                moves.moves[generateMoveCounter][1] = col;
+                moves.moves[generateMoveCounter][2] = row+1;
+                moves.moves[generateMoveCounter][3] = col+1;
+                moves.moves[generateMoveCounter][4] = 6;
+            }
+            if(!isTileEmpty(row+1,col-1) && board[row+1][col-1] > 6) {
+                moves.moves[generateMoveCounter][0] = row;
+                moves.moves[generateMoveCounter][1] = col;
+                moves.moves[generateMoveCounter][2] = row+1;
+                moves.moves[generateMoveCounter][3] = col-1;
+                moves.moves[generateMoveCounter][4] = 6;
+            }
+        }
+
+        if(board[row][col]==12) {
+            if(isTileEmpty(row-1,col)) {
+                if(isTileEmpty(row-2,col) && row==6) {
+                    moves.moves[generateMoveCounter][0] = row;
+                    moves.moves[generateMoveCounter][1] = col;
+                    moves.moves[generateMoveCounter][2] = row-2;
+                    moves.moves[generateMoveCounter][3] = col;
+                }
+                moves.moves[generateMoveCounter][0] = row;
+                moves.moves[generateMoveCounter][1] = col;
+                moves.moves[generateMoveCounter][2] = row-1;
+                moves.moves[generateMoveCounter][3] = col;
+            }
+            if(!isTileEmpty(row-1,col+1) && board[row-1][col+1] <= 6) {
+                moves.moves[generateMoveCounter][0] = row;
+                moves.moves[generateMoveCounter][1] = col;
+                moves.moves[generateMoveCounter][2] = row-1;
+                moves.moves[generateMoveCounter][3] = col+1;
+                moves.moves[generateMoveCounter][4] = 12;
+            }
+            if(!isTileEmpty(row-1,col-1) && board[row-1][col-1] <= 6) {
+                moves.moves[generateMoveCounter][0] = row;
+                moves.moves[generateMoveCounter][1] = col;
+                moves.moves[generateMoveCounter][2] = row-1;
+                moves.moves[generateMoveCounter][3] = col-1;
+                moves.moves[generateMoveCounter][4] = 12;
             }
         }
     }
