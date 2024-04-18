@@ -179,7 +179,6 @@ public class Board {
     }
 
     public void generatePawnMoves(int row, int col) {
-
         if (board[row][col]==6) {
             if(isTileEmpty(row+1,col)) {
                 if(isTileEmpty(row+2,col) && row==1) {
@@ -188,12 +187,14 @@ public class Board {
                     moves.moves[generateMoveCounter][2] = row+2;
                     moves.moves[generateMoveCounter][3] = col;
                     moves.moves[generateMoveCounter][4] = 6;
+                    generateMoveCounter++;
                 }
                 moves.moves[generateMoveCounter][0] = row;
                 moves.moves[generateMoveCounter][1] = col;
                 moves.moves[generateMoveCounter][2] = row+1;
                 moves.moves[generateMoveCounter][3] = col;
                 moves.moves[generateMoveCounter][4] = 6;
+                generateMoveCounter++;
             }
             if(!isTileEmpty(row+1,col+1) && board[row+1][col+1] > 6) {
                 moves.moves[generateMoveCounter][0] = row;
@@ -201,6 +202,7 @@ public class Board {
                 moves.moves[generateMoveCounter][2] = row+1;
                 moves.moves[generateMoveCounter][3] = col+1;
                 moves.moves[generateMoveCounter][4] = 6;
+                generateMoveCounter++;
             }
             if(!isTileEmpty(row+1,col-1) && board[row+1][col-1] > 6) {
                 moves.moves[generateMoveCounter][0] = row;
@@ -208,6 +210,7 @@ public class Board {
                 moves.moves[generateMoveCounter][2] = row+1;
                 moves.moves[generateMoveCounter][3] = col-1;
                 moves.moves[generateMoveCounter][4] = 6;
+                generateMoveCounter++;
             }
         }
 
@@ -218,11 +221,13 @@ public class Board {
                     moves.moves[generateMoveCounter][1] = col;
                     moves.moves[generateMoveCounter][2] = row-2;
                     moves.moves[generateMoveCounter][3] = col;
+                    generateMoveCounter++;
                 }
                 moves.moves[generateMoveCounter][0] = row;
                 moves.moves[generateMoveCounter][1] = col;
                 moves.moves[generateMoveCounter][2] = row-1;
                 moves.moves[generateMoveCounter][3] = col;
+                generateMoveCounter++;
             }
             if(!isTileEmpty(row-1,col+1) && board[row-1][col+1] <= 6) {
                 moves.moves[generateMoveCounter][0] = row;
@@ -230,6 +235,7 @@ public class Board {
                 moves.moves[generateMoveCounter][2] = row-1;
                 moves.moves[generateMoveCounter][3] = col+1;
                 moves.moves[generateMoveCounter][4] = 12;
+                generateMoveCounter++;
             }
             if(!isTileEmpty(row-1,col-1) && board[row-1][col-1] <= 6) {
                 moves.moves[generateMoveCounter][0] = row;
@@ -237,6 +243,7 @@ public class Board {
                 moves.moves[generateMoveCounter][2] = row-1;
                 moves.moves[generateMoveCounter][3] = col-1;
                 moves.moves[generateMoveCounter][4] = 12;
+                generateMoveCounter++;
             }
         }
     }
