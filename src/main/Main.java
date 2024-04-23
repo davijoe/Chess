@@ -1,8 +1,6 @@
 package main;
 
-import robot.Bishop;
-import robot.Rook;
-import robot.Move;
+import robot.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,19 +19,19 @@ public class Main {
         // Add the board to the frame
         Board board = new Board();
         frame.add(board);
-        //Below is just testing
-        robot.Board cboard = new robot.Board();
-        Bishop wb = new Bishop(1,1,true);
 
-        Rook rook = new Rook(2,3,true);
-        List<Move> test = rook.generateMoves(cboard);
-        int nr = 0;
-        //Just testing rook moves
-        for(Move move : test) {
+        robot.Board gameboard = new robot.Board();
 
-            System.out.println("Move nr: "+nr);
-            System.out.println(move.toString());
-            nr++;
+        int[][] fisk = gameboard.getBoard();
+
+        fisk[0][0] = 1;
+
+        gameboard.setBoard(fisk);
+
+        for (int[] row : fisk) {
+            for (int col : row) {
+                System.out.println(col);
+            }
         }
 
         frame.setVisible(true);

@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Rook extends Piece {
 
+    boolean hasCastle;
+
     public Rook (int col, int row, boolean isWhite) {
         this.col = col;
         this.row = row;
@@ -25,8 +27,7 @@ public class Rook extends Piece {
                 System.out.println(counter);
                 counter++;
                 if(board.isTileEmpty(row,col)) {
-                    Move move = new Move(row,col,rowNew,colNew);
-                    moves.add(move);
+
                 }
                 rowNew += direction[0];
                 colNew += direction[1];
