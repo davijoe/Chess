@@ -48,14 +48,42 @@ public class Board {
                         generateKingMoves(row, col);
                     }
 
-                    if (board.board[row][col] == 6) {
+                    if (board.board[row][col] == 6 || board.board[row][col]==7) {
                         generatePawnMoves(row, col);
                     }
                 }
             }
 
         }
+        if(currentPlayer == 'b') {
+            for (int row = 0; row<8; row++) {
+                for (int col = 0; col < 8; col++) {
+                    if (board.board[row][col] == 8) {
+                        generateRookMoves(row, col);
+                    }
 
+                    if (board.board[row][col] == 9) {
+                        generateKnightMoves(row,col);
+                    }
+
+                    if (board.board[row][col] == 10) {
+                        generateBishopMoves(row, col);
+                    }
+
+                    if (board.board[row][col] == 11) {
+                        generateQueenMoves(row, col);
+                    }
+
+                    if (board.board[row][col] == 12) {
+                        generateKingMoves(row, col);
+                    }
+
+                    if (board.board[row][col] == 13 || board.board[row][col]== 14) {
+                        generatePawnMoves(row, col);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -67,14 +95,14 @@ public class Board {
             int colNew = col + direction[1];
             while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
                 if (!isTileEmpty(rowNew, colNew)) {
-                    if(board[rowNew][colNew] > 6 && currentPlayer == 'w' || board[rowNew][colNew] < 6 && currentPlayer == 'b') {
+                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
                         moves.moves[generateMoveCounter][0] = row;
                         moves.moves[generateMoveCounter][1] = col;
                         moves.moves[generateMoveCounter][2] = rowNew;
                         moves.moves[generateMoveCounter][3] = colNew;
                         System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                        moves.moves[generateMoveCounter][4] = 1;
+                        moves.moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
                     break;
@@ -86,7 +114,7 @@ public class Board {
                     moves.moves[generateMoveCounter][3] = colNew;
                     System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                    moves.moves[generateMoveCounter][4] = 1;
+                    moves.moves[generateMoveCounter][4] = board[row][col];
                     generateMoveCounter++;
                 }
                 rowNew += direction[0];
@@ -102,12 +130,25 @@ public class Board {
             int rowNew = row + direction[0];
             int colNew = col + direction[1];
             while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
+                if (!isTileEmpty(rowNew, colNew)) {
+                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
+                        moves.moves[generateMoveCounter][0] = row;
+                        moves.moves[generateMoveCounter][1] = col;
+                        moves.moves[generateMoveCounter][2] = rowNew;
+                        moves.moves[generateMoveCounter][3] = colNew;
+                        System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
+                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                        moves.moves[generateMoveCounter][4] = board[row][col];
+                        generateMoveCounter++;
+                    }
+                    break;
+                }
                 if(isTileEmpty(rowNew,colNew)) {
                     moves.moves[generateMoveCounter][0] = row;
                     moves.moves[generateMoveCounter][1] = col;
                     moves.moves[generateMoveCounter][2] = rowNew;
                     moves.moves[generateMoveCounter][3] = colNew;
-                    moves.moves[generateMoveCounter][4] = 3;
+                    moves.moves[generateMoveCounter][4] = board[row][col];
                     System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
                     generateMoveCounter++;
@@ -125,15 +166,27 @@ public class Board {
             int rowNew = row + direction[0];
             int colNew = col + direction[1];
             if (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
+                if (!isTileEmpty(rowNew, colNew)) {
+                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
+                        moves.moves[generateMoveCounter][0] = row;
+                        moves.moves[generateMoveCounter][1] = col;
+                        moves.moves[generateMoveCounter][2] = rowNew;
+                        moves.moves[generateMoveCounter][3] = colNew;
+                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
+                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                        moves.moves[generateMoveCounter][4] = board[row][col];
+                        generateMoveCounter++;
+                    }
+                    break;
+                }
                 if(isTileEmpty(rowNew,colNew)) {
                     moves.moves[generateMoveCounter][0] = row;
                     moves.moves[generateMoveCounter][1] = col;
                     moves.moves[generateMoveCounter][2] = rowNew;
                     moves.moves[generateMoveCounter][3] = colNew;
-                    moves.moves[generateMoveCounter][4] = 2;
+                    moves.moves[generateMoveCounter][4] = board[row][col];
                     System.out.println("\nKnight Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-
                     generateMoveCounter++;
                 }
             }
@@ -146,12 +199,25 @@ public class Board {
             int rowNew = row + direction[0];
             int colNew = col + direction[1];
             while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
+                if (!isTileEmpty(rowNew, colNew)) {
+                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
+                        moves.moves[generateMoveCounter][0] = row;
+                        moves.moves[generateMoveCounter][1] = col;
+                        moves.moves[generateMoveCounter][2] = rowNew;
+                        moves.moves[generateMoveCounter][3] = colNew;
+                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
+                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                        moves.moves[generateMoveCounter][4] = board[row][col];
+                        generateMoveCounter++;
+                    }
+                    break;
+                }
                 if(isTileEmpty(rowNew,colNew)) {
                     moves.moves[generateMoveCounter][0] = row;
                     moves.moves[generateMoveCounter][1] = col;
                     moves.moves[generateMoveCounter][2] = rowNew;
                     moves.moves[generateMoveCounter][3] = colNew;
-                    moves.moves[generateMoveCounter][4] = 4;
+                    moves.moves[generateMoveCounter][4] = board[row][col];
                     generateMoveCounter++;
                 }
                 rowNew += direction[0];
@@ -166,12 +232,25 @@ public class Board {
             int rowNew = row + direction[0];
             int colNew = col + direction[1];
             if (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
+                if (!isTileEmpty(rowNew, colNew)) {
+                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
+                        moves.moves[generateMoveCounter][0] = row;
+                        moves.moves[generateMoveCounter][1] = col;
+                        moves.moves[generateMoveCounter][2] = rowNew;
+                        moves.moves[generateMoveCounter][3] = colNew;
+                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
+                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                        moves.moves[generateMoveCounter][4] = board[row][col];
+                        generateMoveCounter++;
+                    }
+                    break;
+                }
                 if(isTileEmpty(rowNew,colNew)) {
                     moves.moves[generateMoveCounter][0] = row;
                     moves.moves[generateMoveCounter][1] = col;
                     moves.moves[generateMoveCounter][2] = rowNew;
                     moves.moves[generateMoveCounter][3] = colNew;
-                    moves.moves[generateMoveCounter][4] = 5;
+                    moves.moves[generateMoveCounter][4] = board[row][col];
                     generateMoveCounter++;
                 }
             }
@@ -319,10 +398,10 @@ public class Board {
         board.board[7][6] = 3;
 
         //Introducing black pieces
-        board.board[5][0] = 7;
+        board.board[5][0] = 8;
 
 
-        board.currentPlayer = 'w';
+        board.currentPlayer = 'b';
         board.generateMoves(board);
 
     }
