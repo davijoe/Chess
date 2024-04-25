@@ -16,7 +16,7 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public List<Move> generateMoves(Board board) {
+    public List<Move> generateMoves(Game game) {
         List<Move> moves = new ArrayList<>();
         int[][] attackDirections = {{-1,1},{1,1}};
         //Other stuff, not done

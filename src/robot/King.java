@@ -11,7 +11,7 @@ public class King extends Piece{
     }
 
     @Override
-    public List<Move> generateMoves(Board board) {
+    public List<Move> generateMoves(Game game) {
         return null;
     }
 }

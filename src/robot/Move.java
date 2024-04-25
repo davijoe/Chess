@@ -5,7 +5,7 @@ public class Move {
     int[][] moves;
 
     public Move(int maxMoves) {
-        this.moves = new int[maxMoves][5];
+        this.moves = new int[maxMoves][6];
     }
 
     public int[][] getMoves() {

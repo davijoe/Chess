@@ -4,7 +4,6 @@ import robot.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,7 +19,7 @@ public class Main {
         Board board = new Board();
         frame.add(board);
 
-        robot.Board gameboard = new robot.Board();
+        Game gameboard = new Game();
 
         int[][] fisk = gameboard.getBoard();
 

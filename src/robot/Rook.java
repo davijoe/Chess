@@ -14,7 +14,7 @@ public class Rook extends Piece {
     }
 
     @Override
-    public List<Move> generateMoves(Board board) {
+    public List<Move> generateMoves(Game game) {
         List<Move> moves = new ArrayList<>();
         int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
         int counter = 0;
@@ -26,7 +26,7 @@ public class Rook extends Piece {
                 //Checking if im dumb
                 System.out.println(counter);
                 counter++;
-                if(board.isTileEmpty(row,col)) {
+                if(game.isTileEmpty(row,col)) {
 
                 }
                 rowNew += direction[0];

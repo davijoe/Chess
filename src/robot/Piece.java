@@ -11,7 +11,7 @@ public abstract class Piece {
     List<Move> moves = new ArrayList<>();
 
 
-    public abstract List<Move> generateMoves(Board board);
+    public abstract List<Move> generateMoves(Game game);
 
 
 }

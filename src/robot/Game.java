@@ -1,6 +1,6 @@
 package robot;
 
-public class Board {
+public class Game {
 
     int[][] board = new int[8][8];
 
@@ -15,7 +15,7 @@ public class Board {
     Move moves = new Move(100);
     char currentPlayer;
 
-    public Board() {
+    public Game() {
 
     }
 
@@ -23,32 +23,31 @@ public class Board {
         return board[row][col] == 0;
     }
 
-    public void generateMoves(Board board) {
-
+    public void generateMoves(Game game) {
         if (currentPlayer == 'w') {
             for (int row = 0; row<8; row++) {
                 for (int col = 0; col < 8; col++) {
-                    if (board.board[row][col] == 1) {
+                    if (game.board[row][col] == 1) {
                         generateRookMoves(row, col);
                     }
 
-                    if (board.board[row][col] == 2) {
+                    if (game.board[row][col] == 2) {
                         generateKnightMoves(row,col);
                     }
 
-                    if (board.board[row][col] == 3) {
+                    if (game.board[row][col] == 3) {
                         generateBishopMoves(row, col);
                     }
 
-                    if (board.board[row][col] == 4) {
+                    if (game.board[row][col] == 4) {
                         generateQueenMoves(row, col);
                     }
 
-                    if (board.board[row][col] == 5) {
+                    if (game.board[row][col] == 5) {
                         generateKingMoves(row, col);
                     }
 
-                    if (board.board[row][col] == 6 || board.board[row][col]==7) {
+                    if (game.board[row][col] == 6 || game.board[row][col]==7) {
                         generatePawnMoves(row, col);
                     }
                 }
@@ -58,27 +57,27 @@ public class Board {
         if(currentPlayer == 'b') {
             for (int row = 0; row<8; row++) {
                 for (int col = 0; col < 8; col++) {
-                    if (board.board[row][col] == 8) {
+                    if (game.board[row][col] == 8) {
                         generateRookMoves(row, col);
                     }
 
-                    if (board.board[row][col] == 9) {
+                    if (game.board[row][col] == 9) {
                         generateKnightMoves(row,col);
                     }
 
-                    if (board.board[row][col] == 10) {
+                    if (game.board[row][col] == 10) {
                         generateBishopMoves(row, col);
                     }
 
-                    if (board.board[row][col] == 11) {
+                    if (game.board[row][col] == 11) {
                         generateQueenMoves(row, col);
                     }
 
-                    if (board.board[row][col] == 12) {
+                    if (game.board[row][col] == 12) {
                         generateKingMoves(row, col);
                     }
 
-                    if (board.board[row][col] == 13 || board.board[row][col]== 14) {
+                    if (game.board[row][col] == 13 || game.board[row][col]== 14) {
                         generatePawnMoves(row, col);
                     }
                 }
@@ -327,6 +326,41 @@ public class Board {
         }
     }
 
+    public Game(Game currentGame) {
+        for (int i = 0; i< board.length; i++) {
+            for (int j = 0; j<board.length; j++) {
+                this.board[i][j] = currentGame.board[i][j];
+            }
+        }
+        this.currentPlayer = currentGame.currentPlayer;
+    }
+
+    public Game updateGameState(int moveIndex) {
+//        int oldRow = moves.moves[moveIndex][0];
+//        int oldCol = moves.moves[moveIndex][1];
+//        int newRow = moves.moves[moveIndex][2];
+//        int newCol = moves.moves[moveIndex][3];
+//        int piece = moves.moves[moveIndex][4];
+
+        Game newGame = new Game(this);
+        newGame.board[moves.moves[moveIndex][0]][moves.moves[moveIndex][1]] = 0;
+        newGame.board[moves.moves[moveIndex][2]][moves.moves[moveIndex][3]] = moves.moves[moveIndex][4];
+
+        if (currentPlayer == 'w') {
+            newGame.currentPlayer = 'b';
+        }
+        else {
+            newGame.currentPlayer = 'w';
+        }
+        return newGame;
+
+    }
+
+
+    public int getHeuristicMoveValue() {
+        return 0;
+    }
+
     public int[][] getBoard() {
         return board;
     }
@@ -386,23 +420,25 @@ public class Board {
 
     public static void main(String[] args) {
 
-        Board board = new Board();
+        Game game = new Game();
 
         //Rook = !, Knight = 2, Bishop = 3
-        board.board[0][0] = 1;
-        board.board[0][1] = 1;
-        board.board[0][2] = 2;
-        board.board[0][3] = 3;
-        board.board[4][5] = 1;
-        board.board[5][6] = 2;
-        board.board[7][6] = 3;
+        game.board[0][0] = 1;
+        game.board[0][1] = 1;
+        game.board[0][2] = 2;
+        game.board[0][3] = 3;
+        game.board[4][5] = 1;
+        game.board[5][6] = 2;
+        game.board[7][6] = 3;
 
         //Introducing black pieces
-        board.board[5][0] = 8;
+        game.board[5][0] = 8;
 
 
-        board.currentPlayer = 'b';
-        board.generateMoves(board);
+
+
+        game.currentPlayer = 'b';
+        game.generateMoves(game);
 
     }
 }
