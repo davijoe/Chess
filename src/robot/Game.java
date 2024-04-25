@@ -1,5 +1,7 @@
 package robot;
 
+import java.util.Random;
+
 public class Game {
 
     int[][] board = new int[8][8];
@@ -424,21 +426,27 @@ public class Game {
 
         //Rook = !, Knight = 2, Bishop = 3
         game.board[0][0] = 1;
-        game.board[0][1] = 1;
-        game.board[0][2] = 2;
-        game.board[0][3] = 3;
-        game.board[4][5] = 1;
-        game.board[5][6] = 2;
-        game.board[7][6] = 3;
 
         //Introducing black pieces
         game.board[5][0] = 8;
 
-
-
+        Random rnd = new Random();
+        System.out.println();
 
         game.currentPlayer = 'b';
+        System.out.println("Blacks turn");
         game.generateMoves(game);
+
+        Game newState = game.updateGameState(2);
+        System.out.println(newState.currentPlayer);
+        newState.generateMoves(newState);
+
+
+        Game newnew = newState.updateGameState(1);
+
+        System.out.println(newnew.currentPlayer);
+
+        newnew.generateMoves(newnew);
 
     }
 }
