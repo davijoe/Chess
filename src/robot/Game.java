@@ -17,6 +17,9 @@ public class Game {
     Move moves = new Move(100);
     char currentPlayer;
 
+    int heuristicValue;
+    boolean isMaximizing;
+
     public Game() {
 
     }
@@ -355,9 +358,50 @@ public class Game {
             newGame.currentPlayer = 'w';
         }
         return newGame;
-
     }
 
+    //Start på minimax, slet ikke færdig. Er ikke sikker på at den skal ligge her, eller i en main klasse
+    public int minimax(int depth, boolean isMaximizing) {
+        if(checkForWin()) {
+            return Integer.MAX_VALUE;
+        }
+        if(checkDraw()) {
+
+        }
+        if(isMaximizing) {
+            int bestValue = -100;
+            for(int i = 0; i<moves.moves.length; i++) {
+               Game newState = updateGameState(i);
+               heuristicValue = minimax(depth+1,false);
+               if (heuristicValue > bestValue) {
+                   bestValue = heuristicValue;
+               }
+            }
+            return bestValue;
+
+        }
+        if(!isMaximizing) {
+            int bestValue= 100;
+            for(int i = 0; i<moves.moves.length; i++) {
+                Game newState = updateGameState(i);
+                heuristicValue = minimax(depth+1,true);
+                if(heuristicValue < bestValue) {
+                    bestValue = heuristicValue;
+                }
+            }
+            return bestValue;
+        }
+
+        return 0;
+    }
+
+    public boolean checkForWin() {
+        return false;
+    }
+
+    public boolean checkDraw() {
+        return false;
+    }
 
     public int getHeuristicMoveValue() {
         return 0;
