@@ -6,9 +6,10 @@ public class Game {
 
     int[][] board = new int[8][8];
 
+    int[][] moves = new int[100][5];
     int generateMoveCounter = 0;
 
-    int enPassant = 1;
+    int enPassant;
 
     boolean whiteLongCastle = true;
 
@@ -16,7 +17,6 @@ public class Game {
     boolean blackShortCastle = true;
     boolean blackLongCastle = true;
 
-    Move moves = new Move(100);
     char currentPlayer;
 
     int heuristicValue;
@@ -102,25 +102,25 @@ public class Game {
             while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
                 if (!isTileEmpty(rowNew, colNew)) {
                     if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves.moves[generateMoveCounter][0] = row;
-                        moves.moves[generateMoveCounter][1] = col;
-                        moves.moves[generateMoveCounter][2] = rowNew;
-                        moves.moves[generateMoveCounter][3] = colNew;
+                        moves[generateMoveCounter][0] = row;
+                        moves[generateMoveCounter][1] = col;
+                        moves[generateMoveCounter][2] = rowNew;
+                        moves[generateMoveCounter][3] = colNew;
                         System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                        moves.moves[generateMoveCounter][4] = board[row][col];
+                        moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
                     break;
                 }
                 if(isTileEmpty(rowNew,colNew)) {
-                    moves.moves[generateMoveCounter][0] = row;
-                    moves.moves[generateMoveCounter][1] = col;
-                    moves.moves[generateMoveCounter][2] = rowNew;
-                    moves.moves[generateMoveCounter][3] = colNew;
+                    moves[generateMoveCounter][0] = row;
+                    moves[generateMoveCounter][1] = col;
+                    moves[generateMoveCounter][2] = rowNew;
+                    moves[generateMoveCounter][3] = colNew;
                     System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                    moves.moves[generateMoveCounter][4] = board[row][col];
+                    moves[generateMoveCounter][4] = board[row][col];
                     generateMoveCounter++;
                 }
                 rowNew += direction[0];
@@ -138,23 +138,23 @@ public class Game {
             while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
                 if (!isTileEmpty(rowNew, colNew)) {
                     if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves.moves[generateMoveCounter][0] = row;
-                        moves.moves[generateMoveCounter][1] = col;
-                        moves.moves[generateMoveCounter][2] = rowNew;
-                        moves.moves[generateMoveCounter][3] = colNew;
+                        moves[generateMoveCounter][0] = row;
+                        moves[generateMoveCounter][1] = col;
+                        moves[generateMoveCounter][2] = rowNew;
+                        moves[generateMoveCounter][3] = colNew;
                         System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                        moves.moves[generateMoveCounter][4] = board[row][col];
+                        moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
                     break;
                 }
                 if(isTileEmpty(rowNew,colNew)) {
-                    moves.moves[generateMoveCounter][0] = row;
-                    moves.moves[generateMoveCounter][1] = col;
-                    moves.moves[generateMoveCounter][2] = rowNew;
-                    moves.moves[generateMoveCounter][3] = colNew;
-                    moves.moves[generateMoveCounter][4] = board[row][col];
+                    moves[generateMoveCounter][0] = row;
+                    moves[generateMoveCounter][1] = col;
+                    moves[generateMoveCounter][2] = rowNew;
+                    moves[generateMoveCounter][3] = colNew;
+                    moves[generateMoveCounter][4] = board[row][col];
                     System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
                     generateMoveCounter++;
@@ -174,23 +174,23 @@ public class Game {
             if (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
                 if (!isTileEmpty(rowNew, colNew)) {
                     if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves.moves[generateMoveCounter][0] = row;
-                        moves.moves[generateMoveCounter][1] = col;
-                        moves.moves[generateMoveCounter][2] = rowNew;
-                        moves.moves[generateMoveCounter][3] = colNew;
+                        moves[generateMoveCounter][0] = row;
+                        moves[generateMoveCounter][1] = col;
+                        moves[generateMoveCounter][2] = rowNew;
+                        moves[generateMoveCounter][3] = colNew;
                         System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                        moves.moves[generateMoveCounter][4] = board[row][col];
+                        moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
                     break;
                 }
                 if(isTileEmpty(rowNew,colNew)) {
-                    moves.moves[generateMoveCounter][0] = row;
-                    moves.moves[generateMoveCounter][1] = col;
-                    moves.moves[generateMoveCounter][2] = rowNew;
-                    moves.moves[generateMoveCounter][3] = colNew;
-                    moves.moves[generateMoveCounter][4] = board[row][col];
+                    moves[generateMoveCounter][0] = row;
+                    moves[generateMoveCounter][1] = col;
+                    moves[generateMoveCounter][2] = rowNew;
+                    moves[generateMoveCounter][3] = colNew;
+                    moves[generateMoveCounter][4] = board[row][col];
                     System.out.println("\nKnight Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
                     generateMoveCounter++;
@@ -207,23 +207,23 @@ public class Game {
             while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
                 if (!isTileEmpty(rowNew, colNew)) {
                     if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves.moves[generateMoveCounter][0] = row;
-                        moves.moves[generateMoveCounter][1] = col;
-                        moves.moves[generateMoveCounter][2] = rowNew;
-                        moves.moves[generateMoveCounter][3] = colNew;
+                        moves[generateMoveCounter][0] = row;
+                        moves[generateMoveCounter][1] = col;
+                        moves[generateMoveCounter][2] = rowNew;
+                        moves[generateMoveCounter][3] = colNew;
                         System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                        moves.moves[generateMoveCounter][4] = board[row][col];
+                        moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
                     break;
                 }
                 if(isTileEmpty(rowNew,colNew)) {
-                    moves.moves[generateMoveCounter][0] = row;
-                    moves.moves[generateMoveCounter][1] = col;
-                    moves.moves[generateMoveCounter][2] = rowNew;
-                    moves.moves[generateMoveCounter][3] = colNew;
-                    moves.moves[generateMoveCounter][4] = board[row][col];
+                    moves[generateMoveCounter][0] = row;
+                    moves[generateMoveCounter][1] = col;
+                    moves[generateMoveCounter][2] = rowNew;
+                    moves[generateMoveCounter][3] = colNew;
+                    moves[generateMoveCounter][4] = board[row][col];
                     generateMoveCounter++;
                 }
                 rowNew += direction[0];
@@ -240,23 +240,23 @@ public class Game {
             if (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
                 if (!isTileEmpty(rowNew, colNew)) {
                     if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves.moves[generateMoveCounter][0] = row;
-                        moves.moves[generateMoveCounter][1] = col;
-                        moves.moves[generateMoveCounter][2] = rowNew;
-                        moves.moves[generateMoveCounter][3] = colNew;
+                        moves[generateMoveCounter][0] = row;
+                        moves[generateMoveCounter][1] = col;
+                        moves[generateMoveCounter][2] = rowNew;
+                        moves[generateMoveCounter][3] = colNew;
                         System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                        moves.moves[generateMoveCounter][4] = board[row][col];
+                        moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
                     break;
                 }
                 if(isTileEmpty(rowNew,colNew)) {
-                    moves.moves[generateMoveCounter][0] = row;
-                    moves.moves[generateMoveCounter][1] = col;
-                    moves.moves[generateMoveCounter][2] = rowNew;
-                    moves.moves[generateMoveCounter][3] = colNew;
-                    moves.moves[generateMoveCounter][4] = board[row][col];
+                    moves[generateMoveCounter][0] = row;
+                    moves[generateMoveCounter][1] = col;
+                    moves[generateMoveCounter][2] = rowNew;
+                    moves[generateMoveCounter][3] = colNew;
+                    moves[generateMoveCounter][4] = board[row][col];
                     generateMoveCounter++;
                 }
             }
@@ -267,34 +267,34 @@ public class Game {
         if (board[row][col]==6) {
             if(isTileEmpty(row+1,col)) {
                 if(isTileEmpty(row+2,col) && row==1) {
-                    moves.moves[generateMoveCounter][0] = row;
-                    moves.moves[generateMoveCounter][1] = col;
-                    moves.moves[generateMoveCounter][2] = row+2;
-                    moves.moves[generateMoveCounter][3] = col;
-                    moves.moves[generateMoveCounter][4] = 6;
+                    moves[generateMoveCounter][0] = row;
+                    moves[generateMoveCounter][1] = col;
+                    moves[generateMoveCounter][2] = row+2;
+                    moves[generateMoveCounter][3] = col;
+                    moves[generateMoveCounter][4] = 6;
                     generateMoveCounter++;
                 }
-                moves.moves[generateMoveCounter][0] = row;
-                moves.moves[generateMoveCounter][1] = col;
-                moves.moves[generateMoveCounter][2] = row+1;
-                moves.moves[generateMoveCounter][3] = col;
-                moves.moves[generateMoveCounter][4] = 6;
+                moves[generateMoveCounter][0] = row;
+                moves[generateMoveCounter][1] = col;
+                moves[generateMoveCounter][2] = row+1;
+                moves[generateMoveCounter][3] = col;
+                moves[generateMoveCounter][4] = 6;
                 generateMoveCounter++;
             }
             if(!isTileEmpty(row+1,col+1) && board[row+1][col+1] > 6) {
-                moves.moves[generateMoveCounter][0] = row;
-                moves.moves[generateMoveCounter][1] = col;
-                moves.moves[generateMoveCounter][2] = row+1;
-                moves.moves[generateMoveCounter][3] = col+1;
-                moves.moves[generateMoveCounter][4] = 6;
+                moves[generateMoveCounter][0] = row;
+                moves[generateMoveCounter][1] = col;
+                moves[generateMoveCounter][2] = row+1;
+                moves[generateMoveCounter][3] = col+1;
+                moves[generateMoveCounter][4] = 6;
                 generateMoveCounter++;
             }
             if(!isTileEmpty(row+1,col-1) && board[row+1][col-1] > 6) {
-                moves.moves[generateMoveCounter][0] = row;
-                moves.moves[generateMoveCounter][1] = col;
-                moves.moves[generateMoveCounter][2] = row+1;
-                moves.moves[generateMoveCounter][3] = col-1;
-                moves.moves[generateMoveCounter][4] = 6;
+                moves[generateMoveCounter][0] = row;
+                moves[generateMoveCounter][1] = col;
+                moves[generateMoveCounter][2] = row+1;
+                moves[generateMoveCounter][3] = col-1;
+                moves[generateMoveCounter][4] = 6;
                 generateMoveCounter++;
             }
         }
@@ -302,32 +302,32 @@ public class Game {
         if(board[row][col]==12) {
             if(isTileEmpty(row-1,col)) {
                 if(isTileEmpty(row-2,col) && row==6) {
-                    moves.moves[generateMoveCounter][0] = row;
-                    moves.moves[generateMoveCounter][1] = col;
-                    moves.moves[generateMoveCounter][2] = row-2;
-                    moves.moves[generateMoveCounter][3] = col;
+                    moves[generateMoveCounter][0] = row;
+                    moves[generateMoveCounter][1] = col;
+                    moves[generateMoveCounter][2] = row-2;
+                    moves[generateMoveCounter][3] = col;
                     generateMoveCounter++;
                 }
-                moves.moves[generateMoveCounter][0] = row;
-                moves.moves[generateMoveCounter][1] = col;
-                moves.moves[generateMoveCounter][2] = row-1;
-                moves.moves[generateMoveCounter][3] = col;
+                moves[generateMoveCounter][0] = row;
+                moves[generateMoveCounter][1] = col;
+                moves[generateMoveCounter][2] = row-1;
+                moves[generateMoveCounter][3] = col;
                 generateMoveCounter++;
             }
             if(!isTileEmpty(row-1,col+1) && board[row-1][col+1] <= 6) {
-                moves.moves[generateMoveCounter][0] = row;
-                moves.moves[generateMoveCounter][1] = col;
-                moves.moves[generateMoveCounter][2] = row-1;
-                moves.moves[generateMoveCounter][3] = col+1;
-                moves.moves[generateMoveCounter][4] = 12;
+                moves[generateMoveCounter][0] = row;
+                moves[generateMoveCounter][1] = col;
+                moves[generateMoveCounter][2] = row-1;
+                moves[generateMoveCounter][3] = col+1;
+                moves[generateMoveCounter][4] = 12;
                 generateMoveCounter++;
             }
             if(!isTileEmpty(row-1,col-1) && board[row-1][col-1] <= 6) {
-                moves.moves[generateMoveCounter][0] = row;
-                moves.moves[generateMoveCounter][1] = col;
-                moves.moves[generateMoveCounter][2] = row-1;
-                moves.moves[generateMoveCounter][3] = col-1;
-                moves.moves[generateMoveCounter][4] = 12;
+                moves[generateMoveCounter][0] = row;
+                moves[generateMoveCounter][1] = col;
+                moves[generateMoveCounter][2] = row-1;
+                moves[generateMoveCounter][3] = col-1;
+                moves[generateMoveCounter][4] = 12;
                 generateMoveCounter++;
             }
         }
@@ -348,15 +348,15 @@ public class Game {
     }
 
     public Game updateGameState(int moveIndex) {
-//        int oldRow = moves.moves[moveIndex][0];
-//        int oldCol = moves.moves[moveIndex][1];
-//        int newRow = moves.moves[moveIndex][2];
-//        int newCol = moves.moves[moveIndex][3];
-//        int piece = moves.moves[moveIndex][4];
+//        int oldRow = moves[moveIndex][0];
+//        int oldCol = moves[moveIndex][1];
+//        int newRow = moves[moveIndex][2];
+//        int newCol = moves[moveIndex][3];
+//        int piece = moves[moveIndex][4];
 
         Game newGame = new Game(this);
-        newGame.board[moves.moves[moveIndex][0]][moves.moves[moveIndex][1]] = 0;
-        newGame.board[moves.moves[moveIndex][2]][moves.moves[moveIndex][3]] = moves.moves[moveIndex][4];
+        newGame.board[moves[moveIndex][0]][moves[moveIndex][1]] = 0;
+        newGame.board[moves[moveIndex][2]][moves[moveIndex][3]] = moves[moveIndex][4];
 
         if (currentPlayer == 'w') {
             newGame.currentPlayer = 'b';
@@ -373,11 +373,11 @@ public class Game {
             return Integer.MAX_VALUE;
         }
         if(checkDraw()) {
-
+            return 0;
         }
         if(isMaximizing) {
             int bestValue = -100;
-            for(int i = 0; i<moves.moves.length; i++) {
+            for(int i = 0; i<moves.length; i++) {
                Game newState = updateGameState(i);
                heuristicValue = minimax(depth+1,false);
                if (heuristicValue > bestValue) {
@@ -389,7 +389,7 @@ public class Game {
         }
         if(!isMaximizing) {
             int bestValue= 100;
-            for(int i = 0; i<moves.moves.length; i++) {
+            for(int i = 0; i<moves.length; i++) {
                 Game newState = updateGameState(i);
                 heuristicValue = minimax(depth+1,true);
                 if(heuristicValue < bestValue) {
@@ -438,30 +438,6 @@ public class Game {
 
     public void setEnPassant(int enPassant) {
         this.enPassant = enPassant;
-    }
-
-    public int getLongCastle() {
-        return longCastle;
-    }
-
-    public void setLongCastle(int longCastle) {
-        this.longCastle = longCastle;
-    }
-
-    public int getShortCastle() {
-        return shortCastle;
-    }
-
-    public void setShortCastle(int shortCastle) {
-        this.shortCastle = shortCastle;
-    }
-
-    public Move getMoves() {
-        return moves;
-    }
-
-    public void setMoves(Move moves) {
-        this.moves = moves;
     }
 
     public char getCurrentPlayer() {
