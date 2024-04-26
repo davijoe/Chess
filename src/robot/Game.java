@@ -10,9 +10,11 @@ public class Game {
 
     int enPassant = 1;
 
-    int longCastle = 2;
+    boolean whiteLongCastle = true;
 
-    int shortCastle = 3;
+    boolean whiteShortCastle = true;
+    boolean blackShortCastle = true;
+    boolean blackLongCastle = true;
 
     Move moves = new Move(100);
     char currentPlayer;
@@ -338,6 +340,11 @@ public class Game {
             }
         }
         this.currentPlayer = currentGame.currentPlayer;
+        this.heuristicValue = currentGame.heuristicValue;
+        this.whiteLongCastle = currentGame.whiteLongCastle;
+        this.whiteShortCastle = currentGame.whiteShortCastle;
+        this.blackLongCastle = currentGame.blackLongCastle;
+        this.blackShortCastle = currentGame.blackShortCastle;
     }
 
     public Game updateGameState(int moveIndex) {
