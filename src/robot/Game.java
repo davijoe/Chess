@@ -556,10 +556,11 @@ public class Game {
             for (int col = 0; col < 8; col++) {
                 int piece = board[row][col];
                 if (piece != 0) {
+                    int pieceValue = getPieceValue(piece);
                     if (piece <= 6) {
-                        whiteScore += getPieceValue(piece);
+                        whiteScore += pieceValue + getPiecePositionValue(piece, row, col);
                     } else {
-                        blackScore += getPieceValue(piece);
+                        blackScore += pieceValue + getPiecePositionValue(piece, row, col);
                     }
                 }
             }
@@ -574,25 +575,58 @@ public class Game {
             case 7: // white pawn
             case 13: // black pawn
             case 14: // black pawn
-                return 100;
+                return 10;
             case 2:  // White knight
             case 9:  // Black knight
-                return 300;
+                return 15;
             case 3:  // White bishop
             case 10: // Black bishop
-                return 300;
+                return 15;
             case 1:  // White rook
             case 8:  // Black rook
-                return 500;
+                return 30;
             case 4:  // White queen
             case 11: // Black queen
-                return 900;
+                return 60;
             case 5:  // White king
             case 12: // Black king
-                return 20000;
+                //king got no value from what i found
+                return 0;
             default:
                 return 0;
         }
+    }
+
+    private int getPiecePositionValue(int piece, int row, int col) {
+        int value = 0;
+        switch (piece) {
+            case 6:  // White pawn
+            case 7:  // White pawn
+                value += row * 10;
+                break;
+            case 13: // Black pawn
+            case 14: // Black pawn
+                value += (7 - row) * 10;
+                break;
+            case 2:  // White knight
+            case 9:  // Black knight
+            case 3:  // White bishop
+            case 10: // Black bishop
+                value += 10;
+                break;
+            case 1:  // White rook
+            case 8:  // Black rook
+                value += (Math.abs(row - 3) + Math.abs(col - 3)) * 5;
+                break;
+            case 4:  // White queen
+            case 11: // Black queen
+                value += 20;
+                break;
+            case 5:  // White king
+            case 12: // Black king
+                break;
+        }
+        return value;
     }
 
     public boolean checkForWin() {
@@ -792,7 +826,7 @@ public void initializeBoard(String fen) {
         game.initializeBoard(fen);
         game.printBoard();
 
-        int[] bestMove = minimax(game, depth, true);
+        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE,true);
 
         game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
 
@@ -801,8 +835,8 @@ public void initializeBoard(String fen) {
         System.out.println(newFEN);
     }
 
-    public static int[] minimax(Game game, int depth, boolean maximizingPlayer) {
-    //need to add gameover check here giving massive minus
+    public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
+    //does not take into account win or lose atm
         if (depth == 0 || game.isGameFinished()) {
             return null;
         }
@@ -817,7 +851,7 @@ public void initializeBoard(String fen) {
             Game newGame = new Game(game);
             newGame.makeMove(move[0], move[1], move[2], move[3]);
 
-            int[] result = minimax(newGame, depth - 1, !maximizingPlayer);
+            int[] result = minimax(newGame, depth - 1, alpha, beta, !maximizingPlayer);
 
             if (result == null) {
                 int score = newGame.evaluate();
@@ -829,12 +863,21 @@ public void initializeBoard(String fen) {
                     bestMove = move;
                 }
             } else {
-                if (maximizingPlayer && result[4] > bestScore) {
-                    bestScore = result[4];
-                    bestMove = move;
-                } else if (!maximizingPlayer && result[4] < bestScore) {
-                    bestScore = result[4];
-                    bestMove = move;
+                if (maximizingPlayer) {
+                    if (result[4] > bestScore) {
+                        bestScore = result[4];
+                        bestMove = move;
+                    }
+                    alpha = Math.max(alpha, bestScore);
+                } else {
+                    if (result[4] < bestScore) {
+                        bestScore = result[4];
+                        bestMove = move;
+                    }
+                    beta = Math.min(beta, bestScore);
+                }
+                if (beta <= alpha) {
+                    break;
                 }
             }
         }
