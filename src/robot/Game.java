@@ -1,6 +1,7 @@
 package robot;
 
 import java.util.Random;
+import java.util.Scanner;
 
 public class Game {
 
@@ -53,10 +54,12 @@ public class Game {
                     if (game.board[row][col] == 5) {
                         generateKingMoves(row, col);
                     }
-
+/*
                     if (game.board[row][col] == 6 || game.board[row][col]==7) {
                         generatePawnMoves(row, col);
                     }
+
+ */
                 }
             }
 
@@ -83,10 +86,12 @@ public class Game {
                     if (game.board[row][col] == 12) {
                         generateKingMoves(row, col);
                     }
-
+/*
                     if (game.board[row][col] == 13 || game.board[row][col]== 14) {
                         generatePawnMoves(row, col);
                     }
+
+ */
                 }
             }
         }
@@ -402,7 +407,146 @@ public class Game {
         return 0;
     }
 
+    public boolean isGameFinished() {
+        //return false;
+        return isCheckmate() || checkDraw() || onlyKingLeft();
+    }
+    private boolean isCheckmate() {
+        //is check can't escape
+        return isCheck() && !canEscapeCheck();
+    }
 
+    private boolean isCheck() {
+        int kingRow = -1;
+        int kingCol = -1;
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                if (currentPlayer == 'w' && board[row][col] == 5) {
+                    kingRow = row;
+                    kingCol = col;
+                    break;
+                } else if (currentPlayer == 'b' && board[row][col] == 12) {
+                    kingRow = row;
+                    kingCol = col;
+                    break;
+                }
+            }
+        }
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                if ((currentPlayer == 'w' && board[row][col] > 7) ||
+                        (currentPlayer == 'b' && board[row][col] <= 7 && board[row][col] != 0)) {
+                    if (canCaptureKing(row, col, kingRow, kingCol)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+
+        return false;
+    }
+
+    private boolean canCaptureKing(int attackerRow, int attackerCol, int kingRow, int kingCol) {
+        int attacker = board[attackerRow][attackerCol];
+        int dy = Math.abs(kingRow - attackerRow);
+        int dx = Math.abs(kingCol - attackerCol);
+
+        switch (attacker) {
+            case 6: // white pawn
+            case 7: // white pawn
+            case 13: // black pawn
+            case 14: // black pawn
+                return (dy == 1 && dx == 1);
+            case 2: // white knight
+            case 9: // black knight
+                return (dy == 2 && dx == 1) || (dy == 1 && dx == 2);
+            case 1: // white rook
+            case 8: // black rook
+                return (dy == 0 && dx > 0) || (dx == 0 && dy > 0);
+            case 3: // white bishop
+            case 10: // black bishop
+                return (dy == dx);
+            case 4: // white queen
+            case 11: // black queen
+                return (dy == 0 && dx > 0) || (dx == 0 && dy > 0) || (dy == dx);
+            case 5: // white king
+            case 12: // black king
+                return (dy <= 1 && dx <= 1);
+            default:
+                return false;
+        }
+    }
+
+    private boolean canEscapeCheck() {
+        //need to be implemented
+        return true;
+    }
+    private boolean onlyKingLeft() {
+        int numWhitePieces = 0;
+        int numBlackPieces = 0;
+
+        for (int[] row : board) {
+            for (int piece : row) {
+                if (piece == 1 || piece == 2 || piece == 3 || piece == 4 || piece == 5 || piece == 6 ||piece == 7) {
+                    numWhitePieces++;
+                } else if (piece == 8 || piece == 9 || piece == 10 || piece == 11 || piece == 12 || piece == 13 || piece == 14) {
+                    numBlackPieces++;
+                }
+            }
+        }
+
+        return numWhitePieces <= 1 && numBlackPieces <= 1;
+    }
+
+    public int evaluate() {
+        int whiteScore = 0;
+        int blackScore = 0;
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                int piece = board[row][col];
+                if (piece != 0) {
+                    if (piece <= 6) {
+                        whiteScore += getPieceValue(piece);
+                    } else {
+                        blackScore += getPieceValue(piece);
+                    }
+                }
+            }
+        }
+
+        return whiteScore - blackScore;
+    }
+
+    private int getPieceValue(int piece) {
+        switch (piece) {
+            case 6: // white pawn
+            case 7: // white pawn
+            case 13: // black pawn
+            case 14: // black pawn
+                return 100;
+            case 2:  // White knight
+            case 9:  // Black knight
+                return 300;
+            case 3:  // White bishop
+            case 10: // Black bishop
+                return 300;
+            case 1:  // White rook
+            case 8:  // Black rook
+                return 500;
+            case 4:  // White queen
+            case 11: // Black queen
+                return 900;
+            case 5:  // White king
+            case 12: // Black king
+                return 20000;
+            default:
+                return 0;
+        }
+    }
 
     public boolean checkForWin() {
         return false;
@@ -448,7 +592,7 @@ public class Game {
         this.currentPlayer = currentPlayer;
     }
 
-
+/*
     public static void main(String[] args) {
 
         Game game = new Game();
@@ -477,5 +621,177 @@ public class Game {
 
         newnew.generateMoves(newnew);
 
+    }
+}
+*/
+public void initializeBoard(String fen) {
+    String[] parts = fen.split(" ");
+    String[] rows = parts[0].split("/");
+
+    for (int i = 0; i < 8; i++) {
+        int col = 0;
+        for (char c : rows[7 - i].toCharArray()) {
+            if (Character.isDigit(c)) {
+                col += Character.getNumericValue(c);
+            } else {
+                int piece = pieceFromChar(c);
+                board[i][col] = piece;
+                col++;
+            }
+        }
+    }
+
+    currentPlayer = parts[1].charAt(0);
+}
+
+    private int pieceFromChar(char c) {
+        switch (c) {
+            case 'P': return 6;  // white pawn
+            case 'R': return 1;  // white rook
+            case 'N': return 2;  // white knight
+            case 'B': return 3;  // white bishop
+            case 'Q': return 4;  // white queen
+            case 'K': return 5;  // white king
+
+            case 'p': return 13;  // black pawn
+            case 'r': return 8;  // black rook
+            case 'n': return 9;  // black knight
+            case 'b': return 10; // black bishop
+            case 'q': return 11; // black queen
+            case 'k': return 12; // black king
+
+            default: return 0;   // empty square
+        }
+    }
+
+    public void printBoard() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                System.out.print(pieceToChar(board[i][j]) + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    private char pieceToChar(int piece) {
+        switch (piece) {
+            case 13:
+            case 14:
+                return 'p';  // black pawn
+
+            case 8:  return 'r';  // black rook
+            case 9:  return 'n';  // black knight
+            case 10: return 'b';  // black bishop
+            case 11: return 'q';  // black queen
+            case 12: return 'k';  // black king
+
+            case 6:
+            case 7:
+                return 'P';  // white pawn
+            case 1:  return 'R';  // white rook
+            case 2:  return 'N';  // white knight
+            case 3:  return 'B';  // white bishop
+            case 4:  return 'Q';  // white queen
+            case 5:  return 'K';  // white king
+            default: return '.';  // empty square
+        }
+    }
+
+    public void makeMove(int startRow, int startCol, int endRow, int endCol) {
+        int piece = board[startRow][startCol];
+        board[startRow][startCol] = 0;
+        board[endRow][endCol] = piece;
+        currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
+    }
+
+    public String getFEN() {
+        StringBuilder fen = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            int emptyCount = 0;
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] == 0) {
+                    emptyCount++;
+                } else {
+                    if (emptyCount > 0) {
+                        fen.append(emptyCount);
+                        emptyCount = 0;
+                    }
+                    fen.append(pieceToChar(board[i][j]));
+                }
+            }
+            if (emptyCount > 0) {
+                fen.append(emptyCount);
+            }
+            if (i < 7) {
+                fen.append('/');
+            }
+        }
+        fen.append(" ");
+        fen.append(currentPlayer);
+        return fen.toString();
+    }
+
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter FEN string:");
+        String fen = scanner.nextLine();
+
+        System.out.println("Enter search depth for Minimax:");
+        int depth = scanner.nextInt();
+
+        Game game = new Game();
+        game.initializeBoard(fen);
+        game.printBoard();
+
+        int[] bestMove = minimax(game, depth, true);
+
+        game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
+
+        String newFEN = game.getFEN();
+        System.out.println("New FEN string:");
+        System.out.println(newFEN);
+    }
+
+    public static int[] minimax(Game game, int depth, boolean maximizingPlayer) {
+    //need to add gameover check here giving massive minus
+        if (depth == 0 || game.isGameFinished()) {
+            return null;
+        }
+
+        int[] bestMove = null;
+        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        game.generateMoves(game);
+
+        for (int i = 0; i < game.generateMoveCounter; i++) {
+            int[] move = game.moves[i];
+            Game newGame = new Game(game);
+            newGame.makeMove(move[0], move[1], move[2], move[3]);
+
+            int[] result = minimax(newGame, depth - 1, !maximizingPlayer);
+
+            if (result == null) {
+                int score = newGame.evaluate();
+                if (maximizingPlayer && score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                } else if (!maximizingPlayer && score < bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            } else {
+                if (maximizingPlayer && result[4] > bestScore) {
+                    bestScore = result[4];
+                    bestMove = move;
+                } else if (!maximizingPlayer && result[4] < bestScore) {
+                    bestScore = result[4];
+                    bestMove = move;
+                }
+            }
+        }
+
+        return bestMove;
     }
 }
