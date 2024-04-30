@@ -27,8 +27,13 @@ public class Game {
 
     }
 
+    /*
     public boolean isTileEmpty(int row, int col) {
         return board[row][col] == 0;
+    }
+     */
+    public boolean isTileEmpty(int row, int col) {
+        return row >= 0 && row < 8 && col >= 0 && col < 8 && board[row][col] == 0;
     }
 
     public void generateMoves(Game game) {
@@ -54,12 +59,11 @@ public class Game {
                     if (game.board[row][col] == 5) {
                         generateKingMoves(row, col);
                     }
-/*
+
                     if (game.board[row][col] == 6 || game.board[row][col]==7) {
                         generatePawnMoves(row, col);
                     }
 
- */
                 }
             }
 
@@ -86,12 +90,9 @@ public class Game {
                     if (game.board[row][col] == 12) {
                         generateKingMoves(row, col);
                     }
-/*
                     if (game.board[row][col] == 13 || game.board[row][col]== 14) {
                         generatePawnMoves(row, col);
                     }
-
- */
                 }
             }
         }
@@ -111,8 +112,10 @@ public class Game {
                         moves[generateMoveCounter][1] = col;
                         moves[generateMoveCounter][2] = rowNew;
                         moves[generateMoveCounter][3] = colNew;
+                        /*
                         System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                         */
                         moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
@@ -123,8 +126,10 @@ public class Game {
                     moves[generateMoveCounter][1] = col;
                     moves[generateMoveCounter][2] = rowNew;
                     moves[generateMoveCounter][3] = colNew;
+                    /*
                     System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                     */
                     moves[generateMoveCounter][4] = board[row][col];
                     generateMoveCounter++;
                 }
@@ -147,8 +152,10 @@ public class Game {
                         moves[generateMoveCounter][1] = col;
                         moves[generateMoveCounter][2] = rowNew;
                         moves[generateMoveCounter][3] = colNew;
+                        /*
                         System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                         */
                         moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
@@ -160,8 +167,10 @@ public class Game {
                     moves[generateMoveCounter][2] = rowNew;
                     moves[generateMoveCounter][3] = colNew;
                     moves[generateMoveCounter][4] = board[row][col];
+                    /*
                     System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                     */
                     generateMoveCounter++;
                 }
                 rowNew += direction[0];
@@ -183,8 +192,10 @@ public class Game {
                         moves[generateMoveCounter][1] = col;
                         moves[generateMoveCounter][2] = rowNew;
                         moves[generateMoveCounter][3] = colNew;
+                        /*
                         System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                         */
                         moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
@@ -196,8 +207,10 @@ public class Game {
                     moves[generateMoveCounter][2] = rowNew;
                     moves[generateMoveCounter][3] = colNew;
                     moves[generateMoveCounter][4] = board[row][col];
+                    /*
                     System.out.println("\nKnight Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                     System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                     */
                     generateMoveCounter++;
                 }
             }
@@ -216,8 +229,10 @@ public class Game {
                         moves[generateMoveCounter][1] = col;
                         moves[generateMoveCounter][2] = rowNew;
                         moves[generateMoveCounter][3] = colNew;
+                        /*
                         System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                         */
                         moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
@@ -249,8 +264,10 @@ public class Game {
                         moves[generateMoveCounter][1] = col;
                         moves[generateMoveCounter][2] = rowNew;
                         moves[generateMoveCounter][3] = colNew;
+                        /*
                         System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
                         System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
+                         */
                         moves[generateMoveCounter][4] = board[row][col];
                         generateMoveCounter++;
                     }
@@ -267,7 +284,36 @@ public class Game {
             }
         }
     }
+    public void generatePawnMoves(int row, int col) {
+        int piece = board[row][col];
+        int direction = (piece == 6) ? 1 : -1; // 1 for white, -1 for black
 
+        if (isTileEmpty(row + direction, col)) {
+            if ((direction == 1 && row == 1) || (direction == -1 && row == 6)) {
+                if (isTileEmpty(row + 2 * direction, col)) {
+                    addMove(row, col, row + 2 * direction, col, piece);
+                }
+            }
+            addMove(row, col, row + direction, col, piece);
+        }
+
+        if (col + 1 < 8 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col + 1) && board[row + direction][col + 1] / 7 != piece / 7) {
+            addMove(row, col, row + direction, col + 1, piece);
+        }
+        if (col - 1 >= 0 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col - 1) && board[row + direction][col - 1] / 7 != piece / 7) {
+            addMove(row, col, row + direction, col - 1, piece);
+        }
+    }
+    private void addMove(int startRow, int startCol, int endRow, int endCol, int piece) {
+        moves[generateMoveCounter][0] = startRow;
+        moves[generateMoveCounter][1] = startCol;
+        moves[generateMoveCounter][2] = endRow;
+        moves[generateMoveCounter][3] = endCol;
+        moves[generateMoveCounter][4] = piece;
+        generateMoveCounter++;
+    }
+
+/*
     public void generatePawnMoves(int row, int col) {
         if (board[row][col]==6) {
             if(isTileEmpty(row+1,col)) {
@@ -337,6 +383,7 @@ public class Game {
             }
         }
     }
+ */
 
     public Game(Game currentGame) {
         for (int i = 0; i< board.length; i++) {
