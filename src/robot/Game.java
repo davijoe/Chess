@@ -1,7 +1,10 @@
 package robot;
 
-import java.util.Random;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Scanner;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveTask;
 
 public class Game {
 
@@ -575,19 +578,19 @@ public class Game {
             case 7: // white pawn
             case 13: // black pawn
             case 14: // black pawn
-                return 10;
+                return 100;
             case 2:  // White knight
             case 9:  // Black knight
-                return 15;
+                return 150;
             case 3:  // White bishop
             case 10: // Black bishop
-                return 15;
+                return 150;
             case 1:  // White rook
             case 8:  // Black rook
-                return 30;
+                return 300;
             case 4:  // White queen
             case 11: // Black queen
-                return 60;
+                return 600;
             case 5:  // White king
             case 12: // Black king
                 //king got no value from what i found
@@ -610,9 +613,12 @@ public class Game {
                 break;
             case 2:  // White knight
             case 9:  // Black knight
+                //adds points in increment of 5 depending on distance from center
+                value += (3 - Math.abs(row - 3)) * 5 + (3 - Math.abs(col - 3)) * 5;
+                break;
             case 3:  // White bishop
             case 10: // Black bishop
-                value += 10;
+                value += (3 - Math.abs(row - 3)) * 5 + (3 - Math.abs(col - 3)) * 5;
                 break;
             case 1:  // White rook
             case 8:  // Black rook
@@ -812,6 +818,7 @@ public void initializeBoard(String fen) {
         return fen.toString();
     }
 
+    private static final int THREAD_COUNT = 6;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -826,7 +833,25 @@ public void initializeBoard(String fen) {
         game.initializeBoard(fen);
         game.printBoard();
 
-        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE,true);
+        LocalDateTime startTime;
+        LocalDateTime endTime;
+        /*
+        startTime = LocalDateTime.now();
+        //single-threaded test
+        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        endTime = LocalDateTime.now();
+
+        long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
+        System.out.println("Single-threaded Minimax Time: " + singleThreadedTime + " milliseconds");
+         */
+
+        startTime = LocalDateTime.now();
+        //multi-threaded test
+        int[] bestMove = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        endTime = LocalDateTime.now();
+
+        long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
+        System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
 
         game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
 
@@ -834,6 +859,12 @@ public void initializeBoard(String fen) {
         System.out.println("New FEN string:");
         System.out.println(newFEN);
     }
+    public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
+        ForkJoinPool pool = new ForkJoinPool();
+        ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
+        return pool.invoke(task);
+    }
+
 
     public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
     //does not take into account win or lose atm
