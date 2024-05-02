@@ -3,10 +3,7 @@ package robot;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RecursiveTask;
 
 public class Game {
 
@@ -22,7 +19,8 @@ public class Game {
     boolean whiteShortCastle = true;
     boolean blackShortCastle = true;
     boolean blackLongCastle = true;
-
+    private int kingRow;
+    private int kingCol;
     char currentPlayer;
 
     int heuristicValue;
@@ -469,23 +467,6 @@ public class Game {
     }
 
     private boolean isCheck() {
-        int kingRow = -1;
-        int kingCol = -1;
-
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                if (currentPlayer == 'w' && board[row][col] == 5) {
-                    kingRow = row;
-                    kingCol = col;
-                    break;
-                } else if (currentPlayer == 'b' && board[row][col] == 12) {
-                    kingRow = row;
-                    kingCol = col;
-                    break;
-                }
-            }
-        }
-
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 if ((currentPlayer == 'w' && board[row][col] > 7) ||
@@ -496,7 +477,6 @@ public class Game {
                 }
             }
         }
-
 
         return false;
     }
@@ -583,16 +563,16 @@ public class Game {
                 return 100;
             case 2:  // White knight
             case 9:  // Black knight
-                return 150;
+                return 300;
             case 3:  // White bishop
             case 10: // Black bishop
-                return 150;
+                return 300;
             case 1:  // White rook
             case 8:  // Black rook
-                return 300;
+                return 500;
             case 4:  // White queen
             case 11: // Black queen
-                return 600;
+                return 900;
             case 5:  // White king
             case 12: // Black king
                 //king got no value from what i found
@@ -713,27 +693,40 @@ public class Game {
     }
 }
 */
-public void initializeBoard(String fen) {
-    String[] parts = fen.split(" ");
-    String[] rows = parts[0].split("/");
+    public void initializeBoard(String fen) {
+        String[] parts = fen.split(" ");
+        String[] rows = parts[0].split("/");
 
-    for (int i = 0; i < 8; i++) {
-        int col = 0;
-        for (char c : rows[7 - i].toCharArray()) {
-            if (Character.isDigit(c)) {
-                col += Character.getNumericValue(c);
-            } else {
-                int piece = pieceFromChar(c);
-                board[i][col] = piece;
-                col++;
+        for (int i = 0; i < 8; i++) {
+            int col = 0;
+            for (char c : rows[7 - i].toCharArray()) {
+                if (Character.isDigit(c)) {
+                    col += Character.getNumericValue(c);
+                } else {
+                    int piece = pieceFromChar(c);
+                    board[i][col] = piece;
+                    col++;
+                }
+            }
+        }
+
+        currentPlayer = parts[1].charAt(0);
+        findAndSetKing();
+    }
+
+    public void findAndSetKing() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                int piece = board[i][j];
+                if ((currentPlayer == 'w' && piece == 5) || (currentPlayer == 'b' && piece == 12)) {
+                    kingRow = i;
+                    kingCol = j;
+                    return;
+                }
             }
         }
     }
-
-    currentPlayer = parts[1].charAt(0);
-}
-
-    private int pieceFromChar(char c) {
+    public int pieceFromChar(char c) {
         switch (c) {
             case 'P': return 6;  // white pawn
             case 'R': return 1;  // white rook
@@ -762,7 +755,7 @@ public void initializeBoard(String fen) {
         }
     }
 
-    private char pieceToChar(int piece) {
+    public char pieceToChar(int piece) {
         switch (piece) {
             case 13:
             case 14:
@@ -791,6 +784,11 @@ public void initializeBoard(String fen) {
         board[startRow][startCol] = 0;
         board[endRow][endCol] = piece;
         currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
+
+        if ((piece == 5 && currentPlayer == 'w') || (piece == 12 && currentPlayer == 'b')) {
+            kingRow = endRow;
+            kingCol = endCol;
+        }
     }
 
     public String getFEN() {
@@ -849,15 +847,17 @@ public void initializeBoard(String fen) {
 
         startTime = LocalDateTime.now();
         //multi-threaded test
-        int[] bestMove = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        int[] result = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
 
         endTime = LocalDateTime.now();
 
         long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
         System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
 
-        System.out.println("bestmove: " + bestMove[0]+ bestMove[1]+ bestMove[2]+ bestMove[3]);
-        game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
+        System.out.println("Node count: " + result[0]);
+
+        System.out.println("bestmove: " + result[1]+ result[2]+ result[3]+ result[4]);
+        game.makeMove(result[1], result[2], result[3], result[4]);
         game.printBoard();
         String newFEN = game.getFEN();
         System.out.println("New FEN string:");
@@ -867,7 +867,17 @@ public void initializeBoard(String fen) {
         int parallelism = Runtime.getRuntime().availableProcessors() * 16;
         ForkJoinPool pool = new ForkJoinPool(parallelism);
         ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
+        int[] result = pool.invoke(task);
+        int nodeCount = task.getNodeCount();
+        return new int[]{nodeCount, result[0], result[1], result[2], result[3]};
+
+        /*
+        int parallelism = Runtime.getRuntime().availableProcessors() * 16;
+        ForkJoinPool pool = new ForkJoinPool(parallelism);
+        ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
         return pool.invoke(task);
+         */
+
 
 /*
         ForkJoinPool pool = new ForkJoinPool();

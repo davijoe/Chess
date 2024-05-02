@@ -8,6 +8,7 @@ public class ParallelMinimax extends RecursiveTask<int[]> {
     private int alpha;
     private int beta;
     private boolean maximizingPlayer;
+    private int nodeCount;
 
     public ParallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
         this.game = game;
@@ -15,6 +16,10 @@ public class ParallelMinimax extends RecursiveTask<int[]> {
         this.alpha = alpha;
         this.beta = beta;
         this.maximizingPlayer = maximizingPlayer;
+        this.nodeCount = 1;
+    }
+    public int getNodeCount() {
+        return nodeCount;
     }
 
     @Override
@@ -39,6 +44,12 @@ public class ParallelMinimax extends RecursiveTask<int[]> {
             ParallelMinimax task = new ParallelMinimax(newGame, depth - 1, alpha, beta, !maximizingPlayer);
             task.fork();
             int[] result = task.join();
+
+            if (result != null) {
+                nodeCount += task.getNodeCount();
+            } else {
+                nodeCount++;
+            }
 
             if (result == null) {
                 int score = newGame.evaluate();
