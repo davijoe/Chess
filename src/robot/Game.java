@@ -795,7 +795,7 @@ public void initializeBoard(String fen) {
 
     public String getFEN() {
         StringBuilder fen = new StringBuilder();
-        for (int i = 0; i < 8; i++) {
+        for (int i = 7; i >= 0; i--) {
             int emptyCount = 0;
             for (int j = 0; j < 8; j++) {
                 if (board[i][j] == 0) {
@@ -811,7 +811,7 @@ public void initializeBoard(String fen) {
             if (emptyCount > 0) {
                 fen.append(emptyCount);
             }
-            if (i < 7) {
+            if (i > 0) {
                 fen.append('/');
             }
         }
@@ -822,6 +822,7 @@ public void initializeBoard(String fen) {
 
 
     public static void main(String[] args) {
+        System.out.println(Runtime.getRuntime().availableProcessors());
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Enter FEN string:");
@@ -848,7 +849,6 @@ public void initializeBoard(String fen) {
 
         startTime = LocalDateTime.now();
         //multi-threaded test
-        ParallelMinimax ParallelMinimax = new ParallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
         int[] bestMove = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
 
         endTime = LocalDateTime.now();
@@ -856,8 +856,9 @@ public void initializeBoard(String fen) {
         long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
         System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
 
+        System.out.println("bestmove: " + bestMove[0]+ bestMove[1]+ bestMove[2]+ bestMove[3]);
         game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
-
+        game.printBoard();
         String newFEN = game.getFEN();
         System.out.println("New FEN string:");
         System.out.println(newFEN);
@@ -868,11 +869,13 @@ public void initializeBoard(String fen) {
         ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
         return pool.invoke(task);
 
-        /*
+/*
         ForkJoinPool pool = new ForkJoinPool();
         ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
         return pool.invoke(task);
-         */
+
+ */
+
     }
 
 
