@@ -717,14 +717,14 @@ public void initializeBoard(String fen) {
     String[] parts = fen.split(" ");
     String[] rows = parts[0].split("/");
 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 7; i >= 0; i--) {
         int col = 0;
-        for (char c : rows[7 - i].toCharArray()) {
+        for (char c : rows[i].toCharArray()) {
             if (Character.isDigit(c)) {
                 col += Character.getNumericValue(c);
             } else {
                 int piece = pieceFromChar(c);
-                board[i][col] = piece;
+                board[7 - i][col] = piece;
                 col++;
             }
         }
@@ -754,7 +754,7 @@ public void initializeBoard(String fen) {
     }
 
     public void printBoard() {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 7; i >= 0; i--) {
             for (int j = 0; j < 8; j++) {
                 System.out.print(pieceToChar(board[i][j]) + " ");
             }
@@ -795,7 +795,7 @@ public void initializeBoard(String fen) {
 
     public String getFEN() {
         StringBuilder fen = new StringBuilder();
-        for (int i = 7; i >= 0; i--) {
+        for (int i = 0; i < 8; i++) {
             int emptyCount = 0;
             for (int j = 0; j < 8; j++) {
                 if (board[i][j] == 0) {
@@ -811,7 +811,7 @@ public void initializeBoard(String fen) {
             if (emptyCount > 0) {
                 fen.append(emptyCount);
             }
-            if (i > 0) {
+            if (i < 7) {
                 fen.append('/');
             }
         }
