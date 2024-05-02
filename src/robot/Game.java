@@ -795,7 +795,7 @@ public void initializeBoard(String fen) {
 
     public String getFEN() {
         StringBuilder fen = new StringBuilder();
-        for (int i = 0; i < 8; i++) {
+        for (int i = 7; i >= 0; i--) {
             int emptyCount = 0;
             for (int j = 0; j < 8; j++) {
                 if (board[i][j] == 0) {
@@ -811,7 +811,7 @@ public void initializeBoard(String fen) {
             if (emptyCount > 0) {
                 fen.append(emptyCount);
             }
-            if (i < 7) {
+            if (i > 0) {
                 fen.append('/');
             }
         }
