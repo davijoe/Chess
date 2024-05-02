@@ -3,6 +3,8 @@ package robot;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
@@ -818,7 +820,6 @@ public void initializeBoard(String fen) {
         return fen.toString();
     }
 
-    private static final int THREAD_COUNT = 6;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -847,7 +848,9 @@ public void initializeBoard(String fen) {
 
         startTime = LocalDateTime.now();
         //multi-threaded test
+        ParallelMinimax ParallelMinimax = new ParallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
         int[] bestMove = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+
         endTime = LocalDateTime.now();
 
         long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
@@ -860,9 +863,16 @@ public void initializeBoard(String fen) {
         System.out.println(newFEN);
     }
     public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
+        int parallelism = Runtime.getRuntime().availableProcessors() * 16;
+        ForkJoinPool pool = new ForkJoinPool(parallelism);
+        ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
+        return pool.invoke(task);
+
+        /*
         ForkJoinPool pool = new ForkJoinPool();
         ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
         return pool.invoke(task);
+         */
     }
 
 
