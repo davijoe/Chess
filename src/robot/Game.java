@@ -717,14 +717,14 @@ public void initializeBoard(String fen) {
     String[] parts = fen.split(" ");
     String[] rows = parts[0].split("/");
 
-    for (int i = 7; i >= 0; i--) {
+    for (int i = 0; i < 8; i++) {
         int col = 0;
-        for (char c : rows[i].toCharArray()) {
+        for (char c : rows[7 - i].toCharArray()) {
             if (Character.isDigit(c)) {
                 col += Character.getNumericValue(c);
             } else {
                 int piece = pieceFromChar(c);
-                board[7 - i][col] = piece;
+                board[i][col] = piece;
                 col++;
             }
         }
