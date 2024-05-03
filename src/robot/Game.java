@@ -863,13 +863,15 @@ public class Game {
         System.out.println("New FEN string:");
         System.out.println(newFEN);
     }
+
     public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
         int parallelism = Runtime.getRuntime().availableProcessors() * 16;
-        ForkJoinPool pool = new ForkJoinPool(parallelism);
-        ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
-        int[] result = pool.invoke(task);
-        int nodeCount = task.getNodeCount();
-        return new int[]{nodeCount, result[0], result[1], result[2], result[3]};
+        try (ForkJoinPool pool = new ForkJoinPool(parallelism)) {
+            ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
+            int[] result = pool.invoke(task);
+            int nodeCount = task.getNodeCount();
+            return new int[]{nodeCount, result[0], result[1], result[2], result[3]};
+        }
 
         /*
         int parallelism = Runtime.getRuntime().availableProcessors() * 16;
@@ -878,13 +880,11 @@ public class Game {
         return pool.invoke(task);
          */
 
-
-/*
+        /*
         ForkJoinPool pool = new ForkJoinPool();
         ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
         return pool.invoke(task);
-
- */
+        */
 
     }
 
