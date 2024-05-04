@@ -30,12 +30,6 @@ public class Game {
     public Game() {
 
     }
-
-    /*
-    public boolean isTileEmpty(int row, int col) {
-        return board[row][col] == 0;
-    }
-     */
     public boolean isTileEmpty(int row, int col) {
         return row >= 0 && row < 8 && col >= 0 && col < 8 && board[row][col] == 0;
     }
@@ -250,20 +244,20 @@ public class Game {
     }
     private boolean isCheckmate() {
         //is check can't escape
-        return isCheck() && !canEscapeCheck();
+        return kingInCheck(kingRow,kingCol) && !canEscapeCheck(kingRow,kingCol);
     }
 
     private boolean kingInCheck(int kingRow, int kingCol) {
         if(kingSeeRook(kingRow,kingCol)) {
-            System.out.println("King is in check by rook or queen");
             return true;
         }
         else if(kingSeeBishop(kingRow,kingCol)) {
-            System.out.println("King is in check by bishop or queen");
             return true;
         }
         else if(knightSeeKing(kingRow, kingCol)) {
-            System.out.println("King is in check by knight");
+            return true;
+        }
+        else if(kingSeePawn(kingRow, kingCol)) {
             return true;
         }
         else return false;
@@ -321,6 +315,10 @@ public class Game {
         }
         return false;
     }
+
+    public boolean kingSeePawn(int kingRow, int kingCol) {
+        return false;
+    }
     private boolean isCheck() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
@@ -360,8 +358,8 @@ public class Game {
         };
     }
 
-    private boolean canEscapeCheck() {
-        //need to be implemented
+    private boolean canEscapeCheck(int kingRow, int kingCol) {
+
         return true;
     }
     private boolean onlyKingLeft() {
