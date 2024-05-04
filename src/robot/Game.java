@@ -322,6 +322,14 @@ public class Game {
     }
 
     public boolean kingSeePawn(int kingRow, int kingCol) {
+        if(currentPlayer=='w') {
+            if(!isTileEmpty(kingRow+1,kingCol+1) || !isTileEmpty(kingRow+1, kingCol-1)) {
+
+            }
+        }
+        else {
+
+        }
         return false;
     }
     private boolean isCheck() {
