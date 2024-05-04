@@ -299,6 +299,7 @@ public class Game {
                 if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol]==9 && currentPlayer=='w' ) {
                     return true;
                 }
+                break;
             }
         }
         return false;
@@ -526,7 +527,8 @@ public class Game {
         game.board[5][5] = 5;
 
         //Introducing black pieces
-        game.board[5][0] = 8;
+        game.board[4][4] = 11;
+        game.board[4][3] = 9;
 
         Random rnd = new Random();
         System.out.println();
