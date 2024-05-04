@@ -230,8 +230,7 @@ public class Game {
             }
             return bestValue;
 
-        }
-        if(!isMaximizing) {
+        } else {
             int bestValue= 100;
             for(int i = 0; i<moves.length; i++) {
                 Game newState = updateGameState(i);
@@ -243,7 +242,6 @@ public class Game {
             return bestValue;
         }
 
-        return 0;
     }
 
     public boolean isGameFinished() {
@@ -343,30 +341,23 @@ public class Game {
         int dy = Math.abs(kingRow - attackerRow);
         int dx = Math.abs(kingCol - attackerCol);
 
-        switch (attacker) {
-            case 6: // white pawn
-            case 7: // white pawn
-            case 13: // black pawn
-            case 14: // black pawn
-                return (dy == 1 && dx == 1);
-            case 2: // white knight
-            case 9: // black knight
-                return (dy == 2 && dx == 1) || (dy == 1 && dx == 2);
-            case 1: // white rook
-            case 8: // black rook
-                return (dy == 0 && dx > 0) || (dx == 0 && dy > 0);
-            case 3: // white bishop
-            case 10: // black bishop
-                return (dy == dx);
-            case 4: // white queen
-            case 11: // black queen
-                return (dy == 0 && dx > 0) || (dx == 0 && dy > 0) || (dy == dx);
-            case 5: // white king
-            case 12: // black king
-                return (dy <= 1 && dx <= 1);
-            default:
-                return false;
-        }
+        return switch (attacker) { // white pawn
+            // white pawn
+            // black pawn
+            case 6, 7, 13, 14 -> // black pawn
+                    (dy == 1 && dx == 1); // white knight
+            case 2, 9 -> // black knight
+                    (dy == 2 && dx == 1) || (dy == 1 && dx == 2); // white rook
+            case 1, 8 -> // black rook
+                    (dy == 0 && dx > 0) || (dx == 0 && dy > 0); // white bishop
+            case 3, 10 -> // black bishop
+                    (dy == dx); // white queen
+            case 4, 11 -> // black queen
+                    (dy == 0 && dx > 0) || (dx == 0 && dy > 0) || (dy == dx); // white king
+            case 5, 12 -> // black king
+                    (dy <= 1 && dx <= 1);
+            default -> false;
+        };
     }
 
     private boolean canEscapeCheck() {
@@ -587,23 +578,23 @@ public class Game {
         }
     }
     public int pieceFromChar(char c) {
-        switch (c) {
-            case 'P': return 6;  // white pawn
-            case 'R': return 1;  // white rook
-            case 'N': return 2;  // white knight
-            case 'B': return 3;  // white bishop
-            case 'Q': return 4;  // white queen
-            case 'K': return 5;  // white king
+        return switch (c) {
+            case 'P' -> 6;  // white pawn
+            case 'R' -> 1;  // white rook
+            case 'N' -> 2;  // white knight
+            case 'B' -> 3;  // white bishop
+            case 'Q' -> 4;  // white queens
+            case 'K' -> 5;  // white king
 
-            case 'p': return 13;  // black pawn
-            case 'r': return 8;  // black rook
-            case 'n': return 9;  // black knight
-            case 'b': return 10; // black bishop
-            case 'q': return 11; // black queen
-            case 'k': return 12; // black king
+            case 'p' -> 13;  // black pawn
+            case 'r' -> 8;  // black rook
+            case 'n' -> 9;  // black knight
+            case 'b' -> 10; // black bishop
+            case 'q' -> 11; // black queen
+            case 'k' -> 12; // black king
 
-            default: return 0;   // empty square
-        }
+            default -> 0;   // empty square
+        };
     }
 
     public void printBoard() {
@@ -616,27 +607,23 @@ public class Game {
     }
 
     public char pieceToChar(int piece) {
-        switch (piece) {
-            case 13:
-            case 14:
-                return 'p';  // black pawn
+        return switch (piece) {
+            case 13, 14 -> 'p';  // black pawn
 
-            case 8:  return 'r';  // black rook
-            case 9:  return 'n';  // black knight
-            case 10: return 'b';  // black bishop
-            case 11: return 'q';  // black queen
-            case 12: return 'k';  // black king
+            case 8 -> 'r';  // black rook
+            case 9 -> 'n';  // black knight
+            case 10 -> 'b';  // black bishop
+            case 11 -> 'q';  // black queen
+            case 12 -> 'k';  // black king
 
-            case 6:
-            case 7:
-                return 'P';  // white pawn
-            case 1:  return 'R';  // white rook
-            case 2:  return 'N';  // white knight
-            case 3:  return 'B';  // white bishop
-            case 4:  return 'Q';  // white queen
-            case 5:  return 'K';  // white king
-            default: return '.';  // empty square
-        }
+            case 6, 7 -> 'P';  // white pawn
+            case 1 -> 'R';  // white rook
+            case 2 -> 'N';  // white knight
+            case 3 -> 'B';  // white bishop
+            case 4 -> 'Q';  // white queen
+            case 5 -> 'K';  // white king
+            default -> '.';  // empty square
+        };
     }
 
     public void makeMove(int startRow, int startCol, int endRow, int endCol) {
