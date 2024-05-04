@@ -2,6 +2,7 @@ package robot;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 
@@ -102,190 +103,50 @@ public class Game {
     }
 
 
-
-    public void generateRookMoves(int row, int col) {
-        int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
+    public void pieceMoveLogic(int[][] directions, int row, int col, boolean canSlide) {
         for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
+            int newRow = row + direction[0];
+            int newCol = col + direction[1];
+            while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
+                if(!isTileEmpty(newRow, newCol)) {
+                    if(board[newRow][newCol] > 7 && currentPlayer == 'w' || board[newRow][newCol] <= 7 && currentPlayer == 'b') {
+                        addMove(row,col,newRow,newCol,board[row][col]);
                     }
                     break;
                 }
-                if(isTileEmpty(rowNew,colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    /*
-                    System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                    System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                     */
-                    moves[generateMoveCounter][4] = board[row][col];
-                    generateMoveCounter++;
+                else {
+                    addMove(row,col,newRow,newCol,board[row][col]);
                 }
-                rowNew += direction[0];
-                colNew += direction[1];
+                if(!canSlide) {
+                    break;
+                }
+                newRow += direction[0];
+                newCol += direction[1];
             }
         }
+    }
 
+    public void generateRookMoves(int row, int col) {
+        int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
+        pieceMoveLogic(directions,row,col,true);
     }
 
     public void generateBishopMoves(int row, int col) {
         int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}};
-        for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
-                    }
-                    break;
-                }
-                if(isTileEmpty(rowNew,colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    moves[generateMoveCounter][4] = board[row][col];
-                    /*
-                    System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                    System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                     */
-                    generateMoveCounter++;
-                }
-                rowNew += direction[0];
-                colNew += direction[1];
-            }
-        }
-
-
+        pieceMoveLogic(directions, row, col, true);
     }
     public void generateKnightMoves(int row, int col) {
         int[][] directions = {{2,1}, {2,-1}, {1,2}, {-1,2}, {-2,1}, {-2,-1}, {-1,-2}, {1,-2}};
-        for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            if (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
-                    }
-                    break;
-                }
-                if(isTileEmpty(rowNew,colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    moves[generateMoveCounter][4] = board[row][col];
-                    /*
-                    System.out.println("\nKnight Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                    System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                     */
-                    generateMoveCounter++;
-                }
-            }
-        }
-
+        pieceMoveLogic(directions, row, col, false);
     }
+
     public void generateQueenMoves(int row, int col) {
         int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}, {-1,0}, {1,0}, {0,1}, {0,-1}};
-        for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            while (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
-                    }
-                    break;
-                }
-                if(isTileEmpty(rowNew,colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    moves[generateMoveCounter][4] = board[row][col];
-                    generateMoveCounter++;
-                }
-                rowNew += direction[0];
-                colNew += direction[1];
-            }
-        }
-
+        pieceMoveLogic(directions, row, col,true);
     }
     public void generateKingMoves(int row, int col) {
         int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}, {-1,0}, {1,0}, {0,1}, {0,-1}};
-        for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            if (0<=rowNew && rowNew<8 && 0<=colNew && colNew<8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if(board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
-                    }
-                    break;
-                }
-                if(isTileEmpty(rowNew,colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    moves[generateMoveCounter][4] = board[row][col];
-                    generateMoveCounter++;
-                }
-            }
-        }
+        pieceMoveLogic(directions,row,col,false);
     }
     public void generatePawnMoves(int row, int col) {
         int piece = board[row][col];
@@ -315,78 +176,6 @@ public class Game {
         moves[generateMoveCounter][4] = piece;
         generateMoveCounter++;
     }
-
-/*
-    public void generatePawnMoves(int row, int col) {
-        if (board[row][col]==6) {
-            if(isTileEmpty(row+1,col)) {
-                if(isTileEmpty(row+2,col) && row==1) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = row+2;
-                    moves[generateMoveCounter][3] = col;
-                    moves[generateMoveCounter][4] = 6;
-                    generateMoveCounter++;
-                }
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row+1;
-                moves[generateMoveCounter][3] = col;
-                moves[generateMoveCounter][4] = 6;
-                generateMoveCounter++;
-            }
-            if(!isTileEmpty(row+1,col+1) && board[row+1][col+1] > 6) {
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row+1;
-                moves[generateMoveCounter][3] = col+1;
-                moves[generateMoveCounter][4] = 6;
-                generateMoveCounter++;
-            }
-            if(!isTileEmpty(row+1,col-1) && board[row+1][col-1] > 6) {
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row+1;
-                moves[generateMoveCounter][3] = col-1;
-                moves[generateMoveCounter][4] = 6;
-                generateMoveCounter++;
-            }
-        }
-
-        if(board[row][col]==12) {
-            if(isTileEmpty(row-1,col)) {
-                if(isTileEmpty(row-2,col) && row==6) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = row-2;
-                    moves[generateMoveCounter][3] = col;
-                    generateMoveCounter++;
-                }
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row-1;
-                moves[generateMoveCounter][3] = col;
-                generateMoveCounter++;
-            }
-            if(!isTileEmpty(row-1,col+1) && board[row-1][col+1] <= 6) {
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row-1;
-                moves[generateMoveCounter][3] = col+1;
-                moves[generateMoveCounter][4] = 12;
-                generateMoveCounter++;
-            }
-            if(!isTileEmpty(row-1,col-1) && board[row-1][col-1] <= 6) {
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row-1;
-                moves[generateMoveCounter][3] = col-1;
-                moves[generateMoveCounter][4] = 12;
-                generateMoveCounter++;
-            }
-        }
-    }
- */
 
     public Game(Game currentGame) {
         for (int i = 0; i< board.length; i++) {
@@ -466,6 +255,73 @@ public class Game {
         return isCheck() && !canEscapeCheck();
     }
 
+    private boolean kingInCheck(int kingRow, int kingCol) {
+        if(kingSeeRook(kingRow,kingCol)) {
+            System.out.println("King is in check by rook or queen");
+            return true;
+        }
+        else if(kingSeeBishop(kingRow,kingCol)) {
+            System.out.println("King is in check by bishop or queen");
+            return true;
+        }
+        else if(knightSeeKing(kingRow, kingCol)) {
+            System.out.println("King is in check by knight");
+            return true;
+        }
+        else return false;
+    }
+
+    public boolean kingSeeBishop(int kingRow, int kingCol) {
+        int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}};
+        for (int[] direction : directions) {
+            int newRow = kingRow + direction[0];
+            int newCol = kingCol + direction[1];
+            while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
+                if(!isTileEmpty(newRow, newCol)) {
+                    if((board[newRow][newCol] == 10 || board[newRow][newCol]==11) && currentPlayer == 'w' || (board[newRow][newCol]==3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                        return true;
+                    }
+                    break;
+                }
+                newRow += direction[0];
+                newCol += direction[1];
+            }
+        }
+        return false;
+    }
+
+    public boolean knightSeeKing(int kingRow, int kingCol) {
+        int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
+        for (int[] direction : directions) {
+            int newRow = kingRow + direction[0];
+            int newCol = kingCol + direction[1];
+            while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
+                if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol]==9 && currentPlayer=='w' ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    public boolean kingSeeRook(int kingRow, int kingCol) {
+        int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
+        for (int[] direction : directions) {
+            int newRow = kingRow + direction[0];
+            int newCol = kingCol + direction[1];
+            while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
+                if(!isTileEmpty(newRow, newCol)) {
+                    if(((board[newRow][newCol] == 8 || board[newRow][newCol]==11) && currentPlayer == 'w')) return true;
+                    if((board[newRow][newCol]==1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                        return true;
+                    }
+                    break;
+                }
+                    newRow += direction[0];
+                    newCol += direction[1];
+            }
+        }
+        return false;
+    }
     private boolean isCheck() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
@@ -661,13 +517,13 @@ public class Game {
         this.currentPlayer = currentPlayer;
     }
 
-/*
     public static void main(String[] args) {
 
         Game game = new Game();
 
-        //Rook = !, Knight = 2, Bishop = 3
+        //Rook = 1, Knight = 2, Bishop = 3
         game.board[0][0] = 1;
+        game.board[5][5] = 5;
 
         //Introducing black pieces
         game.board[5][0] = 8;
@@ -675,13 +531,15 @@ public class Game {
         Random rnd = new Random();
         System.out.println();
 
-        game.currentPlayer = 'b';
-        System.out.println("Blacks turn");
+        game.currentPlayer = 'w';
+        System.out.println("White turn");
         game.generateMoves(game);
+        game.kingInCheck(5,5);
 
         Game newState = game.updateGameState(2);
         System.out.println(newState.currentPlayer);
         newState.generateMoves(newState);
+        game.kingInCheck(5,5);
 
 
         Game newnew = newState.updateGameState(1);
@@ -691,8 +549,8 @@ public class Game {
         newnew.generateMoves(newnew);
 
     }
-}
-*/
+
+
     public void initializeBoard(String fen) {
         String[] parts = fen.split(" ");
         String[] rows = parts[0].split("/");
@@ -819,50 +677,50 @@ public class Game {
     }
 
 
-    public static void main(String[] args) {
-        System.out.println(Runtime.getRuntime().availableProcessors());
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Enter FEN string:");
-        String fen = scanner.nextLine();
-
-        System.out.println("Enter search depth for Minimax:");
-        int depth = scanner.nextInt();
-
-        Game game = new Game();
-        game.initializeBoard(fen);
-        game.printBoard();
-
-        LocalDateTime startTime;
-        LocalDateTime endTime;
-        /*
-        startTime = LocalDateTime.now();
-        //single-threaded test
-        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
-        endTime = LocalDateTime.now();
-
-        long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
-        System.out.println("Single-threaded Minimax Time: " + singleThreadedTime + " milliseconds");
-         */
-
-        startTime = LocalDateTime.now();
-        //multi-threaded test
-        int[] result = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
-
-        endTime = LocalDateTime.now();
-
-        long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
-        System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
-
-        System.out.println("Node count: " + result[0]);
-
-        System.out.println("bestmove: " + result[1]+ result[2]+ result[3]+ result[4]);
-        game.makeMove(result[1], result[2], result[3], result[4]);
-        game.printBoard();
-        String newFEN = game.getFEN();
-        System.out.println("New FEN string:");
-        System.out.println(newFEN);
-    }
+//    public static void main(String[] args) {
+//        System.out.println(Runtime.getRuntime().availableProcessors());
+//        Scanner scanner = new Scanner(System.in);
+//
+//        System.out.println("Enter FEN string:");
+//        String fen = scanner.nextLine();
+//
+//        System.out.println("Enter search depth for Minimax:");
+//        int depth = scanner.nextInt();
+//
+//        Game game = new Game();
+//        game.initializeBoard(fen);
+//        game.printBoard();
+//
+//        LocalDateTime startTime;
+//        LocalDateTime endTime;
+//        /*
+//        startTime = LocalDateTime.now();
+//        //single-threaded test
+//        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+//        endTime = LocalDateTime.now();
+//
+//        long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
+//        System.out.println("Single-threaded Minimax Time: " + singleThreadedTime + " milliseconds");
+//         */
+//
+//        startTime = LocalDateTime.now();
+//        //multi-threaded test
+//        int[] result = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+//
+//        endTime = LocalDateTime.now();
+//
+//        long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
+//        System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
+//
+//        System.out.println("Node count: " + result[0]);
+//
+//        System.out.println("bestmove: " + result[1]+ result[2]+ result[3]+ result[4]);
+//        game.makeMove(result[1], result[2], result[3], result[4]);
+//        game.printBoard();
+//        String newFEN = game.getFEN();
+//        System.out.println("New FEN string:");
+//        System.out.println(newFEN);
+//    }
     public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
         int parallelism = Runtime.getRuntime().availableProcessors() * 16;
         ForkJoinPool pool = new ForkJoinPool(parallelism);
