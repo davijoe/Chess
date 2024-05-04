@@ -30,6 +30,13 @@ public class Game {
     public Game() {
 
     }
+
+    /*
+    public boolean isTileEmpty(int row, int col) {
+        return board[row][col] == 0;
+    }
+    */
+
     public boolean isTileEmpty(int row, int col) {
         return row >= 0 && row < 8 && col >= 0 && col < 8 && board[row][col] == 0;
     }
@@ -61,10 +68,8 @@ public class Game {
                     if (game.board[row][col] == 6 || game.board[row][col]==7) {
                         generatePawnMoves(row, col);
                     }
-
                 }
             }
-
         }
         if(currentPlayer == 'b') {
             for (int row = 0; row<8; row++) {
@@ -155,10 +160,10 @@ public class Game {
             addMove(row, col, row + direction, col, piece);
         }
 
-        if (col + 1 < 8 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col + 1) && board[row + direction][col + 1] / 7 != piece / 7) {
+        if (col + 1 < 8 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col + 1) && board[row + direction][col + 1] / 8 != piece / 8) {
             addMove(row, col, row + direction, col + 1, piece);
         }
-        if (col - 1 >= 0 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col - 1) && board[row + direction][col - 1] / 7 != piece / 7) {
+        if (col - 1 >= 0 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col - 1) && board[row + direction][col - 1] / 8 != piece / 8) {
             addMove(row, col, row + direction, col - 1, piece);
         }
     }
@@ -270,7 +275,7 @@ public class Game {
             int newCol = kingCol + direction[1];
             while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
                 if(!isTileEmpty(newRow, newCol)) {
-                    if((board[newRow][newCol] == 10 || board[newRow][newCol]==11) && currentPlayer == 'w' || (board[newRow][newCol]==3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                    if((board[newRow][newCol] == 11 || board[newRow][newCol]==12) && currentPlayer == 'w' || (board[newRow][newCol]==3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
                         return true;
                     }
                     break;
@@ -288,7 +293,7 @@ public class Game {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
-                if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol]==9 && currentPlayer=='w' ) {
+                if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol]==10 && currentPlayer=='w' ) {
                     return true;
                 }
                 break;
@@ -303,7 +308,7 @@ public class Game {
             int newCol = kingCol + direction[1];
             while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
                 if(!isTileEmpty(newRow, newCol)) {
-                    if(((board[newRow][newCol] == 8 || board[newRow][newCol]==11) && currentPlayer == 'w')) return true;
+                    if(((board[newRow][newCol] == 9 || board[newRow][newCol]==12) && currentPlayer == 'w')) return true;
                     if((board[newRow][newCol]==1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
                         return true;
                     }
@@ -342,17 +347,17 @@ public class Game {
         return switch (attacker) { // white pawn
             // white pawn
             // black pawn
-            case 6, 7, 13, 14 -> // black pawn
+            case 6, 7, 14, 15 -> // black pawn
                     (dy == 1 && dx == 1); // white knight
-            case 2, 9 -> // black knight
+            case 2, 10 -> // black knight
                     (dy == 2 && dx == 1) || (dy == 1 && dx == 2); // white rook
-            case 1, 8 -> // black rook
+            case 1, 9 -> // black rook
                     (dy == 0 && dx > 0) || (dx == 0 && dy > 0); // white bishop
-            case 3, 10 -> // black bishop
+            case 3, 11 -> // black bishop
                     (dy == dx); // white queen
-            case 4, 11 -> // black queen
+            case 4, 12 -> // black queen
                     (dy == 0 && dx > 0) || (dx == 0 && dy > 0) || (dy == dx); // white king
-            case 5, 12 -> // black king
+            case 5, 13 -> // black king
                     (dy <= 1 && dx <= 1);
             default -> false;
         };
@@ -370,7 +375,7 @@ public class Game {
             for (int piece : row) {
                 if (piece == 1 || piece == 2 || piece == 3 || piece == 4 || piece == 5 || piece == 6 ||piece == 7) {
                     numWhitePieces++;
-                } else if (piece == 8 || piece == 9 || piece == 10 || piece == 11 || piece == 12 || piece == 13 || piece == 14) {
+                } else if (piece == 9 || piece == 10 || piece == 11 || piece == 12 || piece == 13 || piece == 14 || piece == 15) {
                     numBlackPieces++;
                 }
             }
@@ -401,31 +406,24 @@ public class Game {
     }
 
     private int getPieceValue(int piece) {
-        switch (piece) {
-            case 6: // white pawn
-            case 7: // white pawn
-            case 13: // black pawn
-            case 14: // black pawn
-                return 100;
-            case 2:  // White knight
-            case 9:  // Black knight
-                return 300;
-            case 3:  // White bishop
-            case 10: // Black bishop
-                return 300;
-            case 1:  // White rook
-            case 8:  // Black rook
-                return 500;
-            case 4:  // White queen
-            case 11: // Black queen
-                return 900;
-            case 5:  // White king
-            case 12: // Black king
+        return switch (piece) { // white pawn
+            // white pawn
+            // black pawn
+            case 6, 7, 14, 15 -> // black pawn
+                    100;  // White knight
+            case 2, 10 ->  // Black knight
+                    300;  // White bishop
+            case 3, 11 -> // Black bishop
+                    300;  // White rook
+            case 1, 9 ->  // Black rook
+                    500;  // White queen
+            case 4, 12 -> // Black queen
+                    900;  // White king
+            case 5, 13 -> // Black king
                 //king got no value from what i found
-                return 0;
-            default:
-                return 0;
-        }
+                    0;
+            default -> 0;
+        };
     }
 
     private int getPiecePositionValue(int piece, int row, int col) {
@@ -435,29 +433,29 @@ public class Game {
             case 7:  // White pawn
                 value += row * 10;
                 break;
-            case 13: // Black pawn
             case 14: // Black pawn
+            case 15: // Black pawn
                 value += (7 - row) * 10;
                 break;
             case 2:  // White knight
-            case 9:  // Black knight
+            case 10:  // Black knight
                 //adds points in increment of 5 depending on distance from center
                 value += (3 - Math.abs(row - 3)) * 5 + (3 - Math.abs(col - 3)) * 5;
                 break;
             case 3:  // White bishop
-            case 10: // Black bishop
+            case 11: // Black bishop
                 value += (3 - Math.abs(row - 3)) * 5 + (3 - Math.abs(col - 3)) * 5;
                 break;
             case 1:  // White rook
-            case 8:  // Black rook
+            case 9:  // Black rook
                 value += (Math.abs(row - 3) + Math.abs(col - 3)) * 5;
                 break;
             case 4:  // White queen
-            case 11: // Black queen
+            case 12: // Black queen
                 value += 20;
                 break;
             case 5:  // White king
-            case 12: // Black king
+            case 13: // Black king
                 break;
         }
         return value;
@@ -507,39 +505,39 @@ public class Game {
         this.currentPlayer = currentPlayer;
     }
 
-    public static void main(String[] args) {
-
-        Game game = new Game();
-
-        //Rook = 1, Knight = 2, Bishop = 3
-        game.board[0][0] = 1;
-        game.board[5][5] = 5;
-
-        //Introducing black pieces
-        game.board[4][4] = 11;
-        game.board[4][3] = 9;
-
-        Random rnd = new Random();
-        System.out.println();
-
-        game.currentPlayer = 'w';
-        System.out.println("White turn");
-        game.generateMoves(game);
-        game.kingInCheck(5,5);
-
-        Game newState = game.updateGameState(2);
-        System.out.println(newState.currentPlayer);
-        newState.generateMoves(newState);
-        game.kingInCheck(5,5);
-
-
-        Game newnew = newState.updateGameState(1);
-
-        System.out.println(newnew.currentPlayer);
-
-        newnew.generateMoves(newnew);
-
-    }
+//    public static void main(String[] args) {
+//
+//        Game game = new Game();
+//
+//        //Rook = 1, Knight = 2, Bishop = 3
+//        game.board[0][0] = 1;
+//        game.board[5][5] = 5;
+//
+//        //Introducing black pieces
+//        game.board[4][4] = 12;
+//        game.board[4][3] = 10;
+//
+//        Random rnd = new Random();
+//        System.out.println();
+//
+//        game.currentPlayer = 'w';
+//        System.out.println("White's turn");
+//        game.generateMoves(game);
+//        game.kingInCheck(5,5);
+//
+//        Game newState = game.updateGameState(2);
+//        System.out.println(newState.currentPlayer);
+//        newState.generateMoves(newState);
+//        game.kingInCheck(5,5);
+//
+//
+//        Game newnew = newState.updateGameState(1);
+//
+//        System.out.println(newnew.currentPlayer);
+//
+//        newnew.generateMoves(newnew);
+//
+//    }
 
 
     public void initializeBoard(String fen) {
@@ -584,12 +582,12 @@ public class Game {
             case 'Q' -> 4;  // white queens
             case 'K' -> 5;  // white king
 
-            case 'p' -> 13;  // black pawn
-            case 'r' -> 8;  // black rook
-            case 'n' -> 9;  // black knight
-            case 'b' -> 10; // black bishop
-            case 'q' -> 11; // black queen
-            case 'k' -> 12; // black king
+            case 'p' -> 14;  // black pawn
+            case 'r' -> 9;  // black rook
+            case 'n' -> 10;  // black knight
+            case 'b' -> 11; // black bishop
+            case 'q' -> 12; // black queen
+            case 'k' -> 13; // black king
 
             default -> 0;   // empty square
         };
@@ -606,13 +604,13 @@ public class Game {
 
     public char pieceToChar(int piece) {
         return switch (piece) {
-            case 13, 14 -> 'p';  // black pawn
+            case 14, 15 -> 'p';  // black pawn
 
-            case 8 -> 'r';  // black rook
-            case 9 -> 'n';  // black knight
-            case 10 -> 'b';  // black bishop
-            case 11 -> 'q';  // black queen
-            case 12 -> 'k';  // black king
+            case 9 -> 'r';  // black rook
+            case 10 -> 'n';  // black knight
+            case 11 -> 'b';  // black bishop
+            case 12 -> 'q';  // black queen
+            case 13 -> 'k';  // black king
 
             case 6, 7 -> 'P';  // white pawn
             case 1 -> 'R';  // white rook
@@ -630,7 +628,7 @@ public class Game {
         board[endRow][endCol] = piece;
         currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
 
-        if ((piece == 5 && currentPlayer == 'w') || (piece == 12 && currentPlayer == 'b')) {
+        if ((piece == 5 && currentPlayer == 'w') || (piece == 13 && currentPlayer == 'b')) {
             kingRow = endRow;
             kingCol = endCol;
         }
@@ -664,50 +662,50 @@ public class Game {
     }
 
 
-//    public static void main(String[] args) {
-//        System.out.println(Runtime.getRuntime().availableProcessors());
-//        Scanner scanner = new Scanner(System.in);
-//
-//        System.out.println("Enter FEN string:");
-//        String fen = scanner.nextLine();
-//
-//        System.out.println("Enter search depth for Minimax:");
-//        int depth = scanner.nextInt();
-//
-//        Game game = new Game();
-//        game.initializeBoard(fen);
-//        game.printBoard();
-//
-//        LocalDateTime startTime;
-//        LocalDateTime endTime;
-//        /*
-//        startTime = LocalDateTime.now();
-//        //single-threaded test
-//        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
-//        endTime = LocalDateTime.now();
-//
-//        long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
-//        System.out.println("Single-threaded Minimax Time: " + singleThreadedTime + " milliseconds");
-//         */
-//
-//        startTime = LocalDateTime.now();
-//        //multi-threaded test
-//        int[] result = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
-//
-//        endTime = LocalDateTime.now();
-//
-//        long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
-//        System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
-//
-//        System.out.println("Node count: " + result[0]);
-//
-//        System.out.println("bestmove: " + result[1]+ result[2]+ result[3]+ result[4]);
-//        game.makeMove(result[1], result[2], result[3], result[4]);
-//        game.printBoard();
-//        String newFEN = game.getFEN();
-//        System.out.println("New FEN string:");
-//        System.out.println(newFEN);
-//    }
+    public static void main(String[] args) {
+        System.out.println(Runtime.getRuntime().availableProcessors());
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter FEN string:");
+        String fen = scanner.nextLine();
+
+        System.out.println("Enter search depth for Minimax:");
+        int depth = scanner.nextInt();
+
+        Game game = new Game();
+        game.initializeBoard(fen);
+        game.printBoard();
+
+        LocalDateTime startTime;
+        LocalDateTime endTime;
+        /*
+        startTime = LocalDateTime.now();
+        //single-threaded test
+        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        endTime = LocalDateTime.now();
+
+        long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
+        System.out.println("Single-threaded Minimax Time: " + singleThreadedTime + " milliseconds");
+         */
+
+        startTime = LocalDateTime.now();
+        //multi-threaded test
+        int[] result = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+
+        endTime = LocalDateTime.now();
+
+        long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
+        System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
+
+        System.out.println("Node count: " + result[0]);
+
+        System.out.println("bestmove: " + result[1]+ result[2]+ result[3]+ result[4]);
+        game.makeMove(result[1], result[2], result[3], result[4]);
+        game.printBoard();
+        String newFEN = game.getFEN();
+        System.out.println("New FEN string:");
+        System.out.println(newFEN);
+    }
     public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
         int parallelism = Runtime.getRuntime().availableProcessors() * 16;
         ForkJoinPool pool = new ForkJoinPool(parallelism);
