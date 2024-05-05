@@ -2,6 +2,7 @@ package robot;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 
@@ -34,21 +35,22 @@ public class Game {
     public boolean isTileEmpty(int row, int col) {
         return board[row][col] == 0;
     }
-     */
+    */
+
     public boolean isTileEmpty(int row, int col) {
         return row >= 0 && row < 8 && col >= 0 && col < 8 && board[row][col] == 0;
     }
 
     public void generateMoves(Game game) {
         if (currentPlayer == 'w') {
-            for (int row = 0; row < 8; row++) {
+            for (int row = 0; row<8; row++) {
                 for (int col = 0; col < 8; col++) {
                     if (game.board[row][col] == 1) {
                         generateRookMoves(row, col);
                     }
 
                     if (game.board[row][col] == 2) {
-                        generateKnightMoves(row, col);
+                        generateKnightMoves(row,col);
                     }
 
                     if (game.board[row][col] == 3) {
@@ -63,23 +65,21 @@ public class Game {
                         generateKingMoves(row, col);
                     }
 
-                    if (game.board[row][col] == 6 || game.board[row][col] == 7) {
+                    if (game.board[row][col] == 6 || game.board[row][col]==7) {
                         generatePawnMoves(row, col);
                     }
-
                 }
             }
-
         }
-        if (currentPlayer == 'b') {
-            for (int row = 0; row < 8; row++) {
+        if(currentPlayer == 'b') {
+            for (int row = 0; row<8; row++) {
                 for (int col = 0; col < 8; col++) {
                     if (game.board[row][col] == 8) {
                         generateRookMoves(row, col);
                     }
 
                     if (game.board[row][col] == 9) {
-                        generateKnightMoves(row, col);
+                        generateKnightMoves(row,col);
                     }
 
                     if (game.board[row][col] == 10) {
@@ -93,7 +93,7 @@ public class Game {
                     if (game.board[row][col] == 12) {
                         generateKingMoves(row, col);
                     }
-                    if (game.board[row][col] == 13 || game.board[row][col] == 14) {
+                    if (game.board[row][col] == 13 || game.board[row][col]== 14) {
                         generatePawnMoves(row, col);
                     }
                 }
@@ -102,198 +102,51 @@ public class Game {
     }
 
 
-    public void generateRookMoves(int row, int col) {
-        int[][] directions = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+    public void pieceMoveLogic(int[][] directions, int row, int col, boolean canSlide) {
         for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            while (0 <= rowNew && rowNew < 8 && 0 <= colNew && colNew < 8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if (board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
+            int newRow = row + direction[0];
+            int newCol = col + direction[1];
+            while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
+                if(!isTileEmpty(newRow, newCol)) {
+                    if(board[newRow][newCol] > 7 && currentPlayer == 'w' || board[newRow][newCol] <= 7 && currentPlayer == 'b') {
+                        addMove(row,col,newRow,newCol,board[row][col]);
                     }
                     break;
                 }
-                if (isTileEmpty(rowNew, colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    /*
-                    System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                    System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                     */
-                    moves[generateMoveCounter][4] = board[row][col];
-                    generateMoveCounter++;
+                else {
+                    addMove(row,col,newRow,newCol,board[row][col]);
                 }
-                rowNew += direction[0];
-                colNew += direction[1];
+                if(!canSlide) {
+                    break;
+                }
+                newRow += direction[0];
+                newCol += direction[1];
             }
         }
+    }
 
+    public void generateRookMoves(int row, int col) {
+        int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
+        pieceMoveLogic(directions,row,col,true);
     }
 
     public void generateBishopMoves(int row, int col) {
-        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}};
-        for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            while (0 <= rowNew && rowNew < 8 && 0 <= colNew && colNew < 8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if (board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
-                    }
-                    break;
-                }
-                if (isTileEmpty(rowNew, colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    moves[generateMoveCounter][4] = board[row][col];
-                    /*
-                    System.out.println("\nBishop Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                    System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                     */
-                    generateMoveCounter++;
-                }
-                rowNew += direction[0];
-                colNew += direction[1];
-            }
-        }
-
-
+        int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}};
+        pieceMoveLogic(directions, row, col, true);
     }
-
     public void generateKnightMoves(int row, int col) {
-        int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
-        for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            if (0 <= rowNew && rowNew < 8 && 0 <= colNew && colNew < 8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if (board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
-                    }
-                    break;
-                }
-                if (isTileEmpty(rowNew, colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    moves[generateMoveCounter][4] = board[row][col];
-                    /*
-                    System.out.println("\nKnight Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                    System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                     */
-                    generateMoveCounter++;
-                }
-            }
-        }
-
+        int[][] directions = {{2,1}, {2,-1}, {1,2}, {-1,2}, {-2,1}, {-2,-1}, {-1,-2}, {1,-2}};
+        pieceMoveLogic(directions, row, col, false);
     }
 
     public void generateQueenMoves(int row, int col) {
-        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 0}, {1, 0}, {0, 1}, {0, -1}};
-        for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            while (0 <= rowNew && rowNew < 8 && 0 <= colNew && colNew < 8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if (board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nQueen Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
-                    }
-                    break;
-                }
-                if (isTileEmpty(rowNew, colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    /*
-                    System.out.println("\nQueen Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                    System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                     */
-                    moves[generateMoveCounter][4] = board[row][col];
-                    generateMoveCounter++;
-                }
-                rowNew += direction[0];
-                colNew += direction[1];
-            }
-        }
-
+        int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}, {-1,0}, {1,0}, {0,1}, {0,-1}};
+        pieceMoveLogic(directions, row, col,true);
     }
-
     public void generateKingMoves(int row, int col) {
-        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 0}, {1, 0}, {0, 1}, {0, -1}};
-        for (int[] direction : directions) {
-            int rowNew = row + direction[0];
-            int colNew = col + direction[1];
-            if (0 <= rowNew && rowNew < 8 && 0 <= colNew && colNew < 8) {
-                if (!isTileEmpty(rowNew, colNew)) {
-                    if (board[rowNew][colNew] > 7 && currentPlayer == 'w' || board[rowNew][colNew] <= 7 && currentPlayer == 'b') {
-                        moves[generateMoveCounter][0] = row;
-                        moves[generateMoveCounter][1] = col;
-                        moves[generateMoveCounter][2] = rowNew;
-                        moves[generateMoveCounter][3] = colNew;
-                        /*
-                        System.out.println("\nRook Move nr: " + generateMoveCounter + "\nRow, Col: (" + row+", "+col+")");
-                        System.out.println("New Row, Col: (" + rowNew+", "+colNew+")");
-                         */
-                        moves[generateMoveCounter][4] = board[row][col];
-                        generateMoveCounter++;
-                    }
-                    break;
-                }
-                if (isTileEmpty(rowNew, colNew)) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = rowNew;
-                    moves[generateMoveCounter][3] = colNew;
-                    moves[generateMoveCounter][4] = board[row][col];
-                    generateMoveCounter++;
-                }
-            }
-        }
+        int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}, {-1,0}, {1,0}, {0,1}, {0,-1}};
+        pieceMoveLogic(directions,row,col,false);
     }
-
     public void generatePawnMoves(int row, int col) {
         int piece = board[row][col];
         int direction = (piece == 6) ? 1 : -1; // 1 for white, -1 for black
@@ -307,14 +160,13 @@ public class Game {
             addMove(row, col, row + direction, col, piece);
         }
 
-        if (col + 1 < 8 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col + 1) && board[row + direction][col + 1] / 7 != piece / 7) {
+        if (col + 1 < 8 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col + 1) && board[row + direction][col + 1] / 8 != piece / 8) {
             addMove(row, col, row + direction, col + 1, piece);
         }
-        if (col - 1 >= 0 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col - 1) && board[row + direction][col - 1] / 7 != piece / 7) {
+        if (col - 1 >= 0 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col - 1) && board[row + direction][col - 1] / 8 != piece / 8) {
             addMove(row, col, row + direction, col - 1, piece);
         }
     }
-
     private void addMove(int startRow, int startCol, int endRow, int endCol, int piece) {
         moves[generateMoveCounter][0] = startRow;
         moves[generateMoveCounter][1] = startCol;
@@ -324,81 +176,9 @@ public class Game {
         generateMoveCounter++;
     }
 
-/*
-    public void generatePawnMoves(int row, int col) {
-        if (board[row][col]==6) {
-            if(isTileEmpty(row+1,col)) {
-                if(isTileEmpty(row+2,col) && row==1) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = row+2;
-                    moves[generateMoveCounter][3] = col;
-                    moves[generateMoveCounter][4] = 6;
-                    generateMoveCounter++;
-                }
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row+1;
-                moves[generateMoveCounter][3] = col;
-                moves[generateMoveCounter][4] = 6;
-                generateMoveCounter++;
-            }
-            if(!isTileEmpty(row+1,col+1) && board[row+1][col+1] > 6) {
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row+1;
-                moves[generateMoveCounter][3] = col+1;
-                moves[generateMoveCounter][4] = 6;
-                generateMoveCounter++;
-            }
-            if(!isTileEmpty(row+1,col-1) && board[row+1][col-1] > 6) {
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row+1;
-                moves[generateMoveCounter][3] = col-1;
-                moves[generateMoveCounter][4] = 6;
-                generateMoveCounter++;
-            }
-        }
-
-        if(board[row][col]==12) {
-            if(isTileEmpty(row-1,col)) {
-                if(isTileEmpty(row-2,col) && row==6) {
-                    moves[generateMoveCounter][0] = row;
-                    moves[generateMoveCounter][1] = col;
-                    moves[generateMoveCounter][2] = row-2;
-                    moves[generateMoveCounter][3] = col;
-                    generateMoveCounter++;
-                }
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row-1;
-                moves[generateMoveCounter][3] = col;
-                generateMoveCounter++;
-            }
-            if(!isTileEmpty(row-1,col+1) && board[row-1][col+1] <= 6) {
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row-1;
-                moves[generateMoveCounter][3] = col+1;
-                moves[generateMoveCounter][4] = 12;
-                generateMoveCounter++;
-            }
-            if(!isTileEmpty(row-1,col-1) && board[row-1][col-1] <= 6) {
-                moves[generateMoveCounter][0] = row;
-                moves[generateMoveCounter][1] = col;
-                moves[generateMoveCounter][2] = row-1;
-                moves[generateMoveCounter][3] = col-1;
-                moves[generateMoveCounter][4] = 12;
-                generateMoveCounter++;
-            }
-        }
-    }
- */
-
     public Game(Game currentGame) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board.length; j++) {
+        for (int i = 0; i< board.length; i++) {
+            for (int j = 0; j<board.length; j++) {
                 this.board[i][j] = currentGame.board[i][j];
             }
         }
@@ -423,7 +203,8 @@ public class Game {
 
         if (currentPlayer == 'w') {
             newGame.currentPlayer = 'b';
-        } else {
+        }
+        else {
             newGame.currentPlayer = 'w';
         }
         return newGame;
@@ -431,49 +212,114 @@ public class Game {
 
     //Start på minimax, slet ikke færdig. Er ikke sikker på at den skal ligge her, eller i en main klasse
     public int minimax(int depth, boolean isMaximizing) {
-        if (checkForWin()) {
+        if(checkForWin()) {
             return Integer.MAX_VALUE;
         }
-        if (checkDraw()) {
+        if(checkDraw()) {
             return 0;
         }
-        if (isMaximizing) {
+        if(isMaximizing) {
             int bestValue = -100;
-            for (int i = 0; i < moves.length; i++) {
+            for(int i = 0; i<moves.length; i++) {
+               Game newState = updateGameState(i);
+               heuristicValue = minimax(depth+1,false);
+               if (heuristicValue > bestValue) {
+                   bestValue = heuristicValue;
+               }
+            }
+            return bestValue;
+
+        } else {
+            int bestValue= 100;
+            for(int i = 0; i<moves.length; i++) {
                 Game newState = updateGameState(i);
-                heuristicValue = minimax(depth + 1, false);
-                if (heuristicValue > bestValue) {
+                heuristicValue = minimax(depth+1,true);
+                if(heuristicValue < bestValue) {
                     bestValue = heuristicValue;
                 }
             }
             return bestValue;
-
-        }
-        if (!isMaximizing) {
-            int bestValue = 100;
-            for (int i = 0; i < moves.length; i++) {
-                Game newState = updateGameState(i);
-                heuristicValue = minimax(depth + 1, true);
-                if (heuristicValue < bestValue) {
-                    bestValue = heuristicValue;
-                }
-            }
-            return bestValue;
         }
 
-        return 0;
     }
 
     public boolean isGameFinished() {
         //return false;
         return isCheckmate() || checkDraw() || onlyKingLeft();
     }
-
     private boolean isCheckmate() {
         //is check can't escape
-        return isCheck() && canEscapeCheck();
+        return isCheck() && !canEscapeCheck();
     }
 
+    private boolean kingInCheck(int kingRow, int kingCol) {
+        if(kingSeeRook(kingRow,kingCol)) {
+            System.out.println("King is in check by rook or queen");
+            return true;
+        }
+        else if(kingSeeBishop(kingRow,kingCol)) {
+            System.out.println("King is in check by bishop or queen");
+            return true;
+        }
+        else if(knightSeeKing(kingRow, kingCol)) {
+            System.out.println("King is in check by knight");
+            return true;
+        }
+        else return false;
+    }
+
+    public boolean kingSeeBishop(int kingRow, int kingCol) {
+        int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}};
+        for (int[] direction : directions) {
+            int newRow = kingRow + direction[0];
+            int newCol = kingCol + direction[1];
+            while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
+                if(!isTileEmpty(newRow, newCol)) {
+                    if((board[newRow][newCol] == 11 || board[newRow][newCol]==12) && currentPlayer == 'w' || (board[newRow][newCol]==3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                        return true;
+                    }
+                    break;
+                }
+                newRow += direction[0];
+                newCol += direction[1];
+            }
+        }
+        return false;
+    }
+
+    public boolean knightSeeKing(int kingRow, int kingCol) {
+        int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
+        for (int[] direction : directions) {
+            int newRow = kingRow + direction[0];
+            int newCol = kingCol + direction[1];
+            while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
+                if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol]==10 && currentPlayer=='w' ) {
+                    return true;
+                }
+                break;
+            }
+        }
+        return false;
+    }
+    public boolean kingSeeRook(int kingRow, int kingCol) {
+        int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
+        for (int[] direction : directions) {
+            int newRow = kingRow + direction[0];
+            int newCol = kingCol + direction[1];
+            while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
+                if(!isTileEmpty(newRow, newCol)) {
+                    if(((board[newRow][newCol] == 9 || board[newRow][newCol]==12) && currentPlayer == 'w')) return true;
+                    if((board[newRow][newCol]==1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                        return true;
+                    }
+                    break;
+                }
+                    newRow += direction[0];
+                    newCol += direction[1];
+            }
+        }
+        return false;
+    }
     private boolean isCheck() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
@@ -494,66 +340,38 @@ public class Game {
         int dy = Math.abs(kingRow - attackerRow);
         int dx = Math.abs(kingCol - attackerCol);
 
-        switch (attacker) {
-            case 6: // white pawn
-            case 7: // white pawn
-            case 13: // black pawn
-            case 14: // black pawn
-                return (dy == 1 && dx == 1);
-            case 2: // white knight
-            case 9: // black knight
-                return (dy == 2 && dx == 1) || (dy == 1 && dx == 2);
-            case 1: // white rook
-            case 8: // black rook
-                return (dy == 0 && dx > 0) || (dx == 0 && dy > 0);
-            case 3: // white bishop
-            case 10: // black bishop
-                return (dy == dx);
-            case 4: // white queen
-            case 11: // black queen
-                return (dy == 0 && dx > 0) || (dx == 0 && dy > 0) || (dy == dx);
-            case 5: // white king
-            case 12: // black king
-                return (dy <= 1 && dx <= 1);
-            default:
-                return false;
-        }
+        return switch (attacker) { // white pawn
+            // white pawn
+            // black pawn
+            case 6, 7, 14, 15 -> // black pawn
+                    (dy == 1 && dx == 1); // white knight
+            case 2, 10 -> // black knight
+                    (dy == 2 && dx == 1) || (dy == 1 && dx == 2); // white rook
+            case 1, 9 -> // black rook
+                    (dy == 0 && dx > 0) || (dx == 0 && dy > 0); // white bishop
+            case 3, 11 -> // black bishop
+                    (dy == dx); // white queen
+            case 4, 12 -> // black queen
+                    (dy == 0 && dx > 0) || (dx == 0 && dy > 0) || (dy == dx); // white king
+            case 5, 13 -> // black king
+                    (dy <= 1 && dx <= 1);
+            default -> false;
+        };
     }
 
     private boolean canEscapeCheck() {
+        //need to be implemented
         return true;
     }
-
-    private boolean isValidSquare(int row, int col) {
-        return row >= 0 && row < 8 && col >= 0 && col < 8;
-    }
-
-    private boolean isThreatened(int row, int col) {
-        return false;
-    }
-
-    private boolean canCaptureThreateningPiece(int row, int col) {
-        return canCapturePiece(row, col, kingRow, kingCol);
-    }
-
-    private boolean canCapturePiece(int startRow, int startCol, int targetRow, int targetCol) {
-        //capture logic missing
-        return false;
-    }
-
-    private boolean isOpponentPiece(int row, int col) {
-        return (currentPlayer == 'w' && board[row][col] >= 8) || (currentPlayer == 'b' && board[row][col] <= 7 && board[row][col] != 0);
-    }
-
     private boolean onlyKingLeft() {
         int numWhitePieces = 0;
         int numBlackPieces = 0;
 
         for (int[] row : board) {
             for (int piece : row) {
-                if (piece == 1 || piece == 2 || piece == 3 || piece == 4 || piece == 5 || piece == 6 || piece == 7) {
+                if (piece == 1 || piece == 2 || piece == 3 || piece == 4 || piece == 5 || piece == 6 ||piece == 7) {
                     numWhitePieces++;
-                } else if (piece == 8 || piece == 9 || piece == 10 || piece == 11 || piece == 12 || piece == 13 || piece == 14) {
+                } else if (piece == 9 || piece == 10 || piece == 11 || piece == 12 || piece == 13 || piece == 14 || piece == 15) {
                     numBlackPieces++;
                 }
             }
@@ -570,43 +388,38 @@ public class Game {
             for (int col = 0; col < 8; col++) {
                 int piece = board[row][col];
                 if (piece != 0) {
+                    int pieceValue = getPieceValue(piece);
                     if (piece <= 6) {
-                        whiteScore += getPieceValue(piece) + getPiecePositionValue(piece, row, col);
+                        whiteScore += pieceValue + getPiecePositionValue(piece, row, col);
                     } else {
-                        blackScore += getPieceValue(piece) + getPiecePositionValue(piece, row, col);
+                        blackScore += pieceValue + getPiecePositionValue(piece, row, col);
                     }
                 }
             }
         }
+
         return whiteScore - blackScore;
     }
 
     private int getPieceValue(int piece) {
-        switch (piece) {
-            case 6: // white pawn
-            case 7: // white pawn
-            case 13: // black pawn
-            case 14: // black pawn
-                return 100;
-            case 2:  // White knight
-            case 9:  // Black knight
-                return 300;
-            case 3:  // White bishop
-            case 10: // Black bishop
-                return 320;
-            case 1:  // White rook
-            case 8:  // Black rook
-                return 540;
-            case 4:  // White queen
-            case 11: // Black queen
-                return 900;
-            case 5:  // White king
-            case 12: // Black king
+        return switch (piece) { // white pawn
+            // white pawn
+            // black pawn
+            case 6, 7, 14, 15 -> // black pawn
+                    100;  // White knight
+            case 2, 10 ->  // Black knight
+                    300;  // White bishop
+            case 3, 11 -> // Black bishop
+                    300;  // White rook
+            case 1, 9 ->  // Black rook
+                    500;  // White queen
+            case 4, 12 -> // Black queen
+                    900;  // White king
+            case 5, 13 -> // Black king
                 //king got no value from what i found
-                return 20000;
-            default:
-                return 0;
-        }
+                    0;
+            default -> 0;
+        };
     }
 
     private int getPiecePositionValue(int piece, int row, int col) {
@@ -614,152 +427,34 @@ public class Game {
         switch (piece) {
             case 6:  // White pawn
             case 7:  // White pawn
-            case 13:  // Black pawn
-            case 14:  // Black pawn
-                value = pawnPositionValue(row, col);
+                value += row * 10;
+                break;
+            case 14: // Black pawn
+            case 15: // Black pawn
+                value += (7 - row) * 10;
                 break;
             case 2:  // White knight
-            case 9:  // Black knight
-                value = knightPositionValue(row, col);
+            case 10:  // Black knight
+                //adds points in increment of 5 depending on distance from center
+                value += (3 - Math.abs(row - 3)) * 5 + (3 - Math.abs(col - 3)) * 5;
                 break;
             case 3:  // White bishop
-            case 10: // Black bishop
-                value = bishopPositionValue(row, col);
+            case 11: // Black bishop
+                value += (3 - Math.abs(row - 3)) * 5 + (3 - Math.abs(col - 3)) * 5;
                 break;
             case 1:  // White rook
-            case 8:  // Black rook
-                value = rookPositionValue(row, col);
+            case 9:  // Black rook
+                value += (Math.abs(row - 3) + Math.abs(col - 3)) * 5;
                 break;
             case 4:  // White queen
-            case 11: // Black queen
-                value = queenPositionValue(row, col);
+            case 12: // Black queen
+                value += 20;
                 break;
             case 5:  // White king
-            case 12: // Black king
-                value = kingPositionValue(row, col);
+            case 13: // Black king
                 break;
         }
         return value;
-    }
-
-    private int pawnPositionValue(int row, int col) {
-        int[][] whitePawnPositionValues = {
-                {0, 0, 0, 0, 0, 0, 0, 0},
-                {50, 50, 50, 50, 50, 50, 50, 50},
-                {10, 10, 20, 30, 30, 20, 10, 10},
-                {5, 5, 10, 25, 25, 10, 5, 5},
-                {0, 0, 0, 20, 20, 0, 0, 0},
-                {5, -5, -10, 0, 0, -10, -5, 5},
-                {5, 10, 10, -20, -20, 10, 10, 5},
-                {0, 0, 0, 0, 0, 0, 0, 0}
-        };
-        int[][] blackPawnPositionValues = new int[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackPawnPositionValues[i][j] = whitePawnPositionValues[7 - i][j];
-            }
-        }
-        return (currentPlayer == 'w') ? whitePawnPositionValues[row][col] : blackPawnPositionValues[row][col];
-    }
-
-    private int knightPositionValue(int row, int col) {
-        int[][] whiteKnightPositionValues = {
-                {-50, -40, -30, -30, -30, -30, -40, -50},
-                {-40, -20, 0, 0, 0, 0, -20, -40},
-                {-30, 0, 10, 15, 15, 10, 0, -30},
-                {-30, 5, 15, 20, 20, 15, 5, -30},
-                {-30, 0, 15, 20, 20, 15, 0, -30},
-                {-30, 5, 10, 15, 15, 10, 5, -30},
-                {-40, -20, 0, 5, 5, 0, -20, -40},
-                {-50, -40, -30, -30, -30, -30, -40, -50}
-        };
-        int[][] blackKnightPositionValues = new int[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackKnightPositionValues[i][j] = whiteKnightPositionValues[7 - i][j];
-            }
-        }
-        return (currentPlayer == 'w') ? whiteKnightPositionValues[row][col] : blackKnightPositionValues[row][col];
-    }
-
-    private int bishopPositionValue(int row, int col) {
-        int[][] whiteBishopPositionValues = {
-                {-20, -10, -10, -10, -10, -10, -10, -20},
-                {-10, 0, 0, 0, 0, 0, 0, -10},
-                {-10, 0, 5, 10, 10, 5, 0, -10},
-                {-10, 5, 5, 10, 10, 5, 5, -10},
-                {-10, 0, 10, 10, 10, 10, 0, -10},
-                {-10, 10, 10, 10, 10, 10, 10, -10},
-                {-10, 5, 0, 0, 0, 0, 5, -10},
-                {-20, -10, -10, -10, -10, -10, -10, -20}
-        };
-        int[][] blackBishopPositionValues = new int[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackBishopPositionValues[i][j] = whiteBishopPositionValues[7 - i][j];
-            }
-        }
-        return (currentPlayer == 'w') ? whiteBishopPositionValues[row][col] : blackBishopPositionValues[row][col];
-    }
-
-    private int rookPositionValue(int row, int col) {
-        int[][] whiteRookPositionValues = {
-                {0, 0, 0, 0, 0, 0, 0, 0},
-                {5, 10, 10, 10, 10, 10, 10, 5},
-                {-5, 0, 0, 0, 0, 0, 0, -5},
-                {-5, 0, 0, 0, 0, 0, 0, -5},
-                {-5, 0, 0, 0, 0, 0, 0, -5},
-                {-5, 0, 0, 0, 0, 0, 0, -5},
-                {-5, 0, 0, 0, 0, 0, 0, -5},
-                {0, 0, 0, 5, 5, 0, 0, 0}
-        };
-        int[][] blackRookPositionValues = new int[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackRookPositionValues[i][j] = whiteRookPositionValues[7 - i][j];
-            }
-        }
-        return (currentPlayer == 'w') ? whiteRookPositionValues[row][col] : blackRookPositionValues[row][col];
-    }
-
-    private int queenPositionValue(int row, int col) {
-        int[][] whiteQueenPositionValues = {
-                {-20, -10, -10, -5, -5, -10, -10, -20},
-                {-10, 0, 0, 0, 0, 0, 0, -10},
-                {-10, 0, 5, 5, 5, 5, 0, -10},
-                {-5, 0, 5, 5, 5, 5, 0, -5},
-                {0, 0, 5, 5, 5, 5, 0, -5},
-                {-10, 5, 5, 5, 5, 5, 0, -10},
-                {-10, 0, 5, 0, 0, 0, 0, -10},
-                {-20, -10, -10, -5, -5, -10, -10, -20}
-        };
-        int[][] blackQueenPositionValues = new int[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackQueenPositionValues[i][j] = whiteQueenPositionValues[7 - i][j];
-            }
-        }
-        return (currentPlayer == 'w') ? whiteQueenPositionValues[row][col] : blackQueenPositionValues[row][col];
-    }
-
-    private int kingPositionValue(int row, int col) {
-        int[][] whiteKingPositionValues = {
-                {-50, -40, -30, -20, -20, -30, -40, -50},
-                {-30, -20, -10, 0, 0, -10, -20, -30},
-                {-30, -10, 20, 30, 30, 20, -10, -30},
-                {-30, -10, 30, 40, 40, 30, -10, -30},
-                {-30, -10, 30, 40, 40, 30, -10, -30},
-                {-30, -10, 20, 30, 30, 20, -10, -30},
-                {-30, -30, 0, 0, 0, 0, -30, -30},
-                {-50, -30, -30, -30, -30, -30, -30, -50}
-        };
-        int[][] blackKingPositionValues = new int[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackKingPositionValues[i][j] = whiteKingPositionValues[7 - i][j];
-            }
-        }
-        return (currentPlayer == 'w') ? whiteKingPositionValues[row][col] : blackKingPositionValues[row][col];
     }
 
     public boolean checkForWin() {
@@ -806,38 +501,41 @@ public class Game {
         this.currentPlayer = currentPlayer;
     }
 
-    /*
-        public static void main(String[] args) {
+//    public static void main(String[] args) {
+//
+//        Game game = new Game();
+//
+//        //Rook = 1, Knight = 2, Bishop = 3
+//        game.board[0][0] = 1;
+//        game.board[5][5] = 5;
+//
+//        //Introducing black pieces
+//        game.board[4][4] = 12;
+//        game.board[4][3] = 10;
+//
+//        Random rnd = new Random();
+//        System.out.println();
+//
+//        game.currentPlayer = 'w';
+//        System.out.println("White's turn");
+//        game.generateMoves(game);
+//        game.kingInCheck(5,5);
+//
+//        Game newState = game.updateGameState(2);
+//        System.out.println(newState.currentPlayer);
+//        newState.generateMoves(newState);
+//        game.kingInCheck(5,5);
+//
+//
+//        Game newnew = newState.updateGameState(1);
+//
+//        System.out.println(newnew.currentPlayer);
+//
+//        newnew.generateMoves(newnew);
+//
+//    }
 
-            Game game = new Game();
 
-            //Rook = !, Knight = 2, Bishop = 3
-            game.board[0][0] = 1;
-
-            //Introducing black pieces
-            game.board[5][0] = 8;
-
-            Random rnd = new Random();
-            System.out.println();
-
-            game.currentPlayer = 'b';
-            System.out.println("Blacks turn");
-            game.generateMoves(game);
-
-            Game newState = game.updateGameState(2);
-            System.out.println(newState.currentPlayer);
-            newState.generateMoves(newState);
-
-
-            Game newnew = newState.updateGameState(1);
-
-            System.out.println(newnew.currentPlayer);
-
-            newnew.generateMoves(newnew);
-
-        }
-    }
-    */
     public void initializeBoard(String fen) {
         String[] parts = fen.split(" ");
         String[] rows = parts[0].split("/");
@@ -871,38 +569,24 @@ public class Game {
             }
         }
     }
-
     public int pieceFromChar(char c) {
-        switch (c) {
-            case 'P':
-                return 6;  // white pawn
-            case 'R':
-                return 1;  // white rook
-            case 'N':
-                return 2;  // white knight
-            case 'B':
-                return 3;  // white bishop
-            case 'Q':
-                return 4;  // white queen
-            case 'K':
-                return 5;  // white king
+        return switch (c) {
+            case 'P' -> 6;  // white pawn
+            case 'R' -> 1;  // white rook
+            case 'N' -> 2;  // white knight
+            case 'B' -> 3;  // white bishop
+            case 'Q' -> 4;  // white queens
+            case 'K' -> 5;  // white king
 
-            case 'p':
-                return 13;  // black pawn
-            case 'r':
-                return 8;  // black rook
-            case 'n':
-                return 9;  // black knight
-            case 'b':
-                return 10; // black bishop
-            case 'q':
-                return 11; // black queen
-            case 'k':
-                return 12; // black king
+            case 'p' -> 14;  // black pawn
+            case 'r' -> 9;  // black rook
+            case 'n' -> 10;  // black knight
+            case 'b' -> 11; // black bishop
+            case 'q' -> 12; // black queen
+            case 'k' -> 13; // black king
 
-            default:
-                return 0;   // empty square
-        }
+            default -> 0;   // empty square
+        };
     }
 
     public void printBoard() {
@@ -915,38 +599,23 @@ public class Game {
     }
 
     public char pieceToChar(int piece) {
-        switch (piece) {
-            case 13:
-            case 14:
-                return 'p';  // black pawn
+        return switch (piece) {
+            case 14, 15 -> 'p';  // black pawn
 
-            case 8:
-                return 'r';  // black rook
-            case 9:
-                return 'n';  // black knight
-            case 10:
-                return 'b';  // black bishop
-            case 11:
-                return 'q';  // black queen
-            case 12:
-                return 'k';  // black king
+            case 9 -> 'r';  // black rook
+            case 10 -> 'n';  // black knight
+            case 11 -> 'b';  // black bishop
+            case 12 -> 'q';  // black queen
+            case 13 -> 'k';  // black king
 
-            case 6:
-            case 7:
-                return 'P';  // white pawn
-            case 1:
-                return 'R';  // white rook
-            case 2:
-                return 'N';  // white knight
-            case 3:
-                return 'B';  // white bishop
-            case 4:
-                return 'Q';  // white queen
-            case 5:
-                return 'K';  // white king
-            default:
-                return '.';  // empty square
-        }
+            case 6, 7 -> 'P';  // white pawn
+            case 1 -> 'R';  // white rook
+            case 2 -> 'N';  // white knight
+            case 3 -> 'B';  // white bishop
+            case 4 -> 'Q';  // white queen
+            case 5 -> 'K';  // white king
+            default -> '.';  // empty square
+        };
     }
 
     public void makeMove(int startRow, int startCol, int endRow, int endCol) {
@@ -955,7 +624,7 @@ public class Game {
         board[endRow][endCol] = piece;
         currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
 
-        if ((piece == 5 && currentPlayer == 'w') || (piece == 12 && currentPlayer == 'b')) {
+        if ((piece == 5 && currentPlayer == 'w') || (piece == 13 && currentPlayer == 'b')) {
             kingRow = endRow;
             kingCol = endCol;
         }
@@ -1001,41 +670,23 @@ public class Game {
 
         Game game = new Game();
         game.initializeBoard(fen);
-        //game.printBoard();
+        game.printBoard();
 
         LocalDateTime startTime;
         LocalDateTime endTime;
-        boolean minmax = false;
-        if (game.currentPlayer == 'w') {
-            minmax = true;
-        }
-
-        System.out.println("-------------------single----------------");
+        /*
         startTime = LocalDateTime.now();
         //single-threaded test
-        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minmax);
+        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
         endTime = LocalDateTime.now();
 
         long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
         System.out.println("Single-threaded Minimax Time: " + singleThreadedTime + " milliseconds");
+         */
 
-        System.out.println("bestmove: " + bestMove[0] + bestMove[1] + bestMove[2] + bestMove[3]);
-
-        game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
-        game.printBoard();
-        String newFEN = game.getFEN();
-        System.out.println("New FEN string:");
-        System.out.println(newFEN);
-        System.out.println("-------------------------------------");
-
-        /*
-        System.out.println("-------------------multi----------------");
-        Game game2 = new Game();
-        game2.initializeBoard(fen);
-        game2.printBoard();
         startTime = LocalDateTime.now();
         //multi-threaded test
-        int[] result = parallelMinimax(game2, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minmax);
+        int[] result = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
 
         endTime = LocalDateTime.now();
 
@@ -1045,34 +696,14 @@ public class Game {
         System.out.println("Node count: " + result[0]);
 
         System.out.println("bestmove: " + result[1]+ result[2]+ result[3]+ result[4]);
-
-        game2.makeMove(result[1], result[2], result[3], result[4]);
-
-        game2.printBoard();
-        String newFEN2 = game2.getFEN();
+        game.makeMove(result[1], result[2], result[3], result[4]);
+        game.printBoard();
+        String newFEN = game.getFEN();
         System.out.println("New FEN string:");
-        System.out.println(newFEN2);
-        System.out.println("-------------------------------------");
-
-         */
-
-        /*
-        Game testgame = new Game(game);
-        testgame.makeMove(0, 7, 7, 7);
-        int scoretest = testgame.evaluate();
-        System.out.println("scoretest " + scoretest);
-        testgame.printBoard();
-
-        Game testgame2 = new Game(game);
-        testgame2.makeMove(0, 7, 6, 7);
-        int scoretest2 = testgame2.evaluate();
-        System.out.println("scoretest " + scoretest2);
-        testgame2.printBoard();
-         */
+        System.out.println(newFEN);
     }
-
     public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
-        int parallelism = Runtime.getRuntime().availableProcessors();
+        int parallelism = Runtime.getRuntime().availableProcessors() * 16;
         ForkJoinPool pool = new ForkJoinPool(parallelism);
         ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
         int[] result = pool.invoke(task);
@@ -1098,23 +729,10 @@ public class Game {
 
 
     public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
+    //does not take into account win or lose atm
         if (depth == 0 || game.isGameFinished()) {
             return null;
         }
-        
-        int score = 0;
-        //need to change ischeck and canescape to accept currentplayer as input variable
-
-        /*
-        if (game.isCheck() && game.canEscapeCheck()) {
-            if (maximizingPlayer) {
-                score += Integer.MIN_VALUE;
-            } else {
-                score += Integer.MAX_VALUE;
-            }
-        }
-         */
-
 
         int[] bestMove = null;
         int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
@@ -1129,8 +747,7 @@ public class Game {
             int[] result = minimax(newGame, depth - 1, alpha, beta, !maximizingPlayer);
 
             if (result == null) {
-                score = newGame.evaluate();
-
+                int score = newGame.evaluate();
                 if (maximizingPlayer && score > bestScore) {
                     bestScore = score;
                     bestMove = move;
@@ -1139,16 +756,15 @@ public class Game {
                     bestMove = move;
                 }
             } else {
-                score = newGame.evaluate();
                 if (maximizingPlayer) {
-                    if (score > bestScore) {
-                        bestScore = score;
+                    if (result[4] > bestScore) {
+                        bestScore = result[4];
                         bestMove = move;
                     }
                     alpha = Math.max(alpha, bestScore);
                 } else {
-                    if (score < bestScore) {
-                        bestScore = score;
+                    if (result[4] < bestScore) {
+                        bestScore = result[4];
                         bestMove = move;
                     }
                     beta = Math.min(beta, bestScore);
