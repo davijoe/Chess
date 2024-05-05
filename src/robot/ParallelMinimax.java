@@ -45,7 +45,6 @@ public class ParallelMinimax extends RecursiveTask<int[]> {
             ParallelMinimax task = new ParallelMinimax(newGame, depth - 1, alpha, beta, !maximizingPlayer);
             task.fork();
             int[] result = task.join();
-            int score = newGame.evaluate() + depth;
 
             if (result != null) {
                 nodeCount += task.getNodeCount();
@@ -53,16 +52,12 @@ public class ParallelMinimax extends RecursiveTask<int[]> {
                 nodeCount++;
             }
 
-            if (result == null) {
-                if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-                    bestScore = score;
-                    bestMove = move;
-                }
-            } else {
-                if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-                    bestScore = score;
-                    bestMove = move;
-                }
+            int score = newGame.evaluate() + depth;
+
+
+            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
+                bestScore = score;
+                bestMove = move;
             }
 
             if (maximizingPlayer) {
