@@ -402,22 +402,19 @@ public class Game {
     }
 
     private int getPieceValue(int piece) {
-        return switch (piece) { // white pawn
-            // white pawn
-            // black pawn
-            case 6, 7, 14, 15 -> // black pawn
-                    100;  // White knight
-            case 2, 10 ->  // Black knight
-                    300;  // White bishop
-            case 3, 11 -> // Black bishop
-                    300;  // White rook
-            case 1, 9 ->  // Black rook
-                    500;  // White queen
-            case 4, 12 -> // Black queen
-                    900;  // White king
-            case 5, 13 -> // Black king
-                //king got no value from what i found
-                    0;
+        return switch (piece) {
+            case 6, 7, 14, 15 -> //pawns
+                    100;
+            case 2, 10 ->  //knights
+                    300;
+            case 3, 11 -> //bishop
+                    320;
+            case 1, 9 ->  //rook
+                    540;
+            case 4, 12 -> //queen
+                    900;
+            case 5, 13 -> //king
+                    20000;
             default -> 0;
         };
     }
@@ -427,34 +424,152 @@ public class Game {
         switch (piece) {
             case 6:  // White pawn
             case 7:  // White pawn
-                value += row * 10;
-                break;
-            case 14: // Black pawn
-            case 15: // Black pawn
-                value += (7 - row) * 10;
+            case 13:  // Black pawn
+            case 14:  // Black pawn
+                value = pawnPositionValue(row, col);
                 break;
             case 2:  // White knight
-            case 10:  // Black knight
-                //adds points in increment of 5 depending on distance from center
-                value += (3 - Math.abs(row - 3)) * 5 + (3 - Math.abs(col - 3)) * 5;
+            case 9:  // Black knight
+                value = knightPositionValue(row, col);
                 break;
             case 3:  // White bishop
-            case 11: // Black bishop
-                value += (3 - Math.abs(row - 3)) * 5 + (3 - Math.abs(col - 3)) * 5;
+            case 10: // Black bishop
+                value = bishopPositionValue(row, col);
                 break;
             case 1:  // White rook
-            case 9:  // Black rook
-                value += (Math.abs(row - 3) + Math.abs(col - 3)) * 5;
+            case 8:  // Black rook
+                value = rookPositionValue(row, col);
                 break;
             case 4:  // White queen
-            case 12: // Black queen
-                value += 20;
+            case 11: // Black queen
+                value = queenPositionValue(row, col);
                 break;
             case 5:  // White king
-            case 13: // Black king
+            case 12: // Black king
+                value = kingPositionValue(row, col);
                 break;
         }
         return value;
+    }
+
+    private int pawnPositionValue(int row, int col) {
+        int[][] whitePawnPositionValues = {
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {50, 50, 50, 50, 50, 50, 50, 50},
+                {10, 10, 20, 30, 30, 20, 10, 10},
+                {5, 5, 10, 25, 25, 10, 5, 5},
+                {0, 0, 0, 20, 20, 0, 0, 0},
+                {5, -5, -10, 0, 0, -10, -5, 5},
+                {5, 10, 10, -20, -20, 10, 10, 5},
+                {0, 0, 0, 0, 0, 0, 0, 0}
+        };
+        int[][] blackPawnPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackPawnPositionValues[i][j] = whitePawnPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whitePawnPositionValues[row][col] : blackPawnPositionValues[row][col];
+    }
+
+    private int knightPositionValue(int row, int col) {
+        int[][] whiteKnightPositionValues = {
+                {-50, -40, -30, -30, -30, -30, -40, -50},
+                {-40, -20, 0, 0, 0, 0, -20, -40},
+                {-30, 0, 10, 15, 15, 10, 0, -30},
+                {-30, 5, 15, 20, 20, 15, 5, -30},
+                {-30, 0, 15, 20, 20, 15, 0, -30},
+                {-30, 5, 10, 15, 15, 10, 5, -30},
+                {-40, -20, 0, 5, 5, 0, -20, -40},
+                {-50, -40, -30, -30, -30, -30, -40, -50}
+        };
+        int[][] blackKnightPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackKnightPositionValues[i][j] = whiteKnightPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whiteKnightPositionValues[row][col] : blackKnightPositionValues[row][col];
+    }
+
+    private int bishopPositionValue(int row, int col) {
+        int[][] whiteBishopPositionValues = {
+                {-20, -10, -10, -10, -10, -10, -10, -20},
+                {-10, 0, 0, 0, 0, 0, 0, -10},
+                {-10, 0, 5, 10, 10, 5, 0, -10},
+                {-10, 5, 5, 10, 10, 5, 5, -10},
+                {-10, 0, 10, 10, 10, 10, 0, -10},
+                {-10, 10, 10, 10, 10, 10, 10, -10},
+                {-10, 5, 0, 0, 0, 0, 5, -10},
+                {-20, -10, -10, -10, -10, -10, -10, -20}
+        };
+        int[][] blackBishopPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackBishopPositionValues[i][j] = whiteBishopPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whiteBishopPositionValues[row][col] : blackBishopPositionValues[row][col];
+    }
+
+    private int rookPositionValue(int row, int col) {
+        int[][] whiteRookPositionValues = {
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {5, 10, 10, 10, 10, 10, 10, 5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {0, 0, 0, 5, 5, 0, 0, 0}
+        };
+        int[][] blackRookPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackRookPositionValues[i][j] = whiteRookPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whiteRookPositionValues[row][col] : blackRookPositionValues[row][col];
+    }
+
+    private int queenPositionValue(int row, int col) {
+        int[][] whiteQueenPositionValues = {
+                {-20, -10, -10, -5, -5, -10, -10, -20},
+                {-10, 0, 0, 0, 0, 0, 0, -10},
+                {-10, 0, 5, 5, 5, 5, 0, -10},
+                {-5, 0, 5, 5, 5, 5, 0, -5},
+                {0, 0, 5, 5, 5, 5, 0, -5},
+                {-10, 5, 5, 5, 5, 5, 0, -10},
+                {-10, 0, 5, 0, 0, 0, 0, -10},
+                {-20, -10, -10, -5, -5, -10, -10, -20}
+        };
+        int[][] blackQueenPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackQueenPositionValues[i][j] = whiteQueenPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whiteQueenPositionValues[row][col] : blackQueenPositionValues[row][col];
+    }
+
+    private int kingPositionValue(int row, int col) {
+        int[][] whiteKingPositionValues = {
+                {-50, -40, -30, -20, -20, -30, -40, -50},
+                {-30, -20, -10, 0, 0, -10, -20, -30},
+                {-30, -10, 20, 30, 30, 20, -10, -30},
+                {-30, -10, 30, 40, 40, 30, -10, -30},
+                {-30, -10, 30, 40, 40, 30, -10, -30},
+                {-30, -10, 20, 30, 30, 20, -10, -30},
+                {-30, -30, 0, 0, 0, 0, -30, -30},
+                {-50, -30, -30, -30, -30, -30, -30, -50}
+        };
+        int[][] blackKingPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackKingPositionValues[i][j] = whiteKingPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whiteKingPositionValues[row][col] : blackKingPositionValues[row][col];
     }
 
     public boolean checkForWin() {
@@ -579,11 +694,11 @@ public class Game {
             case 'K' -> 5;  // white king
 
             case 'p' -> 14;  // black pawn
-            case 'r' -> 9;  // black rook
-            case 'n' -> 10;  // black knight
-            case 'b' -> 11; // black bishop
-            case 'q' -> 12; // black queen
-            case 'k' -> 13; // black king
+            case 'r' -> 8;  // black rook
+            case 'n' -> 9;  // black knight
+            case 'b' -> 10; // black bishop
+            case 'q' -> 11; // black queen
+            case 'k' -> 12; // black king
 
             default -> 0;   // empty square
         };
@@ -600,13 +715,13 @@ public class Game {
 
     public char pieceToChar(int piece) {
         return switch (piece) {
-            case 14, 15 -> 'p';  // black pawn
+            case 13, 14 -> 'p';  // black pawn
 
-            case 9 -> 'r';  // black rook
-            case 10 -> 'n';  // black knight
-            case 11 -> 'b';  // black bishop
-            case 12 -> 'q';  // black queen
-            case 13 -> 'k';  // black king
+            case 9 -> 'n';  // black knight
+            case 10 -> 'b';  // black bishop
+            case 11 -> 'q';  // black queen
+            case 12 -> 'k';  // black king
+            case 8 -> 'r';  // black rook
 
             case 6, 7 -> 'P';  // white pawn
             case 1 -> 'R';  // white rook
@@ -668,25 +783,49 @@ public class Game {
         System.out.println("Enter search depth for Minimax:");
         int depth = scanner.nextInt();
 
+        /*
         Game game = new Game();
         game.initializeBoard(fen);
         game.printBoard();
 
+        boolean minimax = false;
+        if (game.currentPlayer == 'w'){
+            minimax = true;
+        }
+
         LocalDateTime startTime;
         LocalDateTime endTime;
-        /*
+
         startTime = LocalDateTime.now();
         //single-threaded test
-        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax);
         endTime = LocalDateTime.now();
 
         long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
         System.out.println("Single-threaded Minimax Time: " + singleThreadedTime + " milliseconds");
-         */
+        game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
+        game.printBoard();
+
+        String newFEN = game.getFEN();
+        System.out.println("New FEN string:");
+        System.out.println(newFEN);
+        */
+
+
+        Game game2 = new Game();
+        game2.initializeBoard(fen);
+        game2.printBoard();
+
+        boolean minimax = false;
+        if (game2.currentPlayer == 'w'){
+            minimax = true;
+        }
+        LocalDateTime startTime;
+        LocalDateTime endTime;
 
         startTime = LocalDateTime.now();
         //multi-threaded test
-        int[] result = parallelMinimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        int[] result = parallelMinimax(game2, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax);
 
         endTime = LocalDateTime.now();
 
@@ -696,11 +835,13 @@ public class Game {
         System.out.println("Node count: " + result[0]);
 
         System.out.println("bestmove: " + result[1]+ result[2]+ result[3]+ result[4]);
-        game.makeMove(result[1], result[2], result[3], result[4]);
-        game.printBoard();
-        String newFEN = game.getFEN();
+        game2.makeMove(result[1], result[2], result[3], result[4]);
+        game2.printBoard();
+
+        String newFEN2 = game2.getFEN();
         System.out.println("New FEN string:");
-        System.out.println(newFEN);
+        System.out.println(newFEN2);
+
     }
     public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
         int parallelism = Runtime.getRuntime().availableProcessors() * 16;
@@ -743,11 +884,11 @@ public class Game {
             int[] move = game.moves[i];
             Game newGame = new Game(game);
             newGame.makeMove(move[0], move[1], move[2], move[3]);
-
+            int score = newGame.evaluate();
+            score += depth;
             int[] result = minimax(newGame, depth - 1, alpha, beta, !maximizingPlayer);
 
             if (result == null) {
-                int score = newGame.evaluate();
                 if (maximizingPlayer && score > bestScore) {
                     bestScore = score;
                     bestMove = move;
@@ -757,14 +898,14 @@ public class Game {
                 }
             } else {
                 if (maximizingPlayer) {
-                    if (result[4] > bestScore) {
-                        bestScore = result[4];
+                    if (score > bestScore) {
+                        bestScore = score;
                         bestMove = move;
                     }
                     alpha = Math.max(alpha, bestScore);
                 } else {
-                    if (result[4] < bestScore) {
-                        bestScore = result[4];
+                    if (score < bestScore) {
+                        bestScore = score;
                         bestMove = move;
                     }
                     beta = Math.min(beta, bestScore);
