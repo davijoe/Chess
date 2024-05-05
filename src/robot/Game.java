@@ -253,22 +253,23 @@ public class Game {
     }
 
     private boolean kingInCheck(int kingRow, int kingCol) {
-        if(kingSeeRook(kingRow,kingCol)) {
+        int[] attacker = {kingRow,kingCol};
+        if(kingSeeRook(kingRow,kingCol)!=attacker) {
             return true;
         }
-        else if(kingSeeBishop(kingRow,kingCol)) {
+        else if(kingSeeBishop(kingRow,kingCol)!=attacker) {
             return true;
         }
-        else if(knightSeeKing(kingRow, kingCol)) {
+        else if(kingSeeKnight(kingRow, kingCol)!=attacker) {
             return true;
         }
-        else if(kingSeePawn(kingRow, kingCol)) {
+        else if(kingSeePawn(kingRow, kingCol)!=attacker) {
             return true;
         }
         else return false;
     }
 
-    public boolean kingSeeBishop(int kingRow, int kingCol) {
+    public int[] kingSeeBishop(int kingRow, int kingCol) {
         int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}};
         for (int[] direction : directions) {
             int newRow = kingRow + direction[0];
@@ -276,7 +277,7 @@ public class Game {
             while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
                 if(!isTileEmpty(newRow, newCol)) {
                     if((board[newRow][newCol] == 11 || board[newRow][newCol]==12) && currentPlayer == 'w' || (board[newRow][newCol]==3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
-                        return true;
+                        return new int[] {newRow,newCol};
                     }
                     break;
                 }
@@ -284,33 +285,32 @@ public class Game {
                 newCol += direction[1];
             }
         }
-        return false;
+        return new int[] {kingRow,kingCol};
     }
 
-    public boolean knightSeeKing(int kingRow, int kingCol) {
+    public int[] kingSeeKnight(int kingRow, int kingCol) {
         int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
         for (int[] direction : directions) {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
                 if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol]==10 && currentPlayer=='w' ) {
-                    return true;
+                    return new int[] {newRow,newCol};
                 }
                 break;
             }
         }
-        return false;
+        return new int[] {kingRow,kingCol};
     }
-    public boolean kingSeeRook(int kingRow, int kingCol) {
+    public int[] kingSeeRook(int kingRow, int kingCol) {
         int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
         for (int[] direction : directions) {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
             while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
                 if(!isTileEmpty(newRow, newCol)) {
-                    if(((board[newRow][newCol] == 9 || board[newRow][newCol]==12) && currentPlayer == 'w')) return true;
-                    if((board[newRow][newCol]==1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
-                        return true;
+                    if((board[newRow][newCol] == 9 || board[newRow][newCol]==12) && currentPlayer == 'w' || (board[newRow][newCol]==1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                        return new int[] {newRow,newCol};
                     }
                     break;
                 }
@@ -318,10 +318,10 @@ public class Game {
                     newCol += direction[1];
             }
         }
-        return false;
+        return new int[] {kingRow,kingCol};
     }
 
-    public boolean kingSeePawn(int kingRow, int kingCol) {
+    public int[] kingSeePawn(int kingRow, int kingCol) {
         if(currentPlayer=='w') {
             if(!isTileEmpty(kingRow+1,kingCol+1) || !isTileEmpty(kingRow+1, kingCol-1)) {
 
@@ -330,22 +330,22 @@ public class Game {
         else {
 
         }
-        return false;
+        return new int[] {kingRow,kingCol};
     }
-    private boolean isCheck() {
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                if ((currentPlayer == 'w' && board[row][col] > 7) ||
-                        (currentPlayer == 'b' && board[row][col] <= 7 && board[row][col] != 0)) {
-                    if (canCaptureKing(row, col, kingRow, kingCol)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
+//    private boolean isCheck() {
+//        for (int row = 0; row < 8; row++) {
+//            for (int col = 0; col < 8; col++) {
+//                if ((currentPlayer == 'w' && board[row][col] > 7) ||
+//                        (currentPlayer == 'b' && board[row][col] <= 7 && board[row][col] != 0)) {
+//                    if (canCaptureKing(row, col, kingRow, kingCol)) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
+//
+//        return false;
+//    }
 
     private boolean canCaptureKing(int attackerRow, int attackerCol, int kingRow, int kingCol) {
         int attacker = board[attackerRow][attackerCol];
@@ -372,8 +372,27 @@ public class Game {
     }
 
     private boolean canEscapeCheck(int kingRow, int kingCol) {
+        int[] attacker = new int[2];
+        attacker = kingSeeRook(kingRow,kingCol);
 
-        return true;
+        generateMoves(this);
+        for (int[] move : moves) {
+            if(move[2] == attacker[0] && move[3]==attacker[1]) {
+                return true;
+            }
+            if(move[4]==board[kingRow][kingCol] && !kingInCheck(move[2],move[3])) {
+                return true;
+            }
+            else {
+                makeMove(move[0],move[1],move[2],move[3]);
+                if (!kingInCheck(kingRow,kingCol)) {
+                    undoMove(move[0],move[1],move[2],move[3],move[4]);
+                    return true;
+                }
+                else undoMove(move[0],move[1],move[2],move[3],move[4]);
+            }
+        }
+        return false;
     }
     private boolean onlyKingLeft() {
         int numWhitePieces = 0;
@@ -630,7 +649,8 @@ public class Game {
         };
     }
 
-    public void makeMove(int startRow, int startCol, int endRow, int endCol) {
+    public int makeMove(int startRow, int startCol, int endRow, int endCol) {
+        int capturedPiece = board[endRow][endCol];
         int piece = board[startRow][startCol];
         board[startRow][startCol] = 0;
         board[endRow][endCol] = piece;
@@ -640,6 +660,12 @@ public class Game {
             kingRow = endRow;
             kingCol = endCol;
         }
+        return capturedPiece;
+    }
+
+    public void undoMove(int startRow, int startCol, int endRow, int endCol, int piece) {
+        board[startRow][startCol] = board[endRow][endCol];
+        board[endRow][endCol] = piece;
     }
 
     public String getFEN() {
