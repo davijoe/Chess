@@ -10,7 +10,7 @@ public class Game {
 
     int[][] board = new int[8][8];
 
-    int[][] moves = new int[200][5];
+    int[][] moves = new int[1000][5];
     int generateMoveCounter = 0;
 
     int enPassant;
