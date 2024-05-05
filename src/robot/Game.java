@@ -734,15 +734,25 @@ public class Game {
     }
 
     public void makeMove(int startRow, int startCol, int endRow, int endCol) {
-        int piece = board[startRow][startCol];
-        board[startRow][startCol] = 0;
-        board[endRow][endCol] = piece;
-        currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
+        if (isValidMove(startRow, startCol, endRow, endCol)) {
+            int piece = board[startRow][startCol];
+            board[startRow][startCol] = 0;
+            board[endRow][endCol] = piece;
+            currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
 
-        if ((piece == 5 && currentPlayer == 'w') || (piece == 13 && currentPlayer == 'b')) {
-            kingRow = endRow;
-            kingCol = endCol;
+            if ((piece == 5 && currentPlayer == 'w') || (piece == 13 && currentPlayer == 'b')) {
+                kingRow = endRow;
+                kingCol = endCol;
+            }
         }
+    }
+
+    public boolean isValidMove(int startRow, int startCol, int endRow, int endCol) {
+        if (startRow < 0 || startRow >= 8 || startCol < 0 || startCol >= 8 ||
+                endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
+            return false;
+        }
+        return true;
     }
 
     public String getFEN() {
@@ -887,7 +897,8 @@ public class Game {
             final int currentDepth = depth;
             System.out.println("current depth: " + currentDepth);
             Thread searchThread = new Thread(() -> {
-                bestMove[0] = minimax(game, currentDepth, alpha, beta, maximizingPlayer, bestMove[0]);
+                int[][] result = minimax(game, currentDepth, alpha, beta, maximizingPlayer, bestMove[0]);
+                bestMove[0] = result[0];
             });
             searchThread.start();
 
@@ -909,10 +920,9 @@ public class Game {
         return bestMove[0];
     }
 
-    public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
-        //does not take into account win or lose atm
+    public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
         if (depth == 0 || game.isGameFinished()) {
-            return null;
+            return new int[][]{{}, {game.evaluate()}};
         }
 
         int[] bestMove = null;
@@ -921,19 +931,22 @@ public class Game {
         if (previousBestMove != null) {
             Game newGame = new Game(game);
             newGame.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
-            int score = newGame.evaluate() + depth;
-            int[] result = minimax(newGame, depth - 1, alpha, beta, !maximizingPlayer, null);
+            int[][] result = minimax(newGame, depth - 1, alpha, beta, !maximizingPlayer, null);
+            int score = result[1][0] + depth;
 
-            if (result == null) {
-                if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-                    bestScore = score;
-                    bestMove = previousBestMove;
-                }
+            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
+                bestScore = score;
+                bestMove = previousBestMove;
+            }
+
+            if (maximizingPlayer) {
+                alpha = Math.max(alpha, bestScore);
             } else {
-                if ((maximizingPlayer && result[0] > bestScore) || (!maximizingPlayer && result[0] < bestScore)) {
-                    bestScore = result[0];
-                    bestMove = previousBestMove;
-                }
+                beta = Math.min(beta, bestScore);
+            }
+
+            if (beta <= alpha) {
+                return new int[][]{bestMove, {bestScore}};
             }
         }
 
@@ -943,19 +956,12 @@ public class Game {
             int[] move = game.moves[i];
             Game newGame = new Game(game);
             newGame.makeMove(move[0], move[1], move[2], move[3]);
-            int score = newGame.evaluate() + depth;
-            int[] result = minimax(newGame, depth - 1, alpha, beta, !maximizingPlayer, null);
+            int[][] result = minimax(newGame, depth - 1, alpha, beta, !maximizingPlayer, null);
+            int score = result[1][0] + depth;
 
-            if (result == null) {
-                if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-                    bestScore = score;
-                    bestMove = move;
-                }
-            } else {
-                if ((maximizingPlayer && result[0] > bestScore) || (!maximizingPlayer && result[0] < bestScore)) {
-                    bestScore = result[0];
-                    bestMove = move;
-                }
+            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
+                bestScore = score;
+                bestMove = move;
             }
 
             if (maximizingPlayer) {
@@ -963,11 +969,12 @@ public class Game {
             } else {
                 beta = Math.min(beta, bestScore);
             }
+
             if (beta <= alpha) {
                 break;
             }
         }
 
-        return bestMove;
+        return new int[][]{bestMove, {bestScore}};
     }
 }
