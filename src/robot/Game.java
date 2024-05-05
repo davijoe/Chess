@@ -43,14 +43,14 @@ public class Game {
 
     public void generateMoves(Game game) {
         if (currentPlayer == 'w') {
-            for (int row = 0; row<8; row++) {
+            for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 8; col++) {
                     if (game.board[row][col] == 1) {
                         generateRookMoves(row, col);
                     }
 
                     if (game.board[row][col] == 2) {
-                        generateKnightMoves(row,col);
+                        generateKnightMoves(row, col);
                     }
 
                     if (game.board[row][col] == 3) {
@@ -65,21 +65,21 @@ public class Game {
                         generateKingMoves(row, col);
                     }
 
-                    if (game.board[row][col] == 6 || game.board[row][col]==7) {
+                    if (game.board[row][col] == 6 || game.board[row][col] == 7) {
                         generatePawnMoves(row, col);
                     }
                 }
             }
         }
-        if(currentPlayer == 'b') {
-            for (int row = 0; row<8; row++) {
+        if (currentPlayer == 'b') {
+            for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 8; col++) {
                     if (game.board[row][col] == 8) {
                         generateRookMoves(row, col);
                     }
 
                     if (game.board[row][col] == 9) {
-                        generateKnightMoves(row,col);
+                        generateKnightMoves(row, col);
                     }
 
                     if (game.board[row][col] == 10) {
@@ -93,7 +93,7 @@ public class Game {
                     if (game.board[row][col] == 12) {
                         generateKingMoves(row, col);
                     }
-                    if (game.board[row][col] == 13 || game.board[row][col]== 14) {
+                    if (game.board[row][col] == 13 || game.board[row][col] == 14) {
                         generatePawnMoves(row, col);
                     }
                 }
@@ -106,17 +106,16 @@ public class Game {
         for (int[] direction : directions) {
             int newRow = row + direction[0];
             int newCol = col + direction[1];
-            while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
-                if(!isTileEmpty(newRow, newCol)) {
-                    if(board[newRow][newCol] > 7 && currentPlayer == 'w' || board[newRow][newCol] <= 7 && currentPlayer == 'b') {
-                        addMove(row,col,newRow,newCol,board[row][col]);
+            while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
+                if (!isTileEmpty(newRow, newCol)) {
+                    if (board[newRow][newCol] > 7 && currentPlayer == 'w' || board[newRow][newCol] <= 7 && currentPlayer == 'b') {
+                        addMove(row, col, newRow, newCol, board[row][col]);
                     }
                     break;
+                } else {
+                    addMove(row, col, newRow, newCol, board[row][col]);
                 }
-                else {
-                    addMove(row,col,newRow,newCol,board[row][col]);
-                }
-                if(!canSlide) {
+                if (!canSlide) {
                     break;
                 }
                 newRow += direction[0];
@@ -126,27 +125,30 @@ public class Game {
     }
 
     public void generateRookMoves(int row, int col) {
-        int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
-        pieceMoveLogic(directions,row,col,true);
+        int[][] directions = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+        pieceMoveLogic(directions, row, col, true);
     }
 
     public void generateBishopMoves(int row, int col) {
-        int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}};
+        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}};
         pieceMoveLogic(directions, row, col, true);
     }
+
     public void generateKnightMoves(int row, int col) {
-        int[][] directions = {{2,1}, {2,-1}, {1,2}, {-1,2}, {-2,1}, {-2,-1}, {-1,-2}, {1,-2}};
+        int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
         pieceMoveLogic(directions, row, col, false);
     }
 
     public void generateQueenMoves(int row, int col) {
-        int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}, {-1,0}, {1,0}, {0,1}, {0,-1}};
-        pieceMoveLogic(directions, row, col,true);
+        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+        pieceMoveLogic(directions, row, col, true);
     }
+
     public void generateKingMoves(int row, int col) {
-        int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}, {-1,0}, {1,0}, {0,1}, {0,-1}};
-        pieceMoveLogic(directions,row,col,false);
+        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+        pieceMoveLogic(directions, row, col, false);
     }
+
     public void generatePawnMoves(int row, int col) {
         int piece = board[row][col];
         int direction = (piece == 6) ? 1 : -1; // 1 for white, -1 for black
@@ -167,6 +169,7 @@ public class Game {
             addMove(row, col, row + direction, col - 1, piece);
         }
     }
+
     private void addMove(int startRow, int startCol, int endRow, int endCol, int piece) {
         moves[generateMoveCounter][0] = startRow;
         moves[generateMoveCounter][1] = startCol;
@@ -177,8 +180,8 @@ public class Game {
     }
 
     public Game(Game currentGame) {
-        for (int i = 0; i< board.length; i++) {
-            for (int j = 0; j<board.length; j++) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
                 this.board[i][j] = currentGame.board[i][j];
             }
         }
@@ -203,8 +206,7 @@ public class Game {
 
         if (currentPlayer == 'w') {
             newGame.currentPlayer = 'b';
-        }
-        else {
+        } else {
             newGame.currentPlayer = 'w';
         }
         return newGame;
@@ -212,29 +214,29 @@ public class Game {
 
     //Start på minimax, slet ikke færdig. Er ikke sikker på at den skal ligge her, eller i en main klasse
     public int minimax(int depth, boolean isMaximizing) {
-        if(checkForWin()) {
+        if (checkForWin()) {
             return Integer.MAX_VALUE;
         }
-        if(checkDraw()) {
+        if (checkDraw()) {
             return 0;
         }
-        if(isMaximizing) {
+        if (isMaximizing) {
             int bestValue = -100;
-            for(int i = 0; i<moves.length; i++) {
-               Game newState = updateGameState(i);
-               heuristicValue = minimax(depth+1,false);
-               if (heuristicValue > bestValue) {
-                   bestValue = heuristicValue;
-               }
+            for (int i = 0; i < moves.length; i++) {
+                Game newState = updateGameState(i);
+                heuristicValue = minimax(depth + 1, false);
+                if (heuristicValue > bestValue) {
+                    bestValue = heuristicValue;
+                }
             }
             return bestValue;
 
         } else {
-            int bestValue= 100;
-            for(int i = 0; i<moves.length; i++) {
+            int bestValue = 100;
+            for (int i = 0; i < moves.length; i++) {
                 Game newState = updateGameState(i);
-                heuristicValue = minimax(depth+1,true);
-                if(heuristicValue < bestValue) {
+                heuristicValue = minimax(depth + 1, true);
+                if (heuristicValue < bestValue) {
                     bestValue = heuristicValue;
                 }
             }
@@ -247,37 +249,34 @@ public class Game {
         //return false;
         return isCheckmate() || checkDraw() || onlyKingLeft();
     }
+
     private boolean isCheckmate() {
         //is check can't escape
-        return kingInCheck(kingRow,kingCol) && !canEscapeCheck(kingRow,kingCol);
+        return kingInCheck(kingRow, kingCol) && !canEscapeCheck(kingRow, kingCol);
     }
 
     private boolean kingInCheck(int kingRow, int kingCol) {
-        int[] attacker = {kingRow,kingCol};
-        if(kingSeeRook(kingRow,kingCol)!=attacker) {
+        int[] attacker = {kingRow, kingCol};
+        if (kingSeeRook(kingRow, kingCol) != attacker) {
             return true;
-        }
-        else if(kingSeeBishop(kingRow,kingCol)!=attacker) {
+        } else if (kingSeeBishop(kingRow, kingCol) != attacker) {
             return true;
-        }
-        else if(kingSeeKnight(kingRow, kingCol)!=attacker) {
+        } else if (kingSeeKnight(kingRow, kingCol) != attacker) {
             return true;
-        }
-        else if(kingSeePawn(kingRow, kingCol)!=attacker) {
+        } else if (kingSeePawn(kingRow, kingCol) != attacker) {
             return true;
-        }
-        else return false;
+        } else return false;
     }
 
     public int[] kingSeeBishop(int kingRow, int kingCol) {
-        int[][] directions = {{-1,1}, {1,1}, {1,-1}, {-1,-1}};
+        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}};
         for (int[] direction : directions) {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
-            while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
-                if(!isTileEmpty(newRow, newCol)) {
-                    if((board[newRow][newCol] == 11 || board[newRow][newCol]==12) && currentPlayer == 'w' || (board[newRow][newCol]==3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
-                        return new int[] {newRow,newCol};
+            while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
+                if (!isTileEmpty(newRow, newCol)) {
+                    if ((board[newRow][newCol] == 11 || board[newRow][newCol] == 12) && currentPlayer == 'w' || (board[newRow][newCol] == 3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                        return new int[]{newRow, newCol};
                     }
                     break;
                 }
@@ -285,7 +284,7 @@ public class Game {
                 newCol += direction[1];
             }
         }
-        return new int[] {kingRow,kingCol};
+        return new int[]{kingRow, kingCol};
     }
 
     public int[] kingSeeKnight(int kingRow, int kingCol) {
@@ -294,43 +293,43 @@ public class Game {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
-                if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol]==10 && currentPlayer=='w' ) {
-                    return new int[] {newRow,newCol};
+                if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol] == 10 && currentPlayer == 'w') {
+                    return new int[]{newRow, newCol};
                 }
                 break;
             }
         }
-        return new int[] {kingRow,kingCol};
+        return new int[]{kingRow, kingCol};
     }
+
     public int[] kingSeeRook(int kingRow, int kingCol) {
-        int[][] directions = {{-1,0}, {1,0}, {0,1}, {0,-1}};
+        int[][] directions = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
         for (int[] direction : directions) {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
-            while (0<=newRow && newRow<8 && 0<=newCol && newCol<8) {
-                if(!isTileEmpty(newRow, newCol)) {
-                    if((board[newRow][newCol] == 9 || board[newRow][newCol]==12) && currentPlayer == 'w' || (board[newRow][newCol]==1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
-                        return new int[] {newRow,newCol};
+            while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
+                if (!isTileEmpty(newRow, newCol)) {
+                    if ((board[newRow][newCol] == 9 || board[newRow][newCol] == 12) && currentPlayer == 'w' || (board[newRow][newCol] == 1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                        return new int[]{newRow, newCol};
                     }
                     break;
                 }
-                    newRow += direction[0];
-                    newCol += direction[1];
+                newRow += direction[0];
+                newCol += direction[1];
             }
         }
-        return new int[] {kingRow,kingCol};
+        return new int[]{kingRow, kingCol};
     }
 
     public int[] kingSeePawn(int kingRow, int kingCol) {
-        if(currentPlayer=='w') {
-            if(!isTileEmpty(kingRow+1,kingCol+1) || !isTileEmpty(kingRow+1, kingCol-1)) {
+        if (currentPlayer == 'w') {
+            if (!isTileEmpty(kingRow + 1, kingCol + 1) || !isTileEmpty(kingRow + 1, kingCol - 1)) {
 
             }
-        }
-        else {
+        } else {
 
         }
-        return new int[] {kingRow,kingCol};
+        return new int[]{kingRow, kingCol};
     }
 //    private boolean isCheck() {
 //        for (int row = 0; row < 8; row++) {
@@ -373,19 +372,18 @@ public class Game {
 
     private boolean canEscapeCheck(int kingRow, int kingCol) {
         int[] attacker = new int[2];
-        attacker = kingSeeRook(kingRow,kingCol);
+        attacker = kingSeeRook(kingRow, kingCol);
 
         generateMoves(this);
         for (int[] move : moves) {
-            if(move[2] == attacker[0] && move[3]==attacker[1]) {
+            if (move[2] == attacker[0] && move[3] == attacker[1]) {
                 return true;
             }
-            if(move[4]==board[kingRow][kingCol] && !kingInCheck(move[2],move[3])) {
+            if (move[4] == board[kingRow][kingCol] && !kingInCheck(move[2], move[3])) {
                 return true;
-            }
-            else {
-                makeMove(move[0],move[1],move[2],move[3]);
-                if (!kingInCheck(kingRow,kingCol)) {
+            } else {
+                makeMove(move[0], move[1], move[2], move[3]);
+                if (!kingInCheck(kingRow, kingCol)) {
 //                    undoMove(move[0],move[1],move[2],move[3],move[4]);
                     return true;
                 }
@@ -394,13 +392,14 @@ public class Game {
         }
         return false;
     }
+
     private boolean onlyKingLeft() {
         int numWhitePieces = 0;
         int numBlackPieces = 0;
 
         for (int[] row : board) {
             for (int piece : row) {
-                if (piece == 1 || piece == 2 || piece == 3 || piece == 4 || piece == 5 || piece == 6 ||piece == 7) {
+                if (piece == 1 || piece == 2 || piece == 3 || piece == 4 || piece == 5 || piece == 6 || piece == 7) {
                     numWhitePieces++;
                 } else if (piece == 9 || piece == 10 || piece == 11 || piece == 12 || piece == 13 || piece == 14 || piece == 15) {
                     numBlackPieces++;
@@ -715,6 +714,7 @@ public class Game {
             }
         }
     }
+
     public int pieceFromChar(char c) {
         return switch (c) {
             case 'P' -> 6;  // white pawn
@@ -764,7 +764,7 @@ public class Game {
         };
     }
 
-//    public int makeMove(int startRow, int startCol, int endRow, int endCol) {
+    //    public int makeMove(int startRow, int startCol, int endRow, int endCol) {
 //        int capturedPiece = board[endRow][endCol];
 //        int piece = board[startRow][startCol];
 //        board[startRow][startCol] = 0;
@@ -846,7 +846,7 @@ public class Game {
         game.printBoard();
 
         boolean minimax = false;
-        if (game.currentPlayer == 'w'){
+        if (game.currentPlayer == 'w') {
             minimax = true;
         }
 
@@ -965,7 +965,7 @@ public class Game {
     }
 
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
-        if (depth == 0 || game.isGameFinished()) {
+        if (depth == 0) {
             return new int[][]{{}, {game.evaluate()}};
         }
 
