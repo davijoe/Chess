@@ -3,7 +3,7 @@
 ### FEN Strings
 Starting position:
 ```
-rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR 
+rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 ```
 
 Other - Dan:
