@@ -1,6 +1,6 @@
 package lightningfastjava;
 
-public class MultithreadingTest extends Thread {
+public class MultithreadingTest implements Runnable {
 
     private int threadNumber;
     public MultithreadingTest(int threadNumber) {
