@@ -801,6 +801,7 @@ public class Game {
     public void undoMove(int startRow, int startCol, int endRow, int endCol, int piece) {
         board[startRow][startCol] = board[endRow][endCol];
         board[endRow][endCol] = piece;
+        currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
     }
 
     public void resetMoves(int[][] moves) {
@@ -955,7 +956,7 @@ public class Game {
 
 //        System.out.println("Enter search depth for Minimax:");
 //        int depth = scanner.nextInt();
-        int depth = 3;
+        int depth = 6;
         Game game = new Game();
         game.initializeBoard(fen);
         game.printBoard();
@@ -1156,7 +1157,6 @@ public class Game {
                 }
             }
         }
-
         return bestMove;
     }
 }
