@@ -28,7 +28,7 @@ public class ParallelMinimax extends RecursiveTask<int[]> {
             return null;
         }
 
-        game.generateMoves(game);
+        game.generateMoves(game.moves);
 
         if (game.generateMoveCounter == 0) {
             return null;
