@@ -459,17 +459,17 @@ public class Game {
     private int getPiecePositionValue(int piece, int row, int col) {
         int value = 0;
         switch (piece) {
-            case 6, 7, 13, 14 -> // White PAWNS < Black PAWNS
+            case 6, 7, 13, 14 -> // White PAWNS > Black PAWNS
                 value = pawnPositionValue(row, col);
-            case 2, 9 -> // White KNIGHTS < Black KNIGHTS
+            case 2, 9 -> // White KNIGHTS > Black KNIGHTS
                 value = knightPositionValue(row, col);
-            case 3, 10 -> // White BISHOPS < Black BISHOPS
+            case 3, 10 -> // White BISHOPS > Black BISHOPS
                 value = bishopPositionValue(row, col);
-            case 1, 8 -> // White ROOK < Black ROOKS
+            case 1, 8 -> // White ROOK > Black ROOKS
                 value = rookPositionValue(row, col);
-            case 4, 11 -> // White QUEEN < Black QUEEN
+            case 4, 11 -> // White QUEEN > Black QUEEN
                 value = queenPositionValue(row, col);
-            case 5, 12 -> // White KING < Black KING
+            case 5, 12 -> // White KING > Black KING
                 value = kingPositionValue(row, col);
         }
         return value;
