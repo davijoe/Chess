@@ -2,7 +2,6 @@ package robot;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 
@@ -460,32 +459,18 @@ public class Game {
     private int getPiecePositionValue(int piece, int row, int col) {
         int value = 0;
         switch (piece) {
-            case 6:  // White pawn
-            case 7:  // White pawn
-            case 13:  // Black pawn
-            case 14:  // Black pawn
+            case 6, 7, 13, 14 -> // White PAWNS < Black PAWNS
                 value = pawnPositionValue(row, col);
-                break;
-            case 2:  // White knight
-            case 9:  // Black knight
+            case 2, 9 -> // White KNIGHTS < Black KNIGHTS
                 value = knightPositionValue(row, col);
-                break;
-            case 3:  // White bishop
-            case 10: // Black bishop
+            case 3, 10 -> // White BISHOPS < Black BISHOPS
                 value = bishopPositionValue(row, col);
-                break;
-            case 1:  // White rook
-            case 8:  // Black rook
+            case 1, 8 -> // White ROOK < Black ROOKS
                 value = rookPositionValue(row, col);
-                break;
-            case 4:  // White queen
-            case 11: // Black queen
+            case 4, 11 -> // White QUEEN < Black QUEEN
                 value = queenPositionValue(row, col);
-                break;
-            case 5:  // White king
-            case 12: // Black king
+            case 5, 12 -> // White KING < Black KING
                 value = kingPositionValue(row, col);
-                break;
         }
         return value;
     }
