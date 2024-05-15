@@ -960,6 +960,12 @@ public class Game {
 //        */
 //    }
 
+    public void playChess(int depth, char currentPlayer) {
+
+
+
+    }
+
     public static void main(String[] args) {
         System.out.println(Runtime.getRuntime().availableProcessors());
         Scanner scanner = new Scanner(System.in);
@@ -979,7 +985,7 @@ public class Game {
 
         startTime = LocalDateTime.now();
         //single-threaded test
-//        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
         endTime = LocalDateTime.now();
 
         long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
@@ -995,8 +1001,8 @@ public class Game {
 //        long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
 //        System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
 
-//        System.out.println("bestmove: " + bestMove[1] + bestMove[2] + bestMove[3] + bestMove[4]);
-//        game.makeMove(bestMove[1], bestMove[2], bestMove[3], bestMove[4]);
+        System.out.println("bestmove: " + bestMove[1] + bestMove[2] + bestMove[3] + bestMove[4]);
+        game.makeMove(bestMove[1], bestMove[2], bestMove[3], bestMove[4]);
         game.printBoard();
         String newFEN = game.getFEN();
         System.out.println("New FEN string:");
@@ -1057,118 +1063,118 @@ public class Game {
 //        return bestMove[0];
 //    }
 
-    public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
-        if (depth == 0) {
-            return new int[][]{{}, {game.evaluate()}};
-        }
-
-        int[] bestMove = null;
-        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-
-        if (previousBestMove != null) {
-            int previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
-            int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
-            int score = result[1][0] + depth;
-
-            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-                bestScore = score;
-                bestMove = previousBestMove;
-            }
-
-            if (maximizingPlayer) {
-                alpha = Math.max(alpha, bestScore);
-            } else {
-                beta = Math.min(beta, bestScore);
-            }
-
-            if (beta <= alpha) {
-                return new int[][]{bestMove, {bestScore}};
-            }
-        }
-        int[][] moves = game.getMovesByDepth(depth);
-        game.generateMoveCounter = 0;
-        game.generateMoves(moves);
-
-        for (int i = 0; i < game.generateMoveCounter; i++) {
-            int[] move = moves[i];
-
-            int previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
-            int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
-            game.undoMove(move[0], move[1], move[2], move[3], previousMove);
-            int score = result[1][0] + depth;
-
-            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-                bestScore = score;
-                bestMove = move;
-            }
-
-            if (maximizingPlayer) {
-                alpha = Math.max(alpha, bestScore);
-            } else {
-                beta = Math.min(beta, bestScore);
-            }
-
-            if (beta <= alpha) {
-                break;
-            }
-        }
-
-        return new int[][]{bestMove, {bestScore}};
-    }
-
-}
-
-//    public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
-//        //does not take into account win or lose atm
-//        if (depth == 0)  {
-//            return new int[] {game.evaluate()};
+//    public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
+//        if (depth == 0) {
+//            return new int[][]{{}, {game.evaluate()}};
 //        }
 //
 //        int[] bestMove = null;
 //        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 //
+//        if (previousBestMove != null) {
+//            int previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
+//            int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
+//            int score = result[1][0] + depth;
+//
+//            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
+//                bestScore = score;
+//                bestMove = previousBestMove;
+//            }
+//
+//            if (maximizingPlayer) {
+//                alpha = Math.max(alpha, bestScore);
+//            } else {
+//                beta = Math.min(beta, bestScore);
+//            }
+//
+//            if (beta <= alpha) {
+//                return new int[][]{bestMove, {bestScore}};
+//            }
+//        }
 //        int[][] moves = game.getMovesByDepth(depth);
 //        game.generateMoveCounter = 0;
 //        game.generateMoves(moves);
 //
 //        for (int i = 0; i < game.generateMoveCounter; i++) {
 //            int[] move = moves[i];
-//            int previousMove;
-//            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
 //
-//            int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
-//            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
+//            int previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
+//            int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
+//            game.undoMove(move[0], move[1], move[2], move[3], previousMove);
+//            int score = result[1][0] + depth;
 //
+//            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
+//                bestScore = score;
+//                bestMove = move;
+//            }
 //
-//            if (result == null) {
-//                int score = game.evaluate();
-//                if (maximizingPlayer && score > bestScore) {
-//                    bestScore = score;
-//                    bestMove = move;
-//                } else if (!maximizingPlayer && score < bestScore) {
-//                    bestScore = score;
-//                    bestMove = move;
-//                }
+//            if (maximizingPlayer) {
+//                alpha = Math.max(alpha, bestScore);
 //            } else {
+//                beta = Math.min(beta, bestScore);
+//            }
 //
-//                if (maximizingPlayer) {
-//                    if (result[0] > bestScore) {
-//                        bestScore = result[0];
-//                        bestMove = move;
-//                    }
-//                    alpha = Math.max(alpha, bestScore);
-//                } else {
-//                    if (result[0] < bestScore) {
-//                        bestScore = result[0];
-//                        bestMove = move;
-//                    }
-//                    beta = Math.min(beta, bestScore);
-//                }
-//                if (beta <= alpha) {
-//                    break;
-//                }
+//            if (beta <= alpha) {
+//                break;
 //            }
 //        }
-//        return bestMove;
+//
+//        return new int[][]{bestMove, {bestScore}};
 //    }
-//}
+
+
+
+    public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
+        //does not take into account win or lose atm
+        if (depth == 0)  {
+            return new int[] {game.evaluate()};
+        }
+
+        int[] bestMove = null;
+        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        int[][] moves = game.getMovesByDepth(depth);
+        game.generateMoveCounter = 0;
+        game.generateMoves(moves);
+
+        for (int i = 0; i < game.generateMoveCounter; i++) {
+            int[] move = moves[i];
+            int previousMove;
+            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
+
+            int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
+            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
+
+
+            if (result == null) {
+                int score = game.evaluate();
+                if (maximizingPlayer && score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                } else if (!maximizingPlayer && score < bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            } else {
+
+                if (maximizingPlayer) {
+                    if (result[0] > bestScore) {
+                        bestScore = result[0];
+                        bestMove = move;
+                    }
+                    alpha = Math.max(alpha, bestScore);
+                } else {
+                    if (result[0] < bestScore) {
+                        bestScore = result[0];
+                        bestMove = move;
+                    }
+                    beta = Math.min(beta, bestScore);
+                }
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+        }
+        return bestMove;
+    }
+}
