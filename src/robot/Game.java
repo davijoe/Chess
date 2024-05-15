@@ -2,7 +2,6 @@ package robot;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 
@@ -28,8 +27,10 @@ public class Game {
     boolean whiteShortCastle = true;
     boolean blackShortCastle = true;
     boolean blackLongCastle = true;
-    private int kingRow;
-    private int kingCol;
+    private int whiteKingRow;
+    private int whiteKingCol;
+    private int blackKingRow;
+    private int blackKingCol;
     char currentPlayer;
 
     int heuristicValue;
@@ -260,6 +261,16 @@ public class Game {
 
     private boolean isCheckmate() {
         //is check can't escape
+        int kingRow;
+        int kingCol;
+        if(currentPlayer=='w') {
+            kingRow = whiteKingRow;
+            kingCol = whiteKingCol;
+        }
+        else {
+            kingRow = blackKingRow;
+            kingCol = blackKingCol;
+        }
         return kingInCheck(kingRow, kingCol) && !canEscapeCheck(kingRow, kingCol);
     }
 
@@ -339,20 +350,6 @@ public class Game {
         }
         return new int[]{kingRow, kingCol};
     }
-//    private boolean isCheck() {
-//        for (int row = 0; row < 8; row++) {
-//            for (int col = 0; col < 8; col++) {
-//                if ((currentPlayer == 'w' && board[row][col] > 7) ||
-//                        (currentPlayer == 'b' && board[row][col] <= 7 && board[row][col] != 0)) {
-//                    if (canCaptureKing(row, col, kingRow, kingCol)) {
-//                        return true;
-//                    }
-//                }
-//            }
-//        }
-//
-//        return false;
-//    }
 
     private boolean canCaptureKing(int attackerRow, int attackerCol, int kingRow, int kingCol) {
         int attacker = board[attackerRow][attackerCol];
@@ -392,10 +389,10 @@ public class Game {
             } else {
                 makeMove(move[0], move[1], move[2], move[3]);
                 if (!kingInCheck(kingRow, kingCol)) {
-//                    undoMove(move[0],move[1],move[2],move[3],move[4]);
+                    undoMove(move[0],move[1],move[2],move[3],move[4]);
                     return true;
                 }
-//                else undoMove(move[0],move[1],move[2],move[3],move[4]);
+                else undoMove(move[0],move[1],move[2],move[3],move[4]);
             }
         }
         return false;
@@ -714,10 +711,13 @@ public class Game {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 int piece = board[i][j];
-                if ((currentPlayer == 'w' && piece == 5) || (currentPlayer == 'b' && piece == 12)) {
-                    kingRow = i;
-                    kingCol = j;
-                    return;
+                if (piece == 5) {
+                    whiteKingRow = i;
+                    whiteKingCol = j;
+                }
+                if(piece == 12) {
+                    blackKingRow = i;
+                    blackKingCol = j;
                 }
             }
         }
@@ -778,13 +778,18 @@ public class Game {
         board[startRow][startCol] = 0;
         board[endRow][endCol] = piece;
         currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
-            if ((piece == 5 && currentPlayer == 'w') || (piece == 13 && currentPlayer == 'b')) {
-                kingRow = endRow;
-                kingCol = endCol;
-            }
+        if (piece == 5 && currentPlayer == 'w') {
+            whiteKingRow = endRow;
+            whiteKingCol = endCol;
+        }
+        if(piece == 13 && currentPlayer == 'b') {
+            blackKingRow = endRow;
+            blackKingCol = endCol;
+        }
         return capturedPiece;
     }
-//    public void makeMove(int startRow, int startCol, int endRow, int endCol) {
+
+    //    public void makeMove(int startRow, int startCol, int endRow, int endCol) {
 //        if (isValidMove(startRow, startCol, endRow, endCol)) {
 //            int piece = board[startRow][startCol];
 //            board[startRow][startCol] = 0;
@@ -799,15 +804,23 @@ public class Game {
 //    }
 //
     public void undoMove(int startRow, int startCol, int endRow, int endCol, int piece) {
+        if(currentPlayer=='w' && board[endRow][endCol]==5) {
+            whiteKingRow = startRow;
+            whiteKingCol = startCol;
+        }
+        else if(currentPlayer=='b' && board[endRow][endCol]==12) {
+            blackKingRow = startRow;
+            blackKingCol = startCol;
+        }
         board[startRow][startCol] = board[endRow][endCol];
         board[endRow][endCol] = piece;
         currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
     }
 
     public void resetMoves(int[][] moves) {
-        for (int i = 0; i<moves.length; i++) {
-            for (int j = 0; j<moves[i].length; j++) {
-                moves[i][j]=0;
+        for (int i = 0; i < moves.length; i++) {
+            for (int j = 0; j < moves[i].length; j++) {
+                moves[i][j] = 0;
             }
         }
     }
@@ -947,7 +960,7 @@ public class Game {
 //        */
 //    }
 
-        public static void main(String[] args) {
+    public static void main(String[] args) {
         System.out.println(Runtime.getRuntime().availableProcessors());
         Scanner scanner = new Scanner(System.in);
 
@@ -966,7 +979,7 @@ public class Game {
 
         startTime = LocalDateTime.now();
         //single-threaded test
-        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+//        int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
         endTime = LocalDateTime.now();
 
         long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
@@ -982,8 +995,8 @@ public class Game {
 //        long multiThreadedTime = Duration.between(startTime, endTime).toMillis();
 //        System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
 
-        System.out.println("bestmove: " + bestMove[1]+ bestMove[2]+ bestMove[3]+ bestMove[4]);
-        game.makeMove(bestMove[1],bestMove[2],bestMove[3],bestMove[4]);
+//        System.out.println("bestmove: " + bestMove[1] + bestMove[2] + bestMove[3] + bestMove[4]);
+//        game.makeMove(bestMove[1], bestMove[2], bestMove[3], bestMove[4]);
         game.printBoard();
         String newFEN = game.getFEN();
         System.out.println("New FEN string:");
@@ -1004,13 +1017,10 @@ public class Game {
         ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
         return pool.invoke(task);
          */
-
-
 /*
         ForkJoinPool pool = new ForkJoinPool();
         ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
         return pool.invoke(task);
-
  */
 
     }
@@ -1047,116 +1057,118 @@ public class Game {
 //        return bestMove[0];
 //    }
 
-//    public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
-//        if (depth == 0) {
-//            return new int[][]{{}, {game.evaluate()}};
-//        }
-//
-//        int[] bestMove = null;
-//        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-//
-//        if (previousBestMove != null) {
-//            int previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
-//            int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
-//            int score = result[1][0] + depth;
-//
-//            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-//                bestScore = score;
-//                bestMove = previousBestMove;
-//            }
-//
-//            if (maximizingPlayer) {
-//                alpha = Math.max(alpha, bestScore);
-//            } else {
-//                beta = Math.min(beta, bestScore);
-//            }
-//
-//            if (beta <= alpha) {
-//                return new int[][]{bestMove, {bestScore}};
-//            }
-//        }
-//        int[][] moves = game.getMovesByDepth(depth);
-//        game.generateMoveCounter = 0;
-//        game.generateMoves(moves);
-//
-//        for (int i = 0; i < game.generateMoveCounter; i++) {
-//            int[] move = moves[i];
-//
-//            int previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
-//            int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
-//            int score = result[1][0] + depth;
-//
-//            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-//                bestScore = score;
-//                bestMove = move;
-//            }
-//
-//            if (maximizingPlayer) {
-//                alpha = Math.max(alpha, bestScore);
-//            } else {
-//                beta = Math.min(beta, bestScore);
-//            }
-//
-//            if (beta <= alpha) {
-//                break;
-//            }
-//            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
-//        }
-//
-//        return new int[][]{bestMove, {bestScore}};
-//    }
-
-    public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
-        //does not take into account win or lose atm
-        if (depth == 0)  {
-            return new int[] {game.evaluate()};
+    public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
+        if (depth == 0) {
+            return new int[][]{{}, {game.evaluate()}};
         }
 
         int[] bestMove = null;
         int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
+        if (previousBestMove != null) {
+            int previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
+            int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
+            int score = result[1][0] + depth;
+
+            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
+                bestScore = score;
+                bestMove = previousBestMove;
+            }
+
+            if (maximizingPlayer) {
+                alpha = Math.max(alpha, bestScore);
+            } else {
+                beta = Math.min(beta, bestScore);
+            }
+
+            if (beta <= alpha) {
+                return new int[][]{bestMove, {bestScore}};
+            }
+        }
         int[][] moves = game.getMovesByDepth(depth);
         game.generateMoveCounter = 0;
         game.generateMoves(moves);
 
         for (int i = 0; i < game.generateMoveCounter; i++) {
             int[] move = moves[i];
-            int previousMove;
-            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
 
-            int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
-            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
+            int previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
+            int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
+            game.undoMove(move[0], move[1], move[2], move[3], previousMove);
+            int score = result[1][0] + depth;
 
+            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
+                bestScore = score;
+                bestMove = move;
+            }
 
-            if (result == null) {
-                int score = game.evaluate();
-                if (maximizingPlayer && score > bestScore) {
-                    bestScore = score;
-                    bestMove = move;
-                } else if (!maximizingPlayer && score < bestScore) {
-                    bestScore = score;
-                    bestMove = move;
-                }
+            if (maximizingPlayer) {
+                alpha = Math.max(alpha, bestScore);
             } else {
+                beta = Math.min(beta, bestScore);
+            }
 
-                if (maximizingPlayer) {
-                    if (result[0] > bestScore) {
-                        bestScore = result[0];
-                        bestMove = move;
-                    }
-                    alpha = Math.max(alpha, bestScore);
-                } else {
-                    if (result[0] < bestScore) {
-                        bestScore = result[0];
-                        bestMove = move;
-                    }
-                    beta = Math.min(beta, bestScore);
-                }
-                if (beta <= alpha) {
-                    break;
-                }
+            if (beta <= alpha) {
+                break;
             }
         }
-        return bestMove;
+
+        return new int[][]{bestMove, {bestScore}};
     }
+
 }
+
+//    public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
+//        //does not take into account win or lose atm
+//        if (depth == 0)  {
+//            return new int[] {game.evaluate()};
+//        }
+//
+//        int[] bestMove = null;
+//        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+//
+//        int[][] moves = game.getMovesByDepth(depth);
+//        game.generateMoveCounter = 0;
+//        game.generateMoves(moves);
+//
+//        for (int i = 0; i < game.generateMoveCounter; i++) {
+//            int[] move = moves[i];
+//            int previousMove;
+//            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
+//
+//            int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
+//            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
+//
+//
+//            if (result == null) {
+//                int score = game.evaluate();
+//                if (maximizingPlayer && score > bestScore) {
+//                    bestScore = score;
+//                    bestMove = move;
+//                } else if (!maximizingPlayer && score < bestScore) {
+//                    bestScore = score;
+//                    bestMove = move;
+//                }
+//            } else {
+//
+//                if (maximizingPlayer) {
+//                    if (result[0] > bestScore) {
+//                        bestScore = result[0];
+//                        bestMove = move;
+//                    }
+//                    alpha = Math.max(alpha, bestScore);
+//                } else {
+//                    if (result[0] < bestScore) {
+//                        bestScore = result[0];
+//                        bestMove = move;
+//                    }
+//                    beta = Math.min(beta, bestScore);
+//                }
+//                if (beta <= alpha) {
+//                    break;
+//                }
+//            }
+//        }
+//        return bestMove;
+//    }
+//}
