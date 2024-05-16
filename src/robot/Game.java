@@ -2,6 +2,7 @@ package robot;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 
@@ -221,39 +222,6 @@ public class Game {
         return newGame;
     }
 
-    //Start på minimax, slet ikke færdig. Er ikke sikker på at den skal ligge her, eller i en main klasse
-    public int minimax(int depth, boolean isMaximizing) {
-        if (checkForWin()) {
-            return Integer.MAX_VALUE;
-        }
-        if (checkDraw()) {
-            return 0;
-        }
-        if (isMaximizing) {
-            int bestValue = -100;
-            for (int i = 0; i < moves.length; i++) {
-                Game newState = updateGameState(i);
-                heuristicValue = minimax(depth + 1, false);
-                if (heuristicValue > bestValue) {
-                    bestValue = heuristicValue;
-                }
-            }
-            return bestValue;
-
-        } else {
-            int bestValue = 100;
-            for (int i = 0; i < moves.length; i++) {
-                Game newState = updateGameState(i);
-                heuristicValue = minimax(depth + 1, true);
-                if (heuristicValue < bestValue) {
-                    bestValue = heuristicValue;
-                }
-            }
-            return bestValue;
-        }
-
-    }
-
     public boolean isGameFinished() {
         //return false;
         return isCheckmate() || checkDraw() || onlyKingLeft();
@@ -276,13 +244,13 @@ public class Game {
 
     private boolean kingInCheck(int kingRow, int kingCol) {
         int[] attacker = {kingRow, kingCol};
-        if (kingSeeRook(kingRow, kingCol) != attacker) {
+        if (!Arrays.equals(kingSeeRook(kingRow, kingCol), attacker)) {
             return true;
-        } else if (kingSeeBishop(kingRow, kingCol) != attacker) {
+        } else if (!Arrays.equals(kingSeeRook(kingRow, kingCol), attacker)) {
             return true;
-        } else if (kingSeeKnight(kingRow, kingCol) != attacker) {
+        } else if (!Arrays.equals(kingSeeRook(kingRow, kingCol), attacker)) {
             return true;
-        } else if (kingSeePawn(kingRow, kingCol) != attacker) {
+        } else if (!Arrays.equals(kingSeeRook(kingRow, kingCol), attacker)) {
             return true;
         } else return false;
     }
@@ -294,7 +262,7 @@ public class Game {
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
                 if (!isTileEmpty(newRow, newCol)) {
-                    if ((board[newRow][newCol] == 11 || board[newRow][newCol] == 12) && currentPlayer == 'w' || (board[newRow][newCol] == 3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                    if ((board[newRow][newCol] == 11 || board[newRow][newCol] == 10) && currentPlayer == 'w' || (board[newRow][newCol] == 3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
                         return new int[]{newRow, newCol};
                     }
                     break;
@@ -312,7 +280,7 @@ public class Game {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
-                if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol] == 10 && currentPlayer == 'w') {
+                if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol] == 9 && currentPlayer == 'w') {
                     return new int[]{newRow, newCol};
                 }
                 break;
@@ -328,8 +296,8 @@ public class Game {
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
                 if (!isTileEmpty(newRow, newCol)) {
-                    if ((board[newRow][newCol] == 9 || board[newRow][newCol] == 12) && currentPlayer == 'w' || (board[newRow][newCol] == 1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
-                        return new int[]{newRow, newCol};
+                    if ((board[newRow][newCol] == 8 || board[newRow][newCol] == 11) && currentPlayer == 'w' || (board[newRow][newCol] == 1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                        return new int[] {newRow, newCol};
                     }
                     break;
                 }
@@ -337,16 +305,27 @@ public class Game {
                 newCol += direction[1];
             }
         }
-        return new int[]{kingRow, kingCol};
+        return new int[] {kingRow, kingCol};
     }
 
     public int[] kingSeePawn(int kingRow, int kingCol) {
         if (currentPlayer == 'w') {
-            if (!isTileEmpty(kingRow + 1, kingCol + 1) || !isTileEmpty(kingRow + 1, kingCol - 1)) {
-
+            if (kingRow + 1 < 7) {
+                if (kingCol + 1 < 8 && (board[kingRow + 1][kingCol + 1] == 13 || board[kingRow + 1][kingCol + 1] == 14)) {
+                    return new int[]{kingRow + 1, kingCol + 1};
+                }
+                if (0 <= kingCol - 1 && (board[kingRow + 1][kingCol - 1] == 13 || board[kingRow + 1][kingCol - 1] == 14)) {
+                    return new int[]{kingRow + 1, kingCol - 1};
+                }
             }
-        } else {
-
+        }
+        else if (kingRow-1 >= 0) {
+            if (kingCol + 1 < 8 && (board[kingRow-1][kingCol+1] == 6 || board[kingRow-1][kingCol+1] == 7)) {
+                return new int[]{kingRow-1, kingCol+1};
+            }
+            if (0 <= kingCol - 1 && (board[kingRow-1][kingCol - 1] == 6 || board[kingRow-1][kingCol - 1] == 7)) {
+                return new int[]{kingRow-1, kingCol-1};
+            }
         }
         return new int[]{kingRow, kingCol};
     }
@@ -607,10 +586,6 @@ public class Game {
         return (currentPlayer == 'w') ? whiteKingPositionValues[row][col] : blackKingPositionValues[row][col];
     }
 
-    public boolean checkForWin() {
-        return false;
-    }
-
     public boolean checkDraw() {
         return false;
     }
@@ -650,40 +625,6 @@ public class Game {
     public void setCurrentPlayer(char currentPlayer) {
         this.currentPlayer = currentPlayer;
     }
-
-//    public static void main(String[] args) {
-//
-//        Game game = new Game();
-//
-//        //Rook = 1, Knight = 2, Bishop = 3
-//        game.board[0][0] = 1;
-//        game.board[5][5] = 5;
-//
-//        //Introducing black pieces
-//        game.board[4][4] = 12;
-//        game.board[4][3] = 10;
-//
-//        Random rnd = new Random();
-//        System.out.println();
-//
-//        game.currentPlayer = 'w';
-//        System.out.println("White's turn");
-//        game.generateMoves(game);
-//        game.kingInCheck(5,5);
-//
-//        Game newState = game.updateGameState(2);
-//        System.out.println(newState.currentPlayer);
-//        newState.generateMoves(newState);
-//        game.kingInCheck(5,5);
-//
-//
-//        Game newnew = newState.updateGameState(1);
-//
-//        System.out.println(newnew.currentPlayer);
-//
-//        newnew.generateMoves(newnew);
-//
-//    }
 
 
     public void initializeBoard(String fen) {
@@ -778,11 +719,11 @@ public class Game {
         board[startRow][startCol] = 0;
         board[endRow][endCol] = piece;
         currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
-        if (piece == 5 && currentPlayer == 'w') {
+        if (piece == 5) {
             whiteKingRow = endRow;
             whiteKingCol = endCol;
         }
-        if(piece == 13 && currentPlayer == 'b') {
+        if(piece==12) {
             blackKingRow = endRow;
             blackKingCol = endCol;
         }
@@ -971,7 +912,7 @@ public class Game {
         Scanner scanner = new Scanner(System.in);
 
 //        System.out.println("Enter FEN string:");
-        String fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        String fen = "7k/8/8/6R1/5Q2/8/8/7K w - - 0 1";
 
 //        System.out.println("Enter search depth for Minimax:");
 //        int depth = scanner.nextInt();
@@ -1126,6 +1067,11 @@ public class Game {
 
     public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
         //does not take into account win or lose atm
+
+        if(game.isGameFinished()) {
+            return new int[]{maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE};
+        }
+
         if (depth == 0)  {
             return new int[] {game.evaluate()};
         }
@@ -1141,6 +1087,9 @@ public class Game {
             int[] move = moves[i];
             int previousMove;
             previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
+            if(game.kingInCheck(move[2],move[3])) {
+                break;
+            }
 
             int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
             game.undoMove(move[0],move[1],move[2],move[3],previousMove);
