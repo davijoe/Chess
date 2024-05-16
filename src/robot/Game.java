@@ -523,9 +523,9 @@ public class Game {
                 {-50, -30, -30, -30, -30, -30, -30, -50}
         };
         int[][] blackKingPositionValues = new int[8][8];
-for (int i = 0; i < 8; i++) {
-    System.arraycopy(whiteKingPositionValues[7 - i], 0, blackKingPositionValues[i], 0, 8);
-}
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(whiteKingPositionValues[7 - i], 0, blackKingPositionValues[i], 0, 8);
+        }
         return (currentPlayer == 'w') ? whiteKingPositionValues[row][col] : blackKingPositionValues[row][col];
     }
 
@@ -844,12 +844,13 @@ for (int i = 0; i < 8; i++) {
         System.out.println("Enter FEN string:");
         String fen = scanner.nextLine();
 
-        int depth = 7;
+        int depth = 6;
         Game game = new Game();
         game.initializeBoard(fen);
 
         while (true) {
             System.out.println("Searching in depth " + depth + "...");
+
 
             game.printBoard();
             LocalDateTime startTime = LocalDateTime.now();
@@ -890,12 +891,11 @@ for (int i = 0; i < 8; i++) {
                 int toX = toXChar - 'a';
                 int toY = 8 - Character.getNumericValue(toYChar);
 
-                System.out.println("Moving from " + fromY + "," + fromX + " to " + toY + "," + toX);
+                System.out.println("Moving from " + fromYChar + "," + fromXChar + " to " + toYChar + "," + toXChar);
 
                 game.makeMove(fromY, fromX, toY, toX);
                 game.printBoard();
-                fen = game.getFEN();
-                System.out.println("Updated FEN string: " + fen);
+                System.out.println("Updated FEN string: " + game.getFEN());
 
             } else {
                 System.out.println("Invalid input format. Please enter the move in the format 'e7e5'.");
