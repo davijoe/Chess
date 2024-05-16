@@ -718,7 +718,6 @@ public class Game {
         int piece = board[startRow][startCol];
         board[startRow][startCol] = 0;
         board[endRow][endCol] = piece;
-        currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
         if (piece == 5) {
             whiteKingRow = endRow;
             whiteKingCol = endCol;
@@ -727,6 +726,11 @@ public class Game {
             blackKingRow = endRow;
             blackKingCol = endCol;
         }
+        if(kingInCheck(endRow,endCol)) {
+            undoMove(startRow,startCol,endRow,endCol,capturedPiece);
+            return -1;
+        }
+        currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
         return capturedPiece;
     }
 
@@ -912,7 +916,7 @@ public class Game {
         Scanner scanner = new Scanner(System.in);
 
 //        System.out.println("Enter FEN string:");
-        String fen = "7k/8/8/6R1/5Q2/8/8/7K w - - 0 1";
+        String fen = "k7/7K/1Q6/8/1R6/8/8/8 w - - 0 1";
 
 //        System.out.println("Enter search depth for Minimax:");
 //        int depth = scanner.nextInt();
@@ -943,7 +947,7 @@ public class Game {
 //        System.out.println("Work Stealing Minimax Time: " + multiThreadedTime + " milliseconds");
 
         System.out.println("bestmove: " + bestMove[1] + bestMove[2] + bestMove[3] + bestMove[4]);
-        game.makeMove(bestMove[1], bestMove[2], bestMove[3], bestMove[4]);
+        game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
         game.printBoard();
         String newFEN = game.getFEN();
         System.out.println("New FEN string:");
@@ -1069,6 +1073,7 @@ public class Game {
         //does not take into account win or lose atm
 
         if(game.isGameFinished()) {
+            System.out.println(game.currentPlayer + " has won");
             return new int[]{maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE};
         }
 
@@ -1087,8 +1092,8 @@ public class Game {
             int[] move = moves[i];
             int previousMove;
             previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
-            if(game.kingInCheck(move[2],move[3])) {
-                break;
+            if(previousMove == -1) {
+                continue;
             }
 
             int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
