@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 
@@ -820,6 +822,20 @@ for (int i = 0; i < 8; i++) {
         return bestMove;
     }
 
+    private static char reverseNumber(char c) {
+        Map<Character, Character> mapping = new HashMap<>();
+        mapping.put('1', '8');
+        mapping.put('2', '7');
+        mapping.put('3', '6');
+        mapping.put('4', '5');
+        mapping.put('5', '4');
+        mapping.put('6', '3');
+        mapping.put('7', '2');
+        mapping.put('8', '1');
+
+        return mapping.get(c);
+    }
+
     public static void main(String[] args) {
         int logicalProcessors = Runtime.getRuntime().availableProcessors();
         System.out.println("Logical Processors: " + logicalProcessors);
@@ -845,10 +861,10 @@ for (int i = 0; i < 8; i++) {
             long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
             System.out.println("Execution Time: " + singleThreadedTime + " milliseconds");
 
-            String bestMoveString = bestMove[1] + "" + bestMove[2] + "" + bestMove[3] + "" + bestMove[4];
+            String bestMoveString = bestMove[0] + "" + bestMove[1] + "" + bestMove[2] + "" + bestMove[3];
             System.out.println("Best move: " + bestMoveString);
 
-            game.makeMove(bestMove[1], bestMove[2], bestMove[3], bestMove[4]);
+            game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
             game.printBoard();
 
             String newFEN = game.getFEN();
@@ -863,17 +879,24 @@ for (int i = 0; i < 8; i++) {
             }
 
             if (userMove.length() == 4) {
-                int fromX = userMove.charAt(0) - 'a';
-                int fromY = 8 - Character.getNumericValue(userMove.charAt(1));
-                int toX = userMove.charAt(2) - 'a';
-                int toY = 8 - Character.getNumericValue(userMove.charAt(3));
 
-                game.makeMove(fromX, fromY, toX, toY);
+                char fromXChar = userMove.charAt(0);
+                char fromYChar = reverseNumber(userMove.charAt(1));
+                char toXChar = userMove.charAt(2);
+                char toYChar = reverseNumber(userMove.charAt(3));
+
+                int fromX = fromXChar - 'a';
+                int fromY = 8 - Character.getNumericValue(fromYChar);
+                int toX = toXChar - 'a';
+                int toY = 8 - Character.getNumericValue(toYChar);
+
+                System.out.println("Moving from " + fromY + "," + fromX + " to " + toY + "," + toX);
+
+                game.makeMove(fromY, fromX, toY, toX);
                 game.printBoard();
                 fen = game.getFEN();
                 System.out.println("Updated FEN string: " + fen);
 
-                game.initializeBoard(fen);
             } else {
                 System.out.println("Invalid input format. Please enter the move in the format 'e7e5'.");
             }
