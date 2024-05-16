@@ -61,8 +61,7 @@ public class Game {
                     }
                 }
             }
-        }
-        if (currentPlayer == 'b') {
+        } else {
             for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 8; col++) {
                     if (board[row][col] == 8) {
@@ -451,9 +450,7 @@ public class Game {
         };
         int[][] blackKnightPositionValues = new int[8][8];
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackKnightPositionValues[i][j] = whiteKnightPositionValues[7 - i][j];
-            }
+            System.arraycopy(whiteKnightPositionValues[7 - i], 0, blackKnightPositionValues[i], 0, 8);
         }
         return (currentPlayer == 'w') ? whiteKnightPositionValues[row][col] : blackKnightPositionValues[row][col];
     }
@@ -471,9 +468,7 @@ public class Game {
         };
         int[][] blackBishopPositionValues = new int[8][8];
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackBishopPositionValues[i][j] = whiteBishopPositionValues[7 - i][j];
-            }
+            System.arraycopy(whiteBishopPositionValues[7 - i], 0, blackBishopPositionValues[i], 0, 8);
         }
         return (currentPlayer == 'w') ? whiteBishopPositionValues[row][col] : blackBishopPositionValues[row][col];
     }
@@ -491,9 +486,7 @@ public class Game {
         };
         int[][] blackRookPositionValues = new int[8][8];
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackRookPositionValues[i][j] = whiteRookPositionValues[7 - i][j];
-            }
+            System.arraycopy(whiteRookPositionValues[7 - i], 0, blackRookPositionValues[i], 0, 8);
         }
         return (currentPlayer == 'w') ? whiteRookPositionValues[row][col] : blackRookPositionValues[row][col];
     }
@@ -511,9 +504,7 @@ public class Game {
         };
         int[][] blackQueenPositionValues = new int[8][8];
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackQueenPositionValues[i][j] = whiteQueenPositionValues[7 - i][j];
-            }
+            System.arraycopy(whiteQueenPositionValues[7 - i], 0, blackQueenPositionValues[i], 0, 8);
         }
         return (currentPlayer == 'w') ? whiteQueenPositionValues[row][col] : blackQueenPositionValues[row][col];
     }
@@ -530,11 +521,9 @@ public class Game {
                 {-50, -30, -30, -30, -30, -30, -30, -50}
         };
         int[][] blackKingPositionValues = new int[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackKingPositionValues[i][j] = whiteKingPositionValues[7 - i][j];
-            }
-        }
+for (int i = 0; i < 8; i++) {
+    System.arraycopy(whiteKingPositionValues[7 - i], 0, blackKingPositionValues[i], 0, 8);
+}
         return (currentPlayer == 'w') ? whiteKingPositionValues[row][col] : blackKingPositionValues[row][col];
     }
 
@@ -771,6 +760,66 @@ public class Game {
         logToCSV(entry);
     }
 
+    public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
+        int parallelism = Runtime.getRuntime().availableProcessors() * 16;
+        ForkJoinPool pool = new ForkJoinPool(parallelism);
+        ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
+        int[] result = pool.invoke(task);
+        int nodeCount = task.getNodeCount();
+        return new int[]{nodeCount, result[0], result[1], result[2], result[3]};
+    }
+
+    public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
+        if (depth == 0)  {
+            return new int[] {game.evaluate()};
+        }
+
+        int[] bestMove = null;
+        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        int[][] moves = game.getMovesByDepth(depth);
+        game.generateMoveCounter = 0;
+        game.generateMoves(moves);
+
+        for (int i = 0; i < game.generateMoveCounter; i++) {
+            int[] move = moves[i];
+            int previousMove;
+            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
+
+            int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
+            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
+
+            if (result == null) {
+                int score = game.evaluate();
+                if (maximizingPlayer && score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                } else if (!maximizingPlayer && score < bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            } else {
+                if (maximizingPlayer) {
+                    if (result[0] > bestScore) {
+                        bestScore = result[0];
+                        bestMove = move;
+                    }
+                    alpha = Math.max(alpha, bestScore);
+                } else {
+                    if (result[0] < bestScore) {
+                        bestScore = result[0];
+                        bestMove = move;
+                    }
+                    beta = Math.min(beta, bestScore);
+                }
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+        }
+        return bestMove;
+    }
+
     public static void main(String[] args) {
         int logicalProcessors = Runtime.getRuntime().availableProcessors();
         System.out.println("Logical Processors: " + logicalProcessors);
@@ -830,65 +879,5 @@ public class Game {
             }
         }
         scanner.close();
-    }
-
-    public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
-        int parallelism = Runtime.getRuntime().availableProcessors() * 16;
-        ForkJoinPool pool = new ForkJoinPool(parallelism);
-        ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
-        int[] result = pool.invoke(task);
-        int nodeCount = task.getNodeCount();
-        return new int[]{nodeCount, result[0], result[1], result[2], result[3]};
-    }
-
-    public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
-        if (depth == 0)  {
-            return new int[] {game.evaluate()};
-        }
-
-        int[] bestMove = null;
-        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-
-        int[][] moves = game.getMovesByDepth(depth);
-        game.generateMoveCounter = 0;
-        game.generateMoves(moves);
-
-        for (int i = 0; i < game.generateMoveCounter; i++) {
-            int[] move = moves[i];
-            int previousMove;
-            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
-
-            int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
-            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
-
-            if (result == null) {
-                int score = game.evaluate();
-                if (maximizingPlayer && score > bestScore) {
-                    bestScore = score;
-                    bestMove = move;
-                } else if (!maximizingPlayer && score < bestScore) {
-                    bestScore = score;
-                    bestMove = move;
-                }
-            } else {
-                if (maximizingPlayer) {
-                    if (result[0] > bestScore) {
-                        bestScore = result[0];
-                        bestMove = move;
-                    }
-                    alpha = Math.max(alpha, bestScore);
-                } else {
-                    if (result[0] < bestScore) {
-                        bestScore = result[0];
-                        bestMove = move;
-                    }
-                    beta = Math.min(beta, bestScore);
-                }
-                if (beta <= alpha) {
-                    break;
-                }
-            }
-        }
-        return bestMove;
     }
 }
