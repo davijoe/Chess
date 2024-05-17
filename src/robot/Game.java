@@ -624,12 +624,16 @@ public class Game {
     }
 
     public void printBoard() {
+        System.out.println("---a-b-c-d-e-f-g-h--");
         for (int i = 7; i >= 0; i--) {
+            System.out.print((i + 1) + "| ");
             for (int j = 0; j < 8; j++) {
                 System.out.print(pieceToChar(board[i][j]) + " ");
             }
-            System.out.println();
+            System.out.println("|" + (i + 1));
         }
+        System.out.println("---a-b-c-d-e-f-g-h---");
+        System.out.println("");
     }
 
     public char pieceToChar(int piece) {
@@ -671,18 +675,6 @@ public class Game {
         currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
     }
 
-    public void resetMoves(int[][] moves) {
-        for (int i = 0; i<moves.length; i++) {
-            for (int j = 0; j<moves[i].length; j++) {
-                moves[i][j]=0;
-            }
-        }
-    }
-
-    public int[][] createNewMoveLists() {
-        return new int[1000][5];
-    }
-
     public int[][] getMovesByDepth(int depth) {
         return switch (depth) {
             case 7 -> movesd7;  // black pawn
@@ -694,14 +686,6 @@ public class Game {
             case 1 -> movesd1;
             default -> moves;
         };
-    }
-
-    public static boolean isValidMove(int startRow, int startCol, int endRow, int endCol) {
-        if (startRow < 0 || startRow >= 8 || startCol < 0 || startCol >= 8 ||
-                endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
-            return false;
-        }
-        return true;
     }
 
     public String getFEN() {
@@ -762,64 +746,45 @@ public class Game {
         logToCSV(entry);
     }
 
-    public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
-        int parallelism = Runtime.getRuntime().availableProcessors() * 16;
-        ForkJoinPool pool = new ForkJoinPool(parallelism);
-        ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
-        int[] result = pool.invoke(task);
-        int nodeCount = task.getNodeCount();
-        return new int[]{nodeCount, result[0], result[1], result[2], result[3]};
-    }
-
     public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
-        if (depth == 0)  {
+        if (depth == 0) {
             return new int[] {game.evaluate()};
         }
 
         int[] bestMove = null;
         int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        int[][] moves = game.getMovesByDepth(depth);
+        int[][] moves = game.getMovesByDepth(depth); // Fixed-size array
         game.generateMoveCounter = 0;
         game.generateMoves(moves);
 
         for (int i = 0; i < game.generateMoveCounter; i++) {
             int[] move = moves[i];
-            int previousMove;
-            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
+            int previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
 
             int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
-            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
+            int score = result[0];
 
-            if (result == null) {
-                int score = game.evaluate();
-                if (maximizingPlayer && score > bestScore) {
-                    bestScore = score;
-                    bestMove = move;
-                } else if (!maximizingPlayer && score < bestScore) {
+            game.undoMove(move[0], move[1], move[2], move[3], previousMove);
+
+            if (maximizingPlayer) {
+                if (score > bestScore) {
                     bestScore = score;
                     bestMove = move;
                 }
+                alpha = Math.max(alpha, bestScore);
             } else {
-                if (maximizingPlayer) {
-                    if (result[0] > bestScore) {
-                        bestScore = result[0];
-                        bestMove = move;
-                    }
-                    alpha = Math.max(alpha, bestScore);
-                } else {
-                    if (result[0] < bestScore) {
-                        bestScore = result[0];
-                        bestMove = move;
-                    }
-                    beta = Math.min(beta, bestScore);
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestMove = move;
                 }
-                if (beta <= alpha) {
-                    break;
-                }
+                beta = Math.min(beta, bestScore);
+            }
+            if (beta <= alpha) {
+                break;
             }
         }
-        return bestMove;
+        return bestMove != null ? bestMove : new int[] {bestScore};
     }
 
     private static char reverseNumber(char c) {
@@ -848,11 +813,15 @@ public class Game {
         Game game = new Game();
         game.initializeBoard(fen);
 
+        int moveCounter = 0;
+
         while (true) {
+            if (moveCounter < 1) {
+                moveCounter++;
+                game.printBoard();
+            }
             System.out.println("Searching in depth " + depth + "...");
 
-
-            game.printBoard();
             LocalDateTime startTime = LocalDateTime.now();
 
             // Single-threaded test
@@ -875,6 +844,7 @@ public class Game {
 
             System.out.println("Enter the next move for black (e.g., d7d5) or type 'exit' to end:");
             String userMove = scanner.nextLine();
+
             if (userMove.equalsIgnoreCase("exit")) {
                 break;
             }
@@ -890,8 +860,6 @@ public class Game {
                 int fromY = 8 - Character.getNumericValue(fromYChar);
                 int toX = toXChar - 'a';
                 int toY = 8 - Character.getNumericValue(toYChar);
-
-                System.out.println("Moving from " + fromYChar + "," + fromXChar + " to " + toYChar + "," + toXChar);
 
                 game.makeMove(fromY, fromX, toY, toX);
                 game.printBoard();
