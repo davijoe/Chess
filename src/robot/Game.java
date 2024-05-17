@@ -1113,7 +1113,7 @@ public class Game {
     }
 
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
-        if (depth == 0 || game.isGameFinished()) {
+        if (depth == 0) {
             return new int[][]{{}, {game.evaluate()}};
         }
 
@@ -1126,7 +1126,7 @@ public class Game {
             Game newGame = new Game(game);
             newGame.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
             int[][] result = minimax(newGame, depth - 1, alpha, beta, !maximizingPlayer, null);
-            int score = result[1][0] + depth;
+            int score = result[1][0] + (maximizingPlayer ? depth : -depth);
 
             if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
                 bestScore = score;
@@ -1151,7 +1151,7 @@ public class Game {
             Game newGame = new Game(game);
             newGame.makeMove(move[0], move[1], move[2], move[3]);
             int[][] result = minimax(newGame, depth - 1, alpha, beta, !maximizingPlayer, null);
-            int score = result[1][0] + depth;
+            int score = result[1][0] + (maximizingPlayer ? depth : -depth);
 
             if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
                 bestScore = score;
