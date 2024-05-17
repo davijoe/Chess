@@ -236,7 +236,7 @@ public int getHeuristicMoveValue() {
 //region Minimax and Iterative Deepening
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
         if (depth == 0) {
-            return new int[][]{{}, {game.evaluate()}};
+            return new int[][]{{}, {game.evaluate() + (maximizingPlayer ? depth : -depth)}};
         }
 
         int[] bestMove = null;
@@ -247,7 +247,7 @@ public int getHeuristicMoveValue() {
             previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
             game.undoMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3],previousMove);
-            int score = result[1][0] + (maximizingPlayer ? depth : -depth);
+            int score = result[1][0];
 
             if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
                 bestScore = score;
@@ -275,7 +275,7 @@ public int getHeuristicMoveValue() {
             previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
             game.undoMove(move[0],move[1],move[2],move[3],previousMove);
-            int score = result[1][0] + (maximizingPlayer ? depth : -depth);
+            int score = result[1][0];
 
             if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
                 bestScore = score;
