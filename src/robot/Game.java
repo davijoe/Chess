@@ -6,23 +6,21 @@ import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Game {
 
 //region Global Variables and Constants
     int[][] board = new int[8][8];
 
-    int[][] moves = new int[1000][5];
-    int[][] movesd1 = new int[1000][5];
-    int[][] movesd2 = new int[1000][5];
-    int[][] movesd3 = new int[1000][5];
-    int[][] movesd4 = new int[1000][5];
-    int[][] movesd5 = new int[1000][5];
-    int[][] movesd6 = new int[1000][5];
-    int[][] movesd7 = new int[1000][5];
+    int[][] moves = new int[1000][6];
+    int[][] movesd1 = new int[1000][6];
+    int[][] movesd2 = new int[1000][6];
+    int[][] movesd3 = new int[1000][6];
+    int[][] movesd4 = new int[1000][6];
+    int[][] movesd5 = new int[1000][6];
+    int[][] movesd6 = new int[1000][6];
+    int[][] movesd7 = new int[1000][6];
 
     int generateMoveCounter = 0;
     int enPassant;
@@ -117,12 +115,33 @@ public int getHeuristicMoveValue() {
     }
 
     private void addMove(int startRow, int startCol, int endRow, int endCol, int piece, int[][] moves) {
+        int capturedPiece = board[endRow][endCol];
+        int score = computeMoveScore(piece, capturedPiece);
         moves[generateMoveCounter][0] = startRow;
         moves[generateMoveCounter][1] = startCol;
         moves[generateMoveCounter][2] = endRow;
         moves[generateMoveCounter][3] = endCol;
         moves[generateMoveCounter][4] = piece;
+        moves[generateMoveCounter][5] = score;
         generateMoveCounter++;
+    }
+
+    private int computeMoveScore(int piece, int capturedPiece) {
+        int pieceValue = getPieceMoveValue(piece);
+        int captureValue = capturedPiece == 0 ? 0 : getPieceValue(capturedPiece);
+        return captureValue * 10 + pieceValue;
+    }
+
+    private int getPieceMoveValue(int piece) {
+        switch (piece) {
+            case 1: case 8: return 5;   // Rook
+            case 2: case 9: return 3;   // Knight
+            case 3: case 10: return 3;  // Bishop
+            case 4: case 11: return 9;  // Queen
+            case 5: case 12: return 10; // King
+            case 6: case 7: case 13: case 14: return 1; // Pawn
+            default: return 0;
+        }
     }
 
     public boolean isTileEmpty(int row, int col) {
@@ -130,53 +149,37 @@ public int getHeuristicMoveValue() {
     }
 
     public void generateMoves(int[][] moves) {
+        generateMoveCounter = 0;
+
         if (currentPlayer == 'w') {
             for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 8; col++) {
-                    if (board[row][col] == 1) {
-                        generateRookMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 2) {
-                        generateKnightMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 3) {
-                        generateBishopMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 4) {
-                        generateQueenMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 5) {
-                        generateKingMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 6 || board[row][col] == 7) {
-                        generatePawnMoves(row, col, moves);
+                    switch (board[row][col]) {
+                        case 1: generateRookMoves(row, col, moves); break;
+                        case 2: generateKnightMoves(row, col, moves); break;
+                        case 3: generateBishopMoves(row, col, moves); break;
+                        case 4: generateQueenMoves(row, col, moves); break;
+                        case 5: generateKingMoves(row, col, moves); break;
+                        case 6: case 7: generatePawnMoves(row, col, moves); break;
                     }
                 }
             }
         } else {
             for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 8; col++) {
-                    if (board[row][col] == 8) {
-                        generateRookMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 9) {
-                        generateKnightMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 10) {
-                        generateBishopMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 11) {
-                        generateQueenMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 12) {
-                        generateKingMoves(row, col, moves);
-                    }
-                    if (board[row][col] == 13 || board[row][col] == 14) {
-                        generatePawnMoves(row, col, moves);
+                    switch (board[row][col]) {
+                        case 8: generateRookMoves(row, col, moves); break;
+                        case 9: generateKnightMoves(row, col, moves); break;
+                        case 10: generateBishopMoves(row, col, moves); break;
+                        case 11: generateQueenMoves(row, col, moves); break;
+                        case 12: generateKingMoves(row, col, moves); break;
+                        case 13: case 14: generatePawnMoves(row, col, moves); break;
                     }
                 }
             }
         }
+
+        Arrays.sort(moves, 0, generateMoveCounter, (move1, move2) -> Integer.compare(move2[5], move1[5]));
     }
 
     public void pieceMoveLogic(int[][] directions, int row, int col, boolean canSlide, int[][] moves) {
@@ -266,13 +269,11 @@ public int getHeuristicMoveValue() {
         }
 
         int[][] moves = game.getMovesByDepth(depth);
-        game.generateMoveCounter = 0;
         game.generateMoves(moves);
 
         for (int i = 0; i < game.generateMoveCounter; i++) {
             int[] move = moves[i];
-            int previousMove;
-            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
+            int previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
             game.undoMove(move[0],move[1],move[2],move[3],previousMove);
             int score = result[1][0];
@@ -996,7 +997,7 @@ public boolean checkForWin() {
         System.out.println("Enter FEN string:");
         String fen = scanner.nextLine();
 
-        int depth = 6;
+        int depth = 7;
         Game game = new Game();
         game.initializeBoard(fen);
 
