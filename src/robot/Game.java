@@ -260,7 +260,7 @@ public int getHeuristicMoveValue() {
 
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
         if (depth == 0) {
-            int score = game.evaluate() + (maximizingPlayer ? depth : -depth);
+            int score = game.evaluate();
             return new int[][]{{}, {score}};
         }
 
@@ -272,7 +272,7 @@ public int getHeuristicMoveValue() {
             previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
             game.undoMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3],previousMove);
-            int score = result[1][0];
+            int score = result[1][0] - (maximizingPlayer ? depth : +depth);
 
             if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
                 bestScore = score;
@@ -299,7 +299,7 @@ public int getHeuristicMoveValue() {
             int previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
             game.undoMove(move[0],move[1],move[2],move[3],previousMove);
-            int score = result[1][0];
+            int score = result[1][0] - (maximizingPlayer ? depth : +depth);
 
             if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
                 bestScore = score;
@@ -1020,7 +1020,7 @@ public boolean checkForWin() {
         System.out.println("Enter FEN string:");
         String fen = scanner.nextLine();
 
-        int depth = 7;
+        int depth = 8;
         Game game = new Game();
         game.initializeBoard(fen);
 
