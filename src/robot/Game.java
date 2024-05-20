@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -24,10 +25,20 @@ public class Game {
     int[][] movesd6 = new int[1000][5];
     int[][] movesd7 = new int[1000][5];
 
+    int[][] checkMoves = new int[1000][5];
+
+    int[][] validMovesInCheck = new int[1000][5];
+
+    int validCheckMovesCounter = 0;
+
     int generateMoveCounter = 0;
     int enPassant;
     boolean whiteLongCastle, whiteShortCastle, blackShortCastle, blackLongCastle = true;
-    private int kingRow, kingCol;
+
+    public int whiteKingRow;
+    public int whiteKingCol;
+    public int blackKingRow;
+    public int blackKingCol;
     char currentPlayer;
     int heuristicValue;
 
@@ -166,79 +177,42 @@ public class Game {
         generateMoveCounter++;
     }
 
-    public Game(Game currentGame) {
-        for (int i = 0; i < board.length; i++) {
-            System.arraycopy(currentGame.board[i], 0, this.board[i], 0, board.length);
-        }
-        this.currentPlayer = currentGame.currentPlayer;
-        this.heuristicValue = currentGame.heuristicValue;
-        this.whiteLongCastle = currentGame.whiteLongCastle;
-        this.whiteShortCastle = currentGame.whiteShortCastle;
-        this.blackLongCastle = currentGame.blackLongCastle;
-        this.blackShortCastle = currentGame.blackShortCastle;
-    }
-
-    public Game updateGameState(int moveIndex) {
-        Game newGame = new Game(this);
-        newGame.board[moves[moveIndex][0]][moves[moveIndex][1]] = 0;
-        newGame.board[moves[moveIndex][2]][moves[moveIndex][3]] = moves[moveIndex][4];
-
-        if (currentPlayer == 'w') {
-            newGame.currentPlayer = 'b';
-        } else {
-            newGame.currentPlayer = 'w';
-        }
-        return newGame;
-    }
-
-    public int minimax(int depth, boolean isMaximizing) {
-        if (checkForWin()) {
-            return Integer.MAX_VALUE;
-        }
-        if (checkDraw()) {
-            return 0;
-        }
-        if (isMaximizing) {
-            int bestValue = -100;
-            for (int i = 0; i < moves.length; i++) {
-                Game newState = updateGameState(i);
-                heuristicValue = minimax(depth + 1, false);
-                if (heuristicValue > bestValue) {
-                    bestValue = heuristicValue;
-                }
-            }
-            return bestValue;
-        } else {
-            int bestValue = 100;
-            for (int i = 0; i < moves.length; i++) {
-                Game newState = updateGameState(i);
-                heuristicValue = minimax(depth + 1, true);
-                if (heuristicValue < bestValue) {
-                    bestValue = heuristicValue;
-                }
-            }
-            return bestValue;
-        }
-    }
 
     public boolean isGameFinished() {
         //return false;
         return isCheckmate() || checkDraw() || onlyKingLeft();
     }
     private boolean isCheckmate() {
-        // In check -> can't escape
-        return kingInCheck(kingRow, kingCol) && !canEscapeCheck(kingRow, kingCol);
+        //is check can't escape
+        int kingRow;
+        int kingCol;
+        if(currentPlayer=='w') {
+            kingRow = whiteKingRow;
+            kingCol = whiteKingCol;
+        }
+        else {
+            kingRow = blackKingRow;
+            kingCol = blackKingCol;
+        }
+        if(kingInCheck(kingRow,kingCol)) {
+            if(canEscapeCheck(kingRow,kingCol)) {
+                return true;
+            }
+            return true;
+        }
+        return false;
     }
+
 
     private boolean kingInCheck(int kingRow, int kingCol) {
         int[] attacker = {kingRow, kingCol};
-        if (kingSeeRook(kingRow, kingCol) != attacker) {
+        if (kingSeeRook(kingRow, kingCol)!=null) {
             return true;
-        } else if (kingSeeBishop(kingRow, kingCol) != attacker) {
+        } else if (kingSeeBishop(kingRow, kingCol)!=null) {
             return true;
-        } else if (kingSeeKnight(kingRow, kingCol) != attacker) {
+        } else if (kingSeeKnight(kingRow, kingCol)!=null) {
             return true;
-        } else if (kingSeePawn(kingRow, kingCol) != attacker) {
+        } else if (kingSeePawn(kingRow, kingCol)!=null) {
             return true;
         } else return false;
     }
@@ -249,7 +223,7 @@ public class Game {
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
                 if (!isTileEmpty(newRow, newCol)) {
-                    if ((board[newRow][newCol] == 11 || board[newRow][newCol] == 12) && currentPlayer == 'w' || (board[newRow][newCol] == 3 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                    if ((board[newRow][newCol] == 10 || board[newRow][newCol] == 11) && board[kingRow][kingCol]==5 || (board[newRow][newCol] == 3 || board[newRow][newCol] == 4) && board[kingRow][kingCol]==12) {
                         return new int[]{newRow, newCol};
                     }
                     break;
@@ -258,7 +232,7 @@ public class Game {
                 newCol += direction[1];
             }
         }
-        return new int[]{kingRow, kingCol};
+        return null;
     }
     public int[] kingSeeKnight(int kingRow, int kingCol) {
         int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
@@ -266,13 +240,13 @@ public class Game {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
-                if (board[newRow][newCol] == 2 && currentPlayer == 'b' || board[newRow][newCol] == 10 && currentPlayer == 'w') {
+                if (board[newRow][newCol] == 2 && board[kingRow][kingCol]==12 || board[newRow][newCol] == 9 && board[kingRow][kingCol]==5) {
                     return new int[]{newRow, newCol};
                 }
                 break;
             }
         }
-        return new int[]{kingRow, kingCol};
+        return null;
     }
     public int[] kingSeeRook(int kingRow, int kingCol) {
         int[][] directions = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
@@ -281,7 +255,7 @@ public class Game {
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
                 if (!isTileEmpty(newRow, newCol)) {
-                    if ((board[newRow][newCol] == 9 || board[newRow][newCol] == 12) && currentPlayer == 'w' || (board[newRow][newCol] == 1 || board[newRow][newCol] == 4) && currentPlayer == 'b') {
+                    if ((board[newRow][newCol] == 8 || board[newRow][newCol] == 11) && board[kingRow][kingCol]==5 || (board[newRow][newCol] == 1 || board[newRow][newCol] == 4) && board[kingRow][kingCol]==12) {
                         return new int[]{newRow, newCol};
                     }
                     break;
@@ -290,17 +264,28 @@ public class Game {
                 newCol += direction[1];
             }
         }
-        return new int[]{kingRow, kingCol};
+        return null;
     }
     public int[] kingSeePawn(int kingRow, int kingCol) {
-        if (currentPlayer == 'w') {
-            if (!isTileEmpty(kingRow + 1, kingCol + 1) || !isTileEmpty(kingRow + 1, kingCol - 1)) {
-
+        if (board[kingRow][kingCol]==5) {
+            if (kingRow + 1 < 7) {
+                if (kingCol + 1 < 8 && (board[kingRow + 1][kingCol + 1] == 13 || board[kingRow + 1][kingCol + 1] == 14)) {
+                    return new int[]{kingRow + 1, kingCol + 1};
+                }
+                if (0 <= kingCol - 1 && (board[kingRow + 1][kingCol - 1] == 13 || board[kingRow + 1][kingCol - 1] == 14)) {
+                    return new int[]{kingRow + 1, kingCol - 1};
+                }
             }
-        } else {
-
         }
-        return new int[]{kingRow, kingCol};
+        else if (kingRow-1 >= 0) {
+            if (kingCol + 1 < 8 && (board[kingRow-1][kingCol+1] == 6 || board[kingRow-1][kingCol+1] == 7)) {
+                return new int[]{kingRow-1, kingCol+1};
+            }
+            if (0 <= kingCol - 1 && (board[kingRow-1][kingCol - 1] == 6 || board[kingRow-1][kingCol - 1] == 7)) {
+                return new int[]{kingRow-1, kingCol-1};
+            }
+        }
+        return null;
     }
 
     private boolean canCaptureKing(int attackerRow, int attackerCol, int kingRow, int kingCol) {
@@ -326,24 +311,38 @@ public class Game {
     }
 
     private boolean canEscapeCheck(int kingRow, int kingCol) {
-        int[] attacker = new int[2];
-        attacker = kingSeeRook(kingRow, kingCol);
-
-        generateMoves(moves);
-        for (int[] move : moves) {
-            if (move[2] == attacker[0] && move[3] == attacker[1]) {
-                return true;
-            }
-            if (move[4] == board[kingRow][kingCol] && !kingInCheck(move[2], move[3])) {
-                return true;
-            } else {
-                makeMove(move[0], move[1], move[2], move[3]);
-                if (!kingInCheck(kingRow, kingCol)) {
-//                    undoMove(move[0],move[1],move[2],move[3],move[4]);
-                    return true;
+        int originalMoveCounter = generateMoveCounter;
+        validCheckMovesCounter = 0;
+        generateMoveCounter = 0;
+        resetMoves(validMovesInCheck);
+        resetMoves(checkMoves);
+        generateMoves(checkMoves);
+        for (int i = 0; i<generateMoveCounter; i++ ) {
+            int[] move = checkMoves[i];
+            if(currentPlayer=='w') {
+                int capturedPiece = makeMove(move[0],move[1],move[2],move[3]);
+                if (!kingInCheck(whiteKingRow, whiteKingCol)) {
+                    addMove(move[0], move[1], move[2], move[3], capturedPiece, validMovesInCheck);
+                    undoMove(move[0], move[1], move[2], move[3], capturedPiece);
+                    validCheckMovesCounter++;
+                    break;
                 }
-//                else undoMove(move[0],move[1],move[2],move[3],move[4]);
+                undoMove(move[0], move[1], move[2], move[3], capturedPiece);
             }
+            if(currentPlayer=='b') {
+                int capturedPiece = makeMove(move[0],move[1],move[2],move[3]);
+                if (!kingInCheck(blackKingRow, blackKingCol)) {
+                    addMove(move[0], move[1], move[2], move[3], capturedPiece, validMovesInCheck);
+                    undoMove(move[0], move[1], move[2], move[3], capturedPiece);
+                    validCheckMovesCounter++;
+                    break;
+                }
+                undoMove(move[0], move[1], move[2], move[3], capturedPiece);
+            }
+        }
+        generateMoveCounter = originalMoveCounter;
+        if(validCheckMovesCounter>0) {
+            return true;
         }
         return false;
     }
@@ -534,6 +533,19 @@ public class Game {
     }
 
     public boolean checkDraw() {
+        int kingRow;
+        int kingCol;
+        if(currentPlayer=='w') {
+            kingRow = whiteKingRow;
+            kingCol = whiteKingCol;
+        }
+        else {
+            kingRow = blackKingRow;
+            kingCol = blackKingCol;
+        }
+        if(!kingInCheck(kingRow,kingCol)) {
+            return !canEscapeCheck(kingRow, kingCol);
+        }
         return false;
     }
 
@@ -594,10 +606,13 @@ public class Game {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 int piece = board[i][j];
-                if ((currentPlayer == 'w' && piece == 5) || (currentPlayer == 'b' && piece == 12)) {
-                    kingRow = i;
-                    kingCol = j;
-                    return;
+                if (piece == 5) {
+                    whiteKingRow = i;
+                    whiteKingCol = j;
+                }
+                if(piece == 12) {
+                    blackKingRow = i;
+                    blackKingCol = j;
                 }
             }
         }
@@ -657,19 +672,34 @@ public class Game {
         int piece = board[startRow][startCol];
         board[startRow][startCol] = 0;
         board[endRow][endCol] = piece;
-        currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
-        if ((piece == 5 && currentPlayer == 'w') || (piece == 13 && currentPlayer == 'b')) {
-            kingRow = endRow;
-            kingCol = endCol;
+        if (piece == 5) {
+            whiteKingRow = endRow;
+            whiteKingCol = endCol;
         }
+        if(piece==12) {
+            blackKingRow = endRow;
+            blackKingCol = endCol;
+        }
+        currentPlayer = (currentPlayer=='w') ? 'b' : 'w';
         return capturedPiece;
     }
 
     public void undoMove(int startRow, int startCol, int endRow, int endCol, int piece) {
+        if(board[endRow][endCol]==5) {
+            whiteKingRow = startRow;
+            whiteKingCol = startCol;
+        }
+        if(board[endRow][endCol]==12) {
+            blackKingRow = startRow;
+            blackKingCol = startCol;
+        }
         board[startRow][startCol] = board[endRow][endCol];
         board[endRow][endCol] = piece;
-        currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
+        currentPlayer = (currentPlayer=='w') ? 'b' : 'w';
+
     }
+
+
 
     public void resetMoves(int[][] moves) {
         for (int i = 0; i<moves.length; i++) {
@@ -762,111 +792,117 @@ public class Game {
         logToCSV(entry);
     }
 
-    public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
-        int parallelism = Runtime.getRuntime().availableProcessors() * 16;
-        ForkJoinPool pool = new ForkJoinPool(parallelism);
-        ParallelMinimax task = new ParallelMinimax(game, depth, alpha, beta, maximizingPlayer);
-        int[] result = pool.invoke(task);
-        int nodeCount = task.getNodeCount();
-        return new int[]{nodeCount, result[0], result[1], result[2], result[3]};
-    }
 
-    public static int[] iterativeDeepening(Game game, int maxDepth, int alpha, int beta, boolean maximizingPlayer, long timeLimit) {
-        int[][] bestMove = {null};
 
-        long startTime = System.currentTimeMillis();
+//    public static int[] iterativeDeepening(Game game, int maxDepth, int alpha, int beta, boolean maximizingPlayer, long timeLimit) {
+//        int[][] bestMove = {null};
+//
+//        long startTime = System.currentTimeMillis();
+//
+//        for (int depth = 1; depth <= maxDepth; depth++) {
+//            final int currentDepth = depth;
+//            System.out.println("current depth: " + currentDepth);
+//            Game newGame = new Game(game);
+//            Thread searchThread = new Thread(() -> {
+//                int[][] result = minimax2(newGame, currentDepth, alpha, beta, maximizingPlayer, bestMove[0]);
+//                bestMove[0] = result[0];
+//            });
+//            searchThread.start();
+//
+//            try {
+//                searchThread.join(timeLimit);
+//            } catch (InterruptedException e) {
+//            }
+//
+//            if (searchThread.isAlive()) {
+//                searchThread.interrupt();
+//            }
+//
+//            long currentTime = System.currentTimeMillis();
+//            if (currentTime - startTime >= timeLimit) {
+//                break;
+//            }
+//        }
+//
+//        return bestMove[0];
+//    }
 
-        for (int depth = 1; depth <= maxDepth; depth++) {
-            final int currentDepth = depth;
-            System.out.println("current depth: " + currentDepth);
-            Game newGame = new Game(game);
-            Thread searchThread = new Thread(() -> {
-                int[][] result = minimax2(newGame, currentDepth, alpha, beta, maximizingPlayer, bestMove[0]);
-                bestMove[0] = result[0];
-            });
-            searchThread.start();
-
-            try {
-                searchThread.join(timeLimit);
-            } catch (InterruptedException e) {
-            }
-
-            if (searchThread.isAlive()) {
-                searchThread.interrupt();
-            }
-
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - startTime >= timeLimit) {
-                break;
-            }
-        }
-
-        return bestMove[0];
-    }
-
-    public static int[][] minimax2(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
-        if (depth == 0) {
-            return new int[][]{{}, {game.evaluate()}};
-        }
-
-        int[] bestMove = null;
-        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-
-        if (previousBestMove != null) {
-            int previousMove;
-            previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
-            int[][] result = minimax2(game, depth - 1, alpha, beta, !maximizingPlayer, null);
-            game.undoMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3],previousMove);
-            int score = result[1][0] + (maximizingPlayer ? depth : -depth);
-
-            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-                bestScore = score;
-                bestMove = previousBestMove;
-            }
-
-            if (maximizingPlayer) {
-                alpha = Math.max(alpha, bestScore);
-            } else {
-                beta = Math.min(beta, bestScore);
-            }
-
-            if (beta <= alpha) {
-                return new int[][]{bestMove, {bestScore}};
-            }
-        }
-
-        int[][] moves = game.getMovesByDepth(depth);
-        game.generateMoveCounter = 0;
-        game.generateMoves(moves);
-
-        for (int i = 0; i < game.generateMoveCounter; i++) {
-            int[] move = moves[i];
-            int previousMove;
-            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
-            int[][] result = minimax2(game, depth - 1, alpha, beta, !maximizingPlayer, null);
-            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
-            int score = result[1][0] + (maximizingPlayer ? depth : -depth);
-
-            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
-                bestScore = score;
-                bestMove = move;
-            }
-
-            if (maximizingPlayer) {
-                alpha = Math.max(alpha, bestScore);
-            } else {
-                beta = Math.min(beta, bestScore);
-            }
-
-            if (beta <= alpha) {
-                break;
-            }
-        }
-
-        return new int[][]{bestMove, {bestScore}};
-    }
+//    public static int[][] minimax2(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
+//        if(game.isCheckmate()) {
+//            return new int[][]{{},{maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE}};
+//        }
+//        if(game.checkDraw()) {
+//            return new int[][] {{},{0}};
+//        }
+//        if (depth == 0) {
+//            return new int[][]{{}, {game.evaluate()}};
+//        }
+//
+//        int[] bestMove = null;
+//        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+//
+//        if (previousBestMove != null) {
+//            int previousMove;
+//            previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
+//            int[][] result = minimax2(game, depth - 1, alpha, beta, !maximizingPlayer, null);
+//            game.undoMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3],previousMove);
+//            int score = result[1][0] + (maximizingPlayer ? depth : -depth);
+//
+//            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
+//                bestScore = score;
+//                bestMove = previousBestMove;
+//            }
+//
+//            if (maximizingPlayer) {
+//                alpha = Math.max(alpha, bestScore);
+//            } else {
+//                beta = Math.min(beta, bestScore);
+//            }
+//
+//            if (beta <= alpha) {
+//                return new int[][]{bestMove, {bestScore}};
+//            }
+//        }
+//
+//        int[][] moves = game.getMovesByDepth(depth);
+//        game.generateMoveCounter = 0;
+//        game.generateMoves(moves);
+//
+//
+//        for (int i = 0; i < game.generateMoveCounter; i++) {
+//            int[] move = moves[i];
+//            int previousMove;
+//            previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
+//            int[][] result = minimax2(game, depth - 1, alpha, beta, !maximizingPlayer, null);
+//            game.undoMove(move[0],move[1],move[2],move[3],previousMove);
+//            int score = result[1][0] + (maximizingPlayer ? depth : -depth);
+//
+//            if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
+//                bestScore = score;
+//                bestMove = move;
+//            }
+//
+//            if (maximizingPlayer) {
+//                alpha = Math.max(alpha, bestScore);
+//            } else {
+//                beta = Math.min(beta, bestScore);
+//            }
+//
+//            if (beta <= alpha) {
+//                break;
+//            }
+//        }
+//
+//        return new int[][]{bestMove, {bestScore}};
+//    }
 
     public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
+        if(game.isCheckmate()) {
+            return new int[]{maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE};
+        }
+        if(game.checkDraw()) {
+            return new int[] {0};
+        }
         if (depth == 0)  {
             return new int[] {game.evaluate()};
         }
@@ -874,6 +910,8 @@ public class Game {
         int[] bestMove = null;
         int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
+
+
         int[][] moves = game.getMovesByDepth(depth);
         game.generateMoveCounter = 0;
         game.generateMoves(moves);
@@ -881,21 +919,22 @@ public class Game {
         for (int i = 0; i < game.generateMoveCounter; i++) {
             int[] move = moves[i];
             int previousMove;
+            char player = game.currentPlayer;
             previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
-
+            if(player == 'w') {
+                if(game.kingInCheck(game.whiteKingRow, game.whiteKingCol)) {
+                    game.undoMove(move[0], move[1], move[2], move[3], previousMove);
+                    continue;
+                }
+            }
+            if(player == 'b') {
+                if(game.kingInCheck(game.blackKingRow, game.blackKingCol)) {
+                    game.undoMove(move[0], move[1], move[2], move[3], previousMove);
+                    continue;
+                }
+            }
             int[] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer);
             game.undoMove(move[0],move[1],move[2],move[3],previousMove);
-
-            if (result == null) {
-                int score = game.evaluate();
-                if (maximizingPlayer && score > bestScore) {
-                    bestScore = score;
-                    bestMove = move;
-                } else if (!maximizingPlayer && score < bestScore) {
-                    bestScore = score;
-                    bestMove = move;
-                }
-            } else {
                 if (maximizingPlayer) {
                     if (result[0] > bestScore) {
                         bestScore = result[0];
@@ -913,7 +952,6 @@ public class Game {
                     break;
                 }
             }
-        }
         return bestMove;
     }
 
@@ -956,7 +994,7 @@ public class Game {
                 minimax = true;
             }
 
-            int[] bestMove = iterativeDeepening(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax,30000);
+            int[] bestMove = minimax(game,depth,Integer.MIN_VALUE,Integer.MAX_VALUE,true);
             LocalDateTime endTime = LocalDateTime.now();
 
             long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
@@ -965,7 +1003,7 @@ public class Game {
             String bestMoveString = bestMove[0] + "" + bestMove[1] + "" + bestMove[2] + "" + bestMove[3];
             System.out.println("Best move: " + bestMoveString);
 
-            game.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
+            game.makeMove(bestMove[0],bestMove[1],bestMove[2],bestMove[3]);
             game.printBoard();
             /*
             int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
@@ -1016,4 +1054,6 @@ public class Game {
         }
         scanner.close();
     }
+
+
 }
