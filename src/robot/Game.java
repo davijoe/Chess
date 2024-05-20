@@ -355,6 +355,105 @@ public int getHeuristicMoveValue() {
     }
 //endregion
 //region Heuristic Position Values
+private int pawnPositionValue(int row, int col) {
+    int[][] whitePawnPositionValues = {
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {50, 50, 50, 50, 50, 50, 50, 50},
+            {10, 10, 20, 30, 30, 20, 10, 10},
+            {5, 5, 10, 25, 25, 10, 5, 5},
+            {0, 0, 0, 20, 20, 0, 0, 0},
+            {5, -5, -10, 0, 0, -10, -5, 5},
+            {5, 10, 10, -20, -20, 10, 10, 5},
+            {0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    int[][] blackPawnPositionValues = new int[8][8];
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            blackPawnPositionValues[i][j] = whitePawnPositionValues[7 - i][j];
+        }
+    }
+    return (currentPlayer == 'w') ? whitePawnPositionValues[row][col] : blackPawnPositionValues[row][col];
+}
+
+    private int knightPositionValue(int row, int col) {
+        int[][] whiteKnightPositionValues = {
+                {-50, -40, -30, -30, -30, -30, -40, -50},
+                {-40, -20, 0, 0, 0, 0, -20, -40},
+                {-30, 0, 10, 15, 15, 10, 0, -30},
+                {-30, 5, 15, 20, 20, 15, 5, -30},
+                {-30, 0, 15, 20, 20, 15, 0, -30},
+                {-30, 5, 10, 15, 15, 10, 5, -30},
+                {-40, -20, 0, 5, 5, 0, -20, -40},
+                {-50, -40, -30, -30, -30, -30, -40, -50}
+        };
+        int[][] blackKnightPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackKnightPositionValues[i][j] = whiteKnightPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whiteKnightPositionValues[row][col] : blackKnightPositionValues[row][col];
+    }
+
+    private int bishopPositionValue(int row, int col) {
+        int[][] whiteBishopPositionValues = {
+                {-20, -10, -10, -10, -10, -10, -10, -20},
+                {-10, 0, 0, 0, 0, 0, 0, -10},
+                {-10, 0, 5, 10, 10, 5, 0, -10},
+                {-10, 5, 5, 10, 10, 5, 5, -10},
+                {-10, 0, 10, 10, 10, 10, 0, -10},
+                {-10, 10, 10, 10, 10, 10, 10, -10},
+                {-10, 5, 0, 0, 0, 0, 5, -10},
+                {-20, -10, -10, -10, -10, -10, -10, -20}
+        };
+        int[][] blackBishopPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackBishopPositionValues[i][j] = whiteBishopPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whiteBishopPositionValues[row][col] : blackBishopPositionValues[row][col];
+    }
+
+    private int rookPositionValue(int row, int col) {
+        int[][] whiteRookPositionValues = {
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {5, 10, 10, 10, 10, 10, 10, 5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {-5, 0, 0, 0, 0, 0, 0, -5},
+                {0, 0, 0, 5, 5, 0, 0, 0}
+        };
+        int[][] blackRookPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackRookPositionValues[i][j] = whiteRookPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whiteRookPositionValues[row][col] : blackRookPositionValues[row][col];
+    }
+
+    private int queenPositionValue(int row, int col) {
+        int[][] whiteQueenPositionValues = {
+                {-20, -10, -10, -5, -5, -10, -10, -20},
+                {-10, 0, 0, 0, 0, 0, 0, -10},
+                {-10, 0, 5, 5, 5, 5, 0, -10},
+                {-5, 0, 5, 5, 5, 5, 0, -5},
+                {0, 0, 5, 5, 5, 5, 0, -5},
+                {-10, 5, 5, 5, 5, 5, 0, -10},
+                {-10, 0, 5, 0, 0, 0, 0, -10},
+                {-20, -10, -10, -5, -5, -10, -10, -20}
+        };
+        int[][] blackQueenPositionValues = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                blackQueenPositionValues[i][j] = whiteQueenPositionValues[7 - i][j];
+            }
+        }
+        return (currentPlayer == 'w') ? whiteQueenPositionValues[row][col] : blackQueenPositionValues[row][col];
+    }
 private int mgPawnPositionValue(int row, int col) {
     int[][] whitePawnPositionValues = {
             {0, 0, 0, 0, 0, 0, 0, 0},
@@ -617,15 +716,15 @@ private int mgPawnPositionValue(int row, int col) {
         int value = 0;
         switch (piece) {
             case 6, 7, 13, 14 -> // PAWNS
-                    value = egPawnPositionValue(row, col);
+                    value = pawnPositionValue(row, col);
             case 2, 9 -> // KNIGHTS
-                    value = egKnightPositionValue(row, col);
+                    value = knightPositionValue(row, col);
             case 3, 10 -> // BISHOPS
-                    value = egBishopPositionValue(row, col);
+                    value = bishopPositionValue(row, col);
             case 1, 8 -> // ROOKS
-                    value = egRookPositionValue(row, col);
+                    value = rookPositionValue(row, col);
             case 4, 11 -> // QUEENS
-                    value = egQueenPositionValue(row, col);
+                    value = queenPositionValue(row, col);
             case 5, 12 -> // KINGS
                     value = egKingPositionValue(row, col);
         }
@@ -636,15 +735,15 @@ private int mgPawnPositionValue(int row, int col) {
         int value = 0;
         switch (piece) {
             case 6, 7, 13, 14 -> // PAWNS
-                    value = mgPawnPositionValue(row, col);
+                    value = pawnPositionValue(row, col);
             case 2, 9 -> // KNIGHTS
-                    value = mgKnightPositionValue(row, col);
+                    value = knightPositionValue(row, col);
             case 3, 10 -> // BISHOPS
-                    value = mgBishopPositionValue(row, col);
+                    value = bishopPositionValue(row, col);
             case 1, 8 -> // ROOKS
-                    value = mgRookPositionValue(row, col);
+                    value = rookPositionValue(row, col);
             case 4, 11 -> // QUEENS
-                    value = mgQueenPositionValue(row, col);
+                    value = queenPositionValue(row, col);
             case 5, 12 -> // KINGS
                     value = mgKingPositionValue(row, col);
         }
@@ -1020,7 +1119,7 @@ public boolean checkForWin() {
         System.out.println("Enter FEN string:");
         String fen = scanner.nextLine();
 
-        int depth = 8;
+        int depth = 6;
         Game game = new Game();
         game.initializeBoard(fen);
 
