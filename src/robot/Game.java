@@ -182,6 +182,25 @@ public int getHeuristicMoveValue() {
         Arrays.sort(moves, 0, generateMoveCounter, (move1, move2) -> Integer.compare(move2[5], move1[5]));
     }
 
+    public int[][] filterValidMoves(int[][] moves) {
+        int validMoveCount = 0;
+        for (int i = 0; i < moves.length; i++) {
+            if (moves[i][0] != 0 || moves[i][1] != 0 || moves[i][2] != 0 || moves[i][3] != 0 || moves[i][4] != 0) {
+                validMoveCount++;
+            }
+        }
+
+        int[][] validMoves = new int[validMoveCount][5];
+        int index = 0;
+        for (int i = 0; i < moves.length; i++) {
+            if (moves[i][0] != 0 || moves[i][1] != 0 || moves[i][2] != 0 || moves[i][3] != 0 || moves[i][4] != 0) {
+                validMoves[index++] = moves[i];
+            }
+        }
+
+        return validMoves;
+    }
+
     public void pieceMoveLogic(int[][] directions, int row, int col, boolean canSlide, int[][] moves) {
         for (int[] direction : directions) {
             int newRow = row + direction[0];
@@ -237,9 +256,12 @@ public int getHeuristicMoveValue() {
     }
     //endregion
 //region Minimax and Iterative Deepening
+
+
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
         if (depth == 0) {
-            return new int[][]{{}, {game.evaluate() + (maximizingPlayer ? depth : -depth)}};
+            int score = game.evaluate() + (maximizingPlayer ? depth : -depth);
+            return new int[][]{{}, {score}};
         }
 
         int[] bestMove = null;
@@ -270,13 +292,17 @@ public int getHeuristicMoveValue() {
 
         int[][] moves = game.getMovesByDepth(depth);
         game.generateMoves(moves);
+        int[][] validMoves = game.filterValidMoves(moves);
+        System.out.println(Arrays.deepToString(moves));
 
-        for (int i = 0; i < game.generateMoveCounter; i++) {
-            int[] move = moves[i];
+        for (int i = 0; i < validMoves.length; i++) {
+            int[] move = validMoves[i];
             int previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
             game.undoMove(move[0],move[1],move[2],move[3],previousMove);
             int score = result[1][0];
+            System.out.println(score);
+            System.out.println(Arrays.toString(move));
 
             if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
                 bestScore = score;
@@ -997,7 +1023,7 @@ public boolean checkForWin() {
         System.out.println("Enter FEN string:");
         String fen = scanner.nextLine();
 
-        int depth = 7;
+        int depth = 6;
         Game game = new Game();
         game.initializeBoard(fen);
 
