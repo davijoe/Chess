@@ -14,14 +14,14 @@ public class Game {
     //region Global Variables and Constants
     int[][] board = new int[8][8];
 
-    int[][] moves = new int[1000][6];
-    int[][] movesd1 = new int[1000][6];
-    int[][] movesd2 = new int[1000][6];
-    int[][] movesd3 = new int[1000][6];
-    int[][] movesd4 = new int[1000][6];
-    int[][] movesd5 = new int[1000][6];
-    int[][] movesd6 = new int[1000][6];
-    int[][] movesd7 = new int[1000][6];
+    int[][] moves = new int[181][6];
+    int[][] movesd1 = new int[181][6];
+    int[][] movesd2 = new int[181][6];
+    int[][] movesd3 = new int[181][6];
+    int[][] movesd4 = new int[181][6];
+    int[][] movesd5 = new int[181][6];
+    int[][] movesd6 = new int[181][6];
+    int[][] movesd7 = new int[181][6];
 
     int[][] checkMoves = new int[1000][6];
 
@@ -84,29 +84,30 @@ public class Game {
     //endregion
 
     //region Moves
+
+    private static final int[][] ROOK_DIRECTIONS = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+    private static final int[][] BISHOP_DIRECTIONS = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}};
+    private static final int[][] KNIGHT_DIRECTIONS = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
+    private static final int[][] QUEEN_DIRECTIONS = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+
     public void generateRookMoves(int row, int col, int[][] moves) {
-        int[][] directions = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
-        pieceMoveLogic(directions, row, col, true, moves);
+        pieceMoveLogic(ROOK_DIRECTIONS, row, col, true, moves);
     }
 
     public void generateBishopMoves(int row, int col, int[][] moves) {
-        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}};
-        pieceMoveLogic(directions, row, col, true, moves);
+        pieceMoveLogic(BISHOP_DIRECTIONS, row, col, true, moves);
     }
 
     public void generateKnightMoves(int row, int col, int[][] moves) {
-        int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
-        pieceMoveLogic(directions, row, col, false, moves);
+        pieceMoveLogic(KNIGHT_DIRECTIONS, row, col, false, moves);
     }
 
     public void generateQueenMoves(int row, int col, int[][] moves) {
-        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 0}, {1, 0}, {0, 1}, {0, -1}};
-        pieceMoveLogic(directions, row, col, true, moves);
+        pieceMoveLogic(QUEEN_DIRECTIONS, row, col, true, moves);
     }
 
     public void generateKingMoves(int row, int col, int[][] moves) {
-        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 0}, {1, 0}, {0, 1}, {0, -1}};
-        pieceMoveLogic(directions, row, col, false, moves);
+        pieceMoveLogic(QUEEN_DIRECTIONS, row, col, false, moves);
     }
 
     public void generatePawnMoves(int row, int col, int[][] moves) {
@@ -132,7 +133,7 @@ public class Game {
 
     private void addMove(int startRow, int startCol, int endRow, int endCol, int piece, int[][] moves) {
         int capturedPiece = board[endRow][endCol];
-        int score = computeMoveScore(piece, capturedPiece);
+        int score = computeMoveScore(piece, endRow, endCol, capturedPiece);
         moves[generateMoveCounter][0] = startRow;
         moves[generateMoveCounter][1] = startCol;
         moves[generateMoveCounter][2] = endRow;
@@ -141,11 +142,17 @@ public class Game {
         moves[generateMoveCounter][5] = score;
         generateMoveCounter++;
     }
-
-    private int computeMoveScore(int piece, int capturedPiece) {
+    private int computeMoveScore(int piece, int endRow, int endCol, int capturedPiece) {
         int pieceValue = getPieceMoveValue(piece);
-        int captureValue = capturedPiece == 0 ? 0 : getPieceValue(capturedPiece);
-        return captureValue * 10 + pieceValue;
+        int captureValue = capturedPiece == 0 ? 0 : pieceValue;
+
+        int centerBonus = 0;
+        if (endRow >= 3 && endRow <= 4 && endCol >= 3 && endCol <= 4) {
+            centerBonus = 5;
+        }
+
+
+        return captureValue * 10 + pieceValue + centerBonus;
     }
 
     private int getPieceMoveValue(int piece) {
@@ -404,9 +411,9 @@ public class Game {
         for (int i = 0; i<generateMoveCounter; i++ ) {
             int[] move = checkMoves[i];
             if(currentPlayer=='w') {
-                int capturedPiece = makeMove(move[0],move[1],move[2],move[3]);
+                int[] capturedPiece = makeMove(move[0],move[1],move[2],move[3]);
                 if (!kingInCheck(whiteKingRow, whiteKingCol)) {
-                    addMove(move[0], move[1], move[2], move[3], capturedPiece, validMovesInCheck);
+                    addMove(move[0], move[1], move[2], move[3], capturedPiece[1], validMovesInCheck);
                     undoMove(move[0], move[1], move[2], move[3], capturedPiece);
                     validCheckMovesCounter++;
                     break;
@@ -414,9 +421,9 @@ public class Game {
                 undoMove(move[0], move[1], move[2], move[3], capturedPiece);
             }
             if(currentPlayer=='b') {
-                int capturedPiece = makeMove(move[0],move[1],move[2],move[3]);
+                int[] capturedPiece = makeMove(move[0],move[1],move[2],move[3]);
                 if (!kingInCheck(blackKingRow, blackKingCol)) {
-                    addMove(move[0], move[1], move[2], move[3], capturedPiece, validMovesInCheck);
+                    addMove(move[0], move[1], move[2], move[3], capturedPiece[1], validMovesInCheck);
                     undoMove(move[0], move[1], move[2], move[3], capturedPiece);
                     validCheckMovesCounter++;
                     break;
@@ -449,7 +456,7 @@ public class Game {
 
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
         if(game.isCheckmate()) {
-            return new int[][]{{},{maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE}};
+            return new int[][]{{},{maximizingPlayer ? Integer.MIN_VALUE + depth : Integer.MAX_VALUE - depth}};
         }
         if(game.checkDraw()) {
             return new int[][] {{},{0}};
@@ -463,7 +470,7 @@ public class Game {
         int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
         if (previousBestMove != null) {
-            int previousMove;
+            int[] previousMove;
             previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
             game.undoMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3],previousMove);
@@ -479,29 +486,22 @@ public class Game {
             } else {
                 beta = Math.min(beta, bestScore);
             }
-
-            if (beta <= alpha) {
-                return new int[][]{bestMove, {bestScore}};
-            }
         }
 
         int[][] moves = game.getMovesByDepth(depth);
         game.generateMoves(moves);
         int[][] validMoves = game.filterValidMoves(moves);
+        //System.out.println("Depth: " + depth + ", Valid Moves: " + Arrays.deepToString(validMoves));
 
         for (int i = 0; i < validMoves.length; i++) {
             int[] move = validMoves[i];
-            char player = game.currentPlayer;
-            int previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
-            if ((player == 'w' && game.kingInCheck(game.whiteKingRow, game.whiteKingCol)) ||
-                    (player == 'b' && game.kingInCheck(game.blackKingRow, game.blackKingCol))) {
-                game.undoMove(move[0], move[1], move[2], move[3], previousMove);
-                continue;
-            }
+            int[] previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
 
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null);
             game.undoMove(move[0],move[1],move[2],move[3],previousMove);
             int score = result[1][0] - (maximizingPlayer ? depth : +depth);
+
+            //System.out.println("Depth: " + depth + ", Move: " + Arrays.toString(move) + ", Score: " + score);
 
             if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
                 bestScore = score;
@@ -519,6 +519,7 @@ public class Game {
             }
         }
 
+        //System.out.println("Returning from Depth: " + depth + ", Best Move: " + Arrays.toString(bestMove) + ", Best Score: " + bestScore);
         return new int[][]{bestMove, {bestScore}};
     }
 
@@ -901,11 +902,11 @@ private int mgPawnPositionValue(int row, int col) {
             case 6, 7, 13, 14 -> // PAWNS
                     100;
             case 2, 9 ->  // KNIGHTS
-                    300;
+                    300 ;
             case 3, 10 -> // BISHOPS
                     320;
             case 1, 8 ->  // ROOKS
-                    540;
+                    540 ;
             case 4, 11 -> // QUEENS
                     900;
             case 5, 12 -> // KINGS
@@ -918,15 +919,15 @@ private int mgPawnPositionValue(int row, int col) {
         int value = 0;
         switch (piece) {
             case 6, 7, 13, 14 -> // PAWNS
-                    value = pawnPositionValue(row, col);
+                    value = egPawnPositionValue(row, col);
             case 2, 9 -> // KNIGHTS
-                    value = knightPositionValue(row, col);
+                    value = egKnightPositionValue(row, col);
             case 3, 10 -> // BISHOPS
-                    value = bishopPositionValue(row, col);
+                    value = egBishopPositionValue(row, col);
             case 1, 8 -> // ROOKS
-                    value = rookPositionValue(row, col);
+                    value = egRookPositionValue(row, col);
             case 4, 11 -> // QUEENS
-                    value = queenPositionValue(row, col);
+                    value = egQueenPositionValue(row, col);
             case 5, 12 -> // KINGS
                     value = egKingPositionValue(row, col);
         }
@@ -937,15 +938,15 @@ private int mgPawnPositionValue(int row, int col) {
         int value = 0;
         switch (piece) {
             case 6, 7, 13, 14 -> // PAWNS
-                    value = pawnPositionValue(row, col);
+                    value = mgPawnPositionValue(row, col);
             case 2, 9 -> // KNIGHTS
-                    value = knightPositionValue(row, col);
+                    value = mgKnightPositionValue(row, col);
             case 3, 10 -> // BISHOPS
-                    value = bishopPositionValue(row, col);
+                    value = mgBishopPositionValue(row, col);
             case 1, 8 -> // ROOKS
-                    value = rookPositionValue(row, col);
+                    value = mgRookPositionValue(row, col);
             case 4, 11 -> // QUEENS
-                    value = queenPositionValue(row, col);
+                    value = mgQueenPositionValue(row, col);
             case 5, 12 -> // KINGS
                     value = mgKingPositionValue(row, col);
         }
@@ -1049,11 +1050,19 @@ public void findAndSetKing() {
         }
     }
 }
-    public int makeMove(int startRow, int startCol, int endRow, int endCol) {
+    public int[] makeMove(int startRow, int startCol, int endRow, int endCol) {
         int capturedPiece = board[endRow][endCol];
         int piece = board[startRow][startCol];
+        int queen;
         board[startRow][startCol] = 0;
-        board[endRow][endCol] = piece;
+
+        if ((piece == 6 && endRow == 7) || (piece == 7 && endRow == 0)) {
+            queen = (currentPlayer == 'w') ? 4 : 11;
+            board[endRow][endCol] = queen;
+        } else {
+            board[endRow][endCol] = piece;
+        }
+
         if (piece == 5) {
             whiteKingRow = endRow;
             whiteKingCol = endCol;
@@ -1063,10 +1072,17 @@ public void findAndSetKing() {
             blackKingCol = endCol;
         }
         currentPlayer = (currentPlayer=='w') ? 'b' : 'w';
-        return capturedPiece;
+        return new int[] {piece,capturedPiece};
     }
 
-    public void undoMove(int startRow, int startCol, int endRow, int endCol, int piece) {
+    public void undoMove(int startRow, int startCol, int endRow, int endCol, int[] moveInfo) {
+        int piece = moveInfo[0];
+        int capturedPiece = moveInfo[1];
+
+        if ((piece == 4 && startRow == 6 && endRow == 7) || (piece == 11 && startRow == 1 && endRow == 0)) {
+            piece = (currentPlayer == 'w') ? 6 : 13;
+        }
+
         if(board[endRow][endCol]==5) {
             whiteKingRow = startRow;
             whiteKingCol = startCol;
@@ -1075,8 +1091,9 @@ public void findAndSetKing() {
             blackKingRow = startRow;
             blackKingCol = startCol;
         }
-        board[startRow][startCol] = board[endRow][endCol];
-        board[endRow][endCol] = piece;
+
+        board[startRow][startCol] = piece;
+        board[endRow][endCol] = capturedPiece;
         currentPlayer = (currentPlayer=='w') ? 'b' : 'w';
 
     }
