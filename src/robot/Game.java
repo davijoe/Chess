@@ -143,45 +143,20 @@ public class Game {
         generateMoveCounter++;
     }
 
-    static final int[] PIECE_VALUES = {5, 3, 3, 9, 10, 1, 1};
-
+    //values for {Rook, Knight, Bishop, Queen, King, Pawn, Pawn, Rook, Knight, Bishop, Queen, King, Pawn, Pawn}
+    static final int[] PIECE_VALUES = {5, 3, 3, 9, 10, 1, 1, 5, 3, 3, 9, 10, 1, 1};
     private int computeMoveScore(int piece, int endRow, int endCol, int capturedPiece) {
-        int pieceValue = getPieceMoveValue(piece);
+        int pieceValue = 0;
+        if (piece != 0){
+            if (piece > 0) {
+                pieceValue = PIECE_VALUES[(piece) - 1];
+            } else {
+                pieceValue = PIECE_VALUES[(piece) + 6];
+            }
+        }
         int captureValue = capturedPiece == 0 ? 0 : pieceValue;
 
-        int centerBonus = 0;
-        if (endRow >= 3 && endRow <= 4 && endCol >= 3 && endCol <= 4) {
-            centerBonus = 5;
-        }
-
-        return captureValue * 10 + pieceValue + centerBonus;
-    }
-
-    private int getPieceMoveValue(int piece) {
-        switch (piece) {
-            case 1:
-            case 8:
-                return 5;   // Rook
-            case 2:
-            case 9:
-                return 3;   // Knight
-            case 3:
-            case 10:
-                return 3;  // Bishop
-            case 4:
-            case 11:
-                return 9;  // Queen
-            case 5:
-            case 12:
-                return 10; // King
-            case 6:
-            case 7:
-            case 13:
-            case 14:
-                return 1; // Pawn
-            default:
-                return 0;
-        }
+        return captureValue * 10 + pieceValue + (endRow >= 3 && endRow <= 4 && endCol >= 3 && endCol <= 4 ? 5 : 0);
     }
 
     public boolean isTileEmpty(int row, int col) {
