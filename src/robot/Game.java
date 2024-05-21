@@ -142,6 +142,9 @@ public class Game {
         moves[generateMoveCounter][5] = score;
         generateMoveCounter++;
     }
+
+    static final int[] PIECE_VALUES = {5, 3, 3, 9, 10, 1, 1};
+
     private int computeMoveScore(int piece, int endRow, int endCol, int capturedPiece) {
         int pieceValue = getPieceMoveValue(piece);
         int captureValue = capturedPiece == 0 ? 0 : pieceValue;
@@ -150,7 +153,6 @@ public class Game {
         if (endRow >= 3 && endRow <= 4 && endCol >= 3 && endCol <= 4) {
             centerBonus = 5;
         }
-
 
         return captureValue * 10 + pieceValue + centerBonus;
     }
@@ -456,7 +458,7 @@ public class Game {
 
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
         if(game.isCheckmate()) {
-            return new int[][]{{},{maximizingPlayer ? Integer.MIN_VALUE + depth : Integer.MAX_VALUE - depth}};
+            return new int[][]{{},{maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE}};
         }
         if(game.checkDraw()) {
             return new int[][] {{},{0}};
