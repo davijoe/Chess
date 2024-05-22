@@ -777,7 +777,8 @@ private static int[][] reverse(int[][] table) {
     }
     //endregion
 //region Evaluation and Heuristics Methods
-
+    // empty, rook, knight, bishop, queen, king, pawn, pawn, rook, knight, bishop, queen, king, pawn, pawn
+    private final int[] pieceValues = {0, 540, 300, 320, 900, 20000, 100, 100, 540, 300, 320, 900, 20000, 100, 100};
     public int evaluate() {
         int whiteScore = 0;
         int blackScore = 0;
@@ -788,7 +789,7 @@ private static int[][] reverse(int[][] table) {
                 int piece = board[row][col];
                 if (piece != 0) {
                     pieceCount++;
-                    int pieceValue = getPieceValue(piece);
+                    int pieceValue = pieceValues[piece];
                     boolean endgame = pieceCount <= 16;
                     int positionValue = getPiecePositionValue(piece, row, col, endgame);
 
@@ -802,24 +803,6 @@ private static int[][] reverse(int[][] table) {
         }
 
         return whiteScore - blackScore;
-    }
-
-    private int getPieceValue(int piece) {
-        return switch (piece) {
-            case 6, 7, 13, 14 -> // PAWNS
-                    100;
-            case 2, 9 ->  // KNIGHTS
-                    300 ;
-            case 3, 10 -> // BISHOPS
-                    320;
-            case 1, 8 ->  // ROOKS
-                    540 ;
-            case 4, 11 -> // QUEENS
-                    900;
-            case 5, 12 -> // KINGS
-                    20000;
-            default -> 0;
-        };
     }
 //endregion
 
