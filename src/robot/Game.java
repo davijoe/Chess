@@ -682,7 +682,7 @@ public class Game {
         long startTime = System.currentTimeMillis();
         AtomicBoolean timeUp = new AtomicBoolean(false);
 
-        for (int depth = 4; depth <= maxDepth; depth++) {
+        for (int depth = 1; depth <= maxDepth; depth++) {
             final int currentDepth = depth;
             System.out.println("current depth: " + currentDepth);
             Game newGame = new Game(game);
