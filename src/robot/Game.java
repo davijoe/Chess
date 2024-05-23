@@ -544,17 +544,51 @@ public class Game {
         };
     }
     //endregion
+
+
 //region Minimax and Iterative Deepening
 
+    public static long calculateHash(Game game) {
+        int[][] board = game.getBoard();
+        long hash = 0;
 
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                int piece = board[i][j];
+                hash ^= ZOBRIST_KEYS[i][j][piece];
+            }
+        }
+
+        return hash;
+    }
+
+    static final long[][][] ZOBRIST_KEYS = new long[8][8][15];
+
+    static {
+        Random random = new Random();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                for (int k = 0; k < 15; k++) {
+                    ZOBRIST_KEYS[i][j][k] = random.nextLong();
+                }
+            }
+        }
+    }
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
-        //++game.nodecount;
+        ++game.nodecount;
+        long hash = calculateHash(game);
+        if(game.transpositionTable.containsKey(hash)){
+            return new int[][]{{}, game.transpositionTable.get(hash)};
+        }
         if (game.kingInCheck(game.whiteKingRow, game.whiteKingCol) || game.kingInCheck(game.blackKingRow, game.blackKingCol)) {
             if (game.isCheckmate()) {
-                return new int[][]{{}, {maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE}};
+                int score = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+                game.transpositionTable.put(hash, new int[]{score});
+                return new int[][]{{}, {score}};
             }
         }
         if(game.checkDraw()) {
+            game.transpositionTable.put(hash, new int[]{0});
             return new int[][] {{},{0}};
         }
         if (depth == 0) {
@@ -580,6 +614,7 @@ public class Game {
                     break;
                 }
             }
+            game.transpositionTable.put(hash, new int[]{score});
             return new int[][]{{}, {score}};
         }
 
@@ -637,6 +672,7 @@ public class Game {
         }
 
         //System.out.println("Returning from Depth: " + depth + ", Best Move: " + Arrays.toString(bestMove) + ", Best Score: " + bestScore);
+        game.transpositionTable.put(hash, new int[]{bestScore});
         return new int[][]{bestMove, {bestScore}};
     }
 
