@@ -593,6 +593,7 @@ public class Game {
         }
         if (depth == 0) {
             int score = game.evaluate();
+            /*
             int[][] captureMoves = game.getCaptureMoves();
             for (int[] captureMove : captureMoves) {
                 int[] previousMove = game.makeMove(captureMove[0], captureMove[1], captureMove[2], captureMove[3]);
@@ -614,6 +615,8 @@ public class Game {
                     break;
                 }
             }
+
+             */
             game.transpositionTable.put(hash, new int[]{score});
             return new int[][]{{}, {score}};
         }
