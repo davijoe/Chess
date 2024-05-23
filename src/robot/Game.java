@@ -1401,7 +1401,7 @@ public boolean checkForWin() {
             if (game.currentPlayer == 'w'){
                 minimax = true;
             }
-            int[] bestMove = iterativeDeepening(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax,60000);
+            int[] bestMove = iterativeDeepening(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax,30000);
             LocalDateTime endTime = LocalDateTime.now();
 
             long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
