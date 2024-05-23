@@ -224,22 +224,30 @@ public class Game {
     }
 
     public int[][] filterValidMoves(int[][] moves) {
-        int validMoveCount = 0;
-        for (int i = 0; i < moves.length; i++) {
-            if (moves[i][0] != 0 || moves[i][1] != 0 || moves[i][2] != 0 || moves[i][3] != 0 || moves[i][4] != 0) {
-                validMoveCount++;
+        int left = 0;
+        int right = moves.length - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (isZeroMove(moves[mid])) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
             }
         }
 
+        int validMoveCount = left;
+
         int[][] validMoves = new int[validMoveCount][5];
-        int index = 0;
-        for (int i = 0; i < moves.length; i++) {
-            if (moves[i][0] != 0 || moves[i][1] != 0 || moves[i][2] != 0 || moves[i][3] != 0 || moves[i][4] != 0) {
-                validMoves[index++] = moves[i];
-            }
+        for (int i = 0; i < validMoveCount; i++) {
+            validMoves[i] = moves[i];
         }
 
         return validMoves;
+    }
+
+    private boolean isZeroMove(int[] move) {
+        return move[0] == 0 && move[1] == 0 && move[2] == 0 && move[3] == 0 && move[4] == 0;
     }
 
 
