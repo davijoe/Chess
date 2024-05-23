@@ -432,8 +432,10 @@ public class Game {
 
 
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
-        if(game.isCheckmate()) {
-            return new int[][]{{},{maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE}};
+        if (game.kingInCheck(game.whiteKingRow, game.whiteKingCol) || game.kingInCheck(game.blackKingRow, game.blackKingCol)) {
+            if (game.isCheckmate()) {
+                return new int[][]{{}, {maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE}};
+            }
         }
         if(game.checkDraw()) {
             return new int[][] {{},{0}};
