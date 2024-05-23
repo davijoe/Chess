@@ -25,6 +25,10 @@ public class Game {
     int[][] movesd6 = new int[181][6];
     int[][] movesd7 = new int[181][6];
     int[][] movesd8 = new int[181][6];
+    int[][] movesd9 = new int[181][6];
+    int[][] movesd10 = new int[181][6];
+    int[][] movesd11 = new int[181][6];
+    int[][] movesd12 = new int[181][6];
     int nodecount = 1;
     int[][] checkMoves = new int[1000][6];
 
@@ -387,8 +391,7 @@ public class Game {
         } else return false;
     }
     public int[] kingSeeBishop(int kingRow, int kingCol) {
-        int[][] directions = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}};
-        for (int[] direction : directions) {
+        for (int[] direction : BISHOP_DIRECTIONS) {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
@@ -405,8 +408,7 @@ public class Game {
         return null;
     }
     public int[] kingSeeKnight(int kingRow, int kingCol) {
-        int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
-        for (int[] direction : directions) {
+        for (int[] direction : KNIGHT_DIRECTIONS) {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
@@ -419,8 +421,7 @@ public class Game {
         return null;
     }
     public int[] kingSeeRook(int kingRow, int kingCol) {
-        int[][] directions = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
-        for (int[] direction : directions) {
+        for (int[] direction : ROOK_DIRECTIONS) {
             int newRow = kingRow + direction[0];
             int newCol = kingCol + direction[1];
             while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
@@ -527,6 +528,10 @@ public class Game {
 
     public int[][] getMovesByDepth(int depth) {
         return switch (depth) {
+            case 12 -> movesd12;
+            case 11 -> movesd11;
+            case 10 -> movesd10;
+            case 9 -> movesd9;
             case 8 -> movesd8;
             case 7 -> movesd7;
             case 6 -> movesd6;
@@ -1340,7 +1345,7 @@ public boolean checkForWin() {
         System.out.println("Enter FEN string:");
         String fen = scanner.nextLine();
 
-        int depth = 8;
+        int depth = 12;
         Game game = new Game();
         game.initializeBoard(fen);
 
