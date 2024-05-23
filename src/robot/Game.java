@@ -198,7 +198,7 @@ public class Game {
         }
         int captureValue = capturedPiece == 0 ? 0 : pieceValue;
 
-        return (captureValue * 12) + pieceValue + (endRow >= 3 && endRow <= 4 && endCol >= 3 && endCol <= 4 ? 5 : 0);
+        return (captureValue * 12) + pieceValue + (endRow >= 2 && endRow <= 5 && endCol >= 2 && endCol <= 5 ? 5 : 0);
     }
 
     public boolean isTileEmpty(int row, int col) {
