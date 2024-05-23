@@ -672,7 +672,7 @@ public class Game {
         }
 
         //System.out.println("Returning from Depth: " + depth + ", Best Move: " + Arrays.toString(bestMove) + ", Best Score: " + bestScore);
-        game.transpositionTable.put(hash, new int[]{bestScore});
+        //game.transpositionTable.put(hash, new int[]{bestScore});
         return new int[][]{bestMove, {bestScore}};
     }
 
