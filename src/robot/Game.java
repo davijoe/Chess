@@ -22,7 +22,7 @@ public class Game {
     int[][] movesd5 = new int[181][6];
     int[][] movesd6 = new int[181][6];
     int[][] movesd7 = new int[181][6];
-
+    int nodecount = 1;
     int[][] checkMoves = new int[1000][6];
 
     int[][] validMovesInCheck = new int[1000][6];
@@ -144,7 +144,7 @@ public class Game {
     }
 
     //values for {Rook, Knight, Bishop, Queen, King, Pawn, Pawn, Rook, Knight, Bishop, Queen, King, Pawn, Pawn}
-    static final int[] PIECE_VALUES = {5, 3, 3, 9, 10, 1, 1, 5, 3, 3, 9, 10, 1, 1};
+    static final int[] PIECE_VALUES = {50, 32, 35, 90, 100, 10, 10, 50, 32, 35, 90, 100, 10, 10};
     private int computeMoveScore(int piece, int endRow, int endCol, int capturedPiece) {
         int pieceValue = 0;
         if (piece != 0){
@@ -156,7 +156,7 @@ public class Game {
         }
         int captureValue = capturedPiece == 0 ? 0 : pieceValue;
 
-        return captureValue * 10 + pieceValue + (endRow >= 3 && endRow <= 4 && endCol >= 3 && endCol <= 4 ? 5 : 0);
+        return captureValue + pieceValue + (endRow >= 3 && endRow <= 4 && endCol >= 3 && endCol <= 4 ? 5 : 0);
     }
 
     public boolean isTileEmpty(int row, int col) {
@@ -432,6 +432,7 @@ public class Game {
 
 
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove) {
+        //++game.nodecount;
         if (game.kingInCheck(game.whiteKingRow, game.whiteKingCol) || game.kingInCheck(game.blackKingRow, game.blackKingCol)) {
             if (game.isCheckmate()) {
                 return new int[][]{{}, {maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE}};
@@ -514,6 +515,7 @@ public class Game {
             Thread searchThread = new Thread(() -> {
                 int[][] result = minimax(newGame, currentDepth, alpha, beta, maximizingPlayer, bestMove[0]);
                 bestMove[0] = result[0];
+                //System.out.println(newGame.nodecount);
             });
             searchThread.start();
 
