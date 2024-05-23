@@ -8,11 +8,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Game {
 
     //region Global Variables and Constants
     int[][] board = new int[8][8];
+    private Map<Long, int[]> transpositionTable = new HashMap<>();
 
     int[][] moves = new int[181][6];
     int[][] movesd1 = new int[181][6];
@@ -22,6 +24,7 @@ public class Game {
     int[][] movesd5 = new int[181][6];
     int[][] movesd6 = new int[181][6];
     int[][] movesd7 = new int[181][6];
+    int[][] movesd8 = new int[181][6];
     int nodecount = 1;
     int[][] checkMoves = new int[1000][6];
 
@@ -89,25 +92,44 @@ public class Game {
     private static final int[][] BISHOP_DIRECTIONS = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}};
     private static final int[][] KNIGHT_DIRECTIONS = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
     private static final int[][] QUEEN_DIRECTIONS = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+    private static final int[][] PAWN_CAPTURE_DIRECTIONS_WHITE = {{1, 1}, {1, -1}};
+    private static final int[][] PAWN_CAPTURE_DIRECTIONS_BLACK = {{-1, 1}, {-1, -1}};
 
     public void generateRookMoves(int row, int col, int[][] moves) {
         pieceMoveLogic(ROOK_DIRECTIONS, row, col, true, moves);
+    }
+    public void generateRookCaptureMoves(int row, int col, int[][] moves) {
+        pieceCaptureOnlyLogic(ROOK_DIRECTIONS, row, col, true, moves);
     }
 
     public void generateBishopMoves(int row, int col, int[][] moves) {
         pieceMoveLogic(BISHOP_DIRECTIONS, row, col, true, moves);
     }
 
+    public void generateBishopCaptureMoves(int row, int col, int[][] moves) {
+        pieceCaptureOnlyLogic(BISHOP_DIRECTIONS, row, col, true, moves);
+    }
+
     public void generateKnightMoves(int row, int col, int[][] moves) {
         pieceMoveLogic(KNIGHT_DIRECTIONS, row, col, false, moves);
+    }
+    public void generateKnightCaptureMoves(int row, int col, int[][] moves) {
+        pieceCaptureOnlyLogic(KNIGHT_DIRECTIONS, row, col, false, moves);
     }
 
     public void generateQueenMoves(int row, int col, int[][] moves) {
         pieceMoveLogic(QUEEN_DIRECTIONS, row, col, true, moves);
     }
+    public void generateQueenCaptureMoves(int row, int col, int[][] moves) {
+        pieceCaptureOnlyLogic(QUEEN_DIRECTIONS, row, col, true, moves);
+    }
+
 
     public void generateKingMoves(int row, int col, int[][] moves) {
         pieceMoveLogic(QUEEN_DIRECTIONS, row, col, false, moves);
+    }
+    public void generateKingCaptureMoves(int row, int col, int[][] moves) {
+        pieceCaptureOnlyLogic(QUEEN_DIRECTIONS, row, col, false, moves);
     }
 
     public void generatePawnMoves(int row, int col, int[][] moves) {
@@ -115,19 +137,35 @@ public class Game {
         int direction = (piece == 6 || piece == 7) ? 1 : -1; // * 1 for white, -1 for black
 
         if (isTileEmpty(row + direction, col)) {
+            addMove(row, col, row + direction, col, piece, moves);
             if ((direction == 1 && row == 1) || (direction == -1 && row == 6)) {
                 if (isTileEmpty(row + 2 * direction, col)) {
                     addMove(row, col, row + 2 * direction, col, piece, moves);
                 }
             }
-            addMove(row, col, row + direction, col, piece, moves);
         }
 
-        if (col + 1 < 8 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col + 1) && board[row + direction][col + 1] / 8 != piece / 8) {
-            addMove(row, col, row + direction, col + 1, piece, moves);
+        int[][] pawnCaptureDirections = (piece == 6 || piece == 7) ? PAWN_CAPTURE_DIRECTIONS_WHITE : PAWN_CAPTURE_DIRECTIONS_BLACK;
+        for (int[] dir : pawnCaptureDirections) {
+            int newRow = row + dir[0];
+            int newCol = col + dir[1];
+            if (newCol >= 0 && newCol < 8 && newRow >= 0 && newRow < 8 && !isTileEmpty(newRow, newCol) && board[newRow][newCol] / 8 != piece / 8) {
+                addMove(row, col, newRow, newCol, piece, moves);
+            }
         }
-        if (col - 1 >= 0 && row + direction >= 0 && row + direction < 8 && !isTileEmpty(row + direction, col - 1) && board[row + direction][col - 1] / 8 != piece / 8) {
-            addMove(row, col, row + direction, col - 1, piece, moves);
+    }
+
+    public void generatePawnCaptureMoves(int row, int col, int[][] moves) {
+        int piece = board[row][col];
+        int direction = (piece == 6 || piece == 7) ? 1 : -1; // * 1 for white, -1 for black
+
+        int[][] pawnCaptureDirections = (piece == 6 || piece == 7) ? PAWN_CAPTURE_DIRECTIONS_WHITE : PAWN_CAPTURE_DIRECTIONS_BLACK;
+        for (int[] dir : pawnCaptureDirections) {
+            int newRow = row + dir[0];
+            int newCol = col + dir[1];
+            if (newCol >= 0 && newCol < 8 && newRow >= 0 && newRow < 8 && !isTileEmpty(newRow, newCol) && board[newRow][newCol] / 8 != piece / 8) {
+                addMove(row, col, newRow, newCol, piece, moves);
+            }
         }
     }
 
@@ -156,7 +194,7 @@ public class Game {
         }
         int captureValue = capturedPiece == 0 ? 0 : pieceValue;
 
-        return captureValue + pieceValue + (endRow >= 3 && endRow <= 4 && endCol >= 3 && endCol <= 4 ? 5 : 0);
+        return (captureValue * 12) + pieceValue + (endRow >= 3 && endRow <= 4 && endCol >= 3 && endCol <= 4 ? 5 : 0);
     }
 
     public boolean isTileEmpty(int row, int col) {
@@ -223,6 +261,51 @@ public class Game {
         Arrays.sort(moves, 0, generateMoveCounter, (move1, move2) -> Integer.compare(move2[5], move1[5]));
     }
 
+    public int[][] getCaptureMoves() {
+        int[][] captureMoves = new int[181][6];
+        generateMoveCounter = 0;
+
+        if (currentPlayer == 'w') {
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
+                    switch (board[row][col]) {
+                        case 1 -> generateRookCaptureMoves(row, col, captureMoves);
+                        case 2 -> generateKnightCaptureMoves(row, col, captureMoves);
+                        case 3 -> generateBishopCaptureMoves(row, col, captureMoves);
+                        case 4 -> generateQueenCaptureMoves(row, col, captureMoves);
+                        case 5 -> generateKingCaptureMoves(row, col, captureMoves);
+                        case 6, 7 -> generatePawnCaptureMoves(row, col, captureMoves);
+                    }
+                }
+            }
+        } else {
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
+                    switch (board[row][col]) {
+                        case 8 -> generateRookCaptureMoves(row, col, captureMoves);
+                        case 9 -> generateKnightCaptureMoves(row, col, captureMoves);
+                        case 10 -> generateBishopCaptureMoves(row, col, captureMoves);
+                        case 11 -> generateQueenCaptureMoves(row, col, captureMoves);
+                        case 12 -> generateKingCaptureMoves(row, col, captureMoves);
+                        case 13, 14 -> generatePawnCaptureMoves(row, col, captureMoves);
+                    }
+                }
+            }
+        }
+
+        int[][] filteredMoves = new int[generateMoveCounter][6];
+        int filteredMoveCounter = 0;
+        for (int i = 0; i < generateMoveCounter; i++) {
+            if (captureMoves[i][5] > 120) {
+                filteredMoves[filteredMoveCounter++] = captureMoves[i];
+            }
+        }
+
+        int[][] result = new int[filteredMoveCounter][6];
+        System.arraycopy(filteredMoves, 0, result, 0, filteredMoveCounter);
+        return result;
+    }
+
     public int[][] filterValidMoves(int[][] moves) {
         int left = 0;
         int right = moves.length - 1;
@@ -263,6 +346,25 @@ public class Game {
                     break;
                 } else {
                     addMove(row, col, newRow, newCol, board[row][col], moves);
+                }
+                if (!canSlide) {
+                    break;
+                }
+                newRow += direction[0];
+                newCol += direction[1];
+            }
+        }
+    }
+    public void pieceCaptureOnlyLogic(int[][] directions, int row, int col, boolean canSlide, int[][] moves) {
+        for (int[] direction : directions) {
+            int newRow = row + direction[0];
+            int newCol = col + direction[1];
+            while (0 <= newRow && newRow < 8 && 0 <= newCol && newCol < 8) {
+                if (!isTileEmpty(newRow, newCol)) {
+                    if (board[newRow][newCol] > 7 && currentPlayer == 'w' || board[newRow][newCol] <= 7 && currentPlayer == 'b') {
+                        addMove(row, col, newRow, newCol, board[row][col], moves);
+                    }
+                    break;
                 }
                 if (!canSlide) {
                     break;
@@ -425,12 +527,13 @@ public class Game {
 
     public int[][] getMovesByDepth(int depth) {
         return switch (depth) {
-            case 7 -> movesd7;  // black pawn
-            case 6 -> movesd6;  // black knight
-            case 5 -> movesd5;  // black bishop
-            case 4 -> movesd4;  // black queen
-            case 3 -> movesd3;  // black king
-            case 2 -> movesd2;  // black rook
+            case 8 -> movesd8;
+            case 7 -> movesd7;
+            case 6 -> movesd6;
+            case 5 -> movesd5;
+            case 4 -> movesd4;
+            case 3 -> movesd3;
+            case 2 -> movesd2;
             case 1 -> movesd1;
             default -> moves;
         };
@@ -451,6 +554,27 @@ public class Game {
         }
         if (depth == 0) {
             int score = game.evaluate();
+            int[][] captureMoves = game.getCaptureMoves();
+            for (int[] captureMove : captureMoves) {
+                int[] previousMove = game.makeMove(captureMove[0], captureMove[1], captureMove[2], captureMove[3]);
+                int[][] result = minimax(game, depth, alpha, beta, !maximizingPlayer, null);
+                game.undoMove(captureMove[0], captureMove[1], captureMove[2], captureMove[3], previousMove);
+                int captureScore = result[1][0];
+
+                if ((maximizingPlayer && captureScore > score) || (!maximizingPlayer && captureScore < score)) {
+                    score = captureScore;
+                }
+
+                if (maximizingPlayer) {
+                    alpha = Math.max(alpha, score);
+                } else {
+                    beta = Math.min(beta, score);
+                }
+
+                if (beta <= alpha) {
+                    break;
+                }
+            }
             return new int[][]{{}, {score}};
         }
 
@@ -515,8 +639,9 @@ public class Game {
         int[][] bestMove = {null};
 
         long startTime = System.currentTimeMillis();
+        AtomicBoolean timeUp = new AtomicBoolean(false);
 
-        for (int depth = 1; depth <= maxDepth; depth++) {
+        for (int depth = 4; depth <= maxDepth; depth++) {
             final int currentDepth = depth;
             System.out.println("current depth: " + currentDepth);
             Game newGame = new Game(game);
@@ -527,13 +652,15 @@ public class Game {
             });
             searchThread.start();
 
+            long remainingTime = timeLimit - (System.currentTimeMillis() - startTime);
             try {
-                searchThread.join(timeLimit);
+                searchThread.join(remainingTime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
             if (searchThread.isAlive()) {
+                timeUp.set(true);
                 searchThread.interrupt();
             }
 
@@ -764,6 +891,7 @@ private static int[][] reverse(int[][] table) {
             {-53, -34, -21, -11, -28, -14, -24, -43}
     };
     private static final int[][] blackegKingPositionValue = reverse(egKingPositionValue);
+
     private int getPiecePositionValue(int piece, int row, int col, boolean endgame) {
         return switch (piece) {
             case 6, 7, 13, 14 -> (currentPlayer == 'w')
@@ -787,6 +915,23 @@ private static int[][] reverse(int[][] table) {
             default -> 0;
         };
     }
+
+    /*
+        private int getPiecePositionValue(int piece, int row, int col, boolean endgame) {
+        return switch (piece) {
+            case 6, 7, 13, 14 -> (currentPlayer == 'w') ? pawnPositionValue[row][col] : blackPawnPositionValue[row][col];
+            case 2, 9 -> (currentPlayer == 'w') ? knightPositionValue[row][col] : blackKnightPositionValue[row][col];
+            case 3, 10 -> (currentPlayer == 'w') ? bishopPositionValue[row][col] : blackBishopPositionValue[row][col];
+            case 1, 8 -> (currentPlayer == 'w') ? rookPositionValue[row][col] : blackRookPositionValue[row][col];
+            case 4, 11 -> (currentPlayer == 'w') ? queenPositionValue[row][col] : blackQueenPositionValue[row][col];
+            case 5, 12 -> (currentPlayer == 'w')
+                    ? (endgame ? egKingPositionValue[row][col] : mgKingPositionValue[row][col])
+                    : (endgame ? blackegKingPositionValue[row][col] : blackmgKingPositionValue[row][col]);
+            default -> 0;
+        };
+    }
+    */
+
     //endregion
 //region Evaluation and Heuristics Methods
     // empty, rook, knight, bishop, queen, king, pawn, pawn, rook, knight, bishop, queen, king, pawn, pawn
@@ -1195,7 +1340,7 @@ public boolean checkForWin() {
         System.out.println("Enter FEN string:");
         String fen = scanner.nextLine();
 
-        int depth = 6;
+        int depth = 8;
         Game game = new Game();
         game.initializeBoard(fen);
 
@@ -1215,7 +1360,7 @@ public boolean checkForWin() {
             if (game.currentPlayer == 'w'){
                 minimax = true;
             }
-            int[] bestMove = iterativeDeepening(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax,30000);
+            int[] bestMove = iterativeDeepening(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax,40000);
             LocalDateTime endTime = LocalDateTime.now();
 
             long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
