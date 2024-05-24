@@ -1116,7 +1116,7 @@ public void findAndSetKing() {
         int queen;
         board[startRow][startCol] = 0;
 
-        if ((piece == 6 && endRow == 7) || (piece == 7 && endRow == 0)) {
+        if ((piece == 6 && endRow == 7) || (piece == 13 && endRow == 0)) {
             queen = (currentPlayer == 'w') ? 4 : 11;
             board[endRow][endCol] = queen;
         } else {
