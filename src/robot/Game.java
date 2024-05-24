@@ -649,8 +649,13 @@ public class Game {
 
         for (int i = 0; i < validMoves.length; i++) {
             int[] move = validMoves[i];
+            char player = game.currentPlayer;
             int[] previousMove = game.makeMove(move[0], move[1], move[2], move[3]);
-
+            if ((player == 'w' && game.kingInCheck(game.whiteKingRow, game.whiteKingCol)) ||
+                    (player == 'b' && game.kingInCheck(game.blackKingRow, game.blackKingCol))) {
+                game.undoMove(move[0], move[1], move[2], move[3], previousMove);
+                continue;
+            }
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null, checkCapture);
             game.undoMove(move[0],move[1],move[2],move[3],previousMove);
             int score = result[1][0];
@@ -1411,7 +1416,7 @@ public boolean checkForWin() {
             if (game.currentPlayer == 'w'){
                 minimax = true;
             }
-            int[] bestMove = iterativeDeepening(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax, 40000);
+            int[] bestMove = iterativeDeepening(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax, 15000);
             LocalDateTime endTime = LocalDateTime.now();
 
             long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
