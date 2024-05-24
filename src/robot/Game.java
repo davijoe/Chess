@@ -597,7 +597,7 @@ public class Game {
                 int[][] captureMoves = game.getCaptureMoves();
                 for (int[] captureMove : captureMoves) {
                     int[] previousMove = game.makeMove(captureMove[0], captureMove[1], captureMove[2], captureMove[3]);
-                    int[][] result = minimax(game, depth, alpha, beta, !maximizingPlayer, null, true);
+                    int[][] result = minimax(game, depth, alpha, beta, !maximizingPlayer, null, false);
                     game.undoMove(captureMove[0], captureMove[1], captureMove[2], captureMove[3], previousMove);
                     int captureScore = result[1][0];
 
