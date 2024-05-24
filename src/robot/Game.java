@@ -687,7 +687,7 @@ public class Game {
         for (int depth = 1; depth <= maxDepth; depth++) {
             final int currentDepth = depth;
             boolean checkCapture = false;
-            if (currentDepth > 7){
+            if (currentDepth > 8){
                 checkCapture = true;
             }
             System.out.println("current depth: " + currentDepth);
