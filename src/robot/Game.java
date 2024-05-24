@@ -575,7 +575,7 @@ public class Game {
         }
     }
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove, boolean checkCapture) {
-        ++game.nodecount;
+        //++game.nodecount;
         long hash = calculateHash(game);
         if(game.transpositionTable.containsKey(hash)){
             return new int[][]{{}, game.transpositionTable.get(hash)};
@@ -628,7 +628,7 @@ public class Game {
             previousMove = game.makeMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3]);
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null, checkCapture);
             game.undoMove(previousBestMove[0], previousBestMove[1], previousBestMove[2], previousBestMove[3],previousMove);
-            int score = result[1][0] - (maximizingPlayer ? depth : +depth);
+            int score = result[1][0];
 
             if ((maximizingPlayer && score > bestScore) || (!maximizingPlayer && score < bestScore)) {
                 bestScore = score;
@@ -653,7 +653,7 @@ public class Game {
 
             int[][] result = minimax(game, depth - 1, alpha, beta, !maximizingPlayer, null, checkCapture);
             game.undoMove(move[0],move[1],move[2],move[3],previousMove);
-            int score = result[1][0] - (maximizingPlayer ? depth : +depth);
+            int score = result[1][0];
 
             //System.out.println("Depth: " + depth + ", Move: " + Arrays.toString(move) + ", Score: " + score);
 
@@ -687,7 +687,7 @@ public class Game {
         for (int depth = 1; depth <= maxDepth; depth++) {
             final int currentDepth = depth;
             boolean checkCapture = false;
-            if (currentDepth > 6){
+            if (currentDepth > 9){
                 checkCapture = true;
             }
             System.out.println("current depth: " + currentDepth);
@@ -940,6 +940,7 @@ private static int[][] reverse(int[][] table) {
     };
     private static final int[][] blackegKingPositionValue = reverse(egKingPositionValue);
 
+
     private int getPiecePositionValue(int piece, int row, int col, boolean endgame) {
         return switch (piece) {
             case 6, 7, 13, 14 -> (currentPlayer == 'w')
@@ -964,8 +965,9 @@ private static int[][] reverse(int[][] table) {
         };
     }
 
+
     /*
-        private int getPiecePositionValue(int piece, int row, int col, boolean endgame) {
+    private int getPiecePositionValue(int piece, int row, int col, boolean endgame) {
         return switch (piece) {
             case 6, 7, 13, 14 -> (currentPlayer == 'w') ? pawnPositionValue[row][col] : blackPawnPositionValue[row][col];
             case 2, 9 -> (currentPlayer == 'w') ? knightPositionValue[row][col] : blackKnightPositionValue[row][col];
@@ -979,6 +981,7 @@ private static int[][] reverse(int[][] table) {
         };
     }
      */
+
 
     //endregion
 //region Evaluation and Heuristics Methods
