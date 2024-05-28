@@ -8,12 +8,11 @@ public class ChessMain {
         this.state = state;
     }
 
-
+    /*
     public static void main(String[] args) {
         ChessMain game = new ChessMain(new Game());
         game.minmax(Integer.MIN_VALUE,Integer.MAX_VALUE,true,3);
     }
-
 
     public int minmax(int alpha, int beta, boolean isMaximizing, int depth) {
 
@@ -53,4 +52,5 @@ public class ChessMain {
             return beta;
         }
     }
+    */
 }

@@ -1,7 +1,10 @@
-### IntelliJ IDEA ###
+### IntelliJ and VS Code ###
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+.vscode/
+*.iml
+.idea/
 
 ### Eclipse ###
 .apt_generated
@@ -21,9 +24,6 @@ bin/
 /dist/
 /nbdist/
 /.nb-gradle/
-
-### VS Code ###
-.vscode/
 
 ### Mac OS ###
 .DS_Store
