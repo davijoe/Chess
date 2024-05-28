@@ -575,48 +575,28 @@ public class Game {
         }
     }
     public static int[][] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove, boolean checkCapture) {
-        //++game.nodecount;
-        long hash = calculateHash(game);
-        if(game.transpositionTable.containsKey(hash)){
-            return new int[][]{{}, game.transpositionTable.get(hash)};
-        }
         if (game.kingInCheck(game.whiteKingRow, game.whiteKingCol) || game.kingInCheck(game.blackKingRow, game.blackKingCol)) {
             if (game.isCheckmate()) {
                 int score = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-                game.transpositionTable.put(hash, new int[]{score});
                 return new int[][]{{}, {score}};
             }
         }
         if(game.checkDraw()) {
-            game.transpositionTable.put(hash, new int[]{0});
             return new int[][] {{},{0}};
         }
         if (depth == 0) {
             int score = game.evaluate();
+            /*
             if (checkCapture) {
-                int[][] captureMoves = game.getCaptureMoves();
-                for (int[] captureMove : captureMoves) {
-                    int[] previousMove = game.makeMove(captureMove[0], captureMove[1], captureMove[2], captureMove[3]);
-                    int[][] result = minimax(game, depth, alpha, beta, !maximizingPlayer, null, false);
-                    game.undoMove(captureMove[0], captureMove[1], captureMove[2], captureMove[3], previousMove);
-                    int captureScore = result[1][0];
+                int[][] result = captureminimax(game, 3, alpha, beta, !maximizingPlayer, null, false);
+                int captureScore = result[1][0];
 
-                    if ((maximizingPlayer && captureScore > score) || (!maximizingPlayer && captureScore < score)) {
-                        score = captureScore;
-                    }
-
-                    if (maximizingPlayer) {
-                        alpha = Math.max(alpha, score);
-                    } else {
-                        beta = Math.min(beta, score);
-                    }
-
-                    if (beta <= alpha) {
-                        break;
-                    }
+                if ((maximizingPlayer && captureScore > score) || (!maximizingPlayer && captureScore < score)) {
+                    score = captureScore;
                 }
             }
-            game.transpositionTable.put(hash, new int[]{score});
+
+             */
             return new int[][]{{}, {score}};
         }
 
@@ -679,8 +659,49 @@ public class Game {
         }
 
         //System.out.println("Returning from Depth: " + depth + ", Best Move: " + Arrays.toString(bestMove) + ", Best Score: " + bestScore);
-        //game.transpositionTable.put(hash, new int[]{bestScore});
         return new int[][]{bestMove, {bestScore}};
+    }
+
+    public static int[][] captureminimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer, int[] previousBestMove, boolean checkCapture) {
+        if (game.kingInCheck(game.whiteKingRow, game.whiteKingCol) || game.kingInCheck(game.blackKingRow, game.blackKingCol)) {
+            if (game.isCheckmate()) {
+                int score = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+                return new int[][]{{}, {score}};
+            }
+        }
+        if(game.checkDraw()) {
+            return new int[][] {{},{0}};
+        }
+        if (depth == 0) {
+            int score = game.evaluate();
+            return new int[][]{{}, {score}};
+        }
+        int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        if (checkCapture) {
+            int[][] captureMoves = game.getCaptureMoves();
+            for (int[] captureMove : captureMoves) {
+                int[] previousMove = game.makeMove(captureMove[0], captureMove[1], captureMove[2], captureMove[3]);
+                int[][] result = minimax(game, depth, alpha, beta, !maximizingPlayer, null, false);
+                game.undoMove(captureMove[0], captureMove[1], captureMove[2], captureMove[3], previousMove);
+                int captureScore = result[1][0];
+
+                if ((maximizingPlayer && captureScore > bestScore) || (!maximizingPlayer && captureScore < bestScore)) {
+                    bestScore = captureScore;
+                }
+
+                if (maximizingPlayer) {
+                    alpha = Math.max(alpha, bestScore);
+                } else {
+                    beta = Math.min(beta, bestScore);
+                }
+
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+        }
+        return new int[][]{{}, {bestScore}};
     }
 
     public static int[] iterativeDeepening(Game game, int maxDepth, int alpha, int beta, boolean maximizingPlayer, long timeLimit) {
@@ -692,7 +713,7 @@ public class Game {
         for (int depth = 1; depth <= maxDepth; depth++) {
             final int currentDepth = depth;
             boolean checkCapture = false;
-            if (currentDepth > 8){
+            if (currentDepth > 6){
                 checkCapture = true;
             }
             System.out.println("current depth: " + currentDepth);
@@ -1416,7 +1437,7 @@ public boolean checkForWin() {
             if (game.currentPlayer == 'w'){
                 minimax = true;
             }
-            int[] bestMove = iterativeDeepening(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax, 15000);
+            int[] bestMove = iterativeDeepening(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, minimax, 20000);
             LocalDateTime endTime = LocalDateTime.now();
 
             long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
